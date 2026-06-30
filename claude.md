@@ -1,0 +1,252 @@
+# CLAUDE.md — Form Builder
+
+Context and conventions for working in this repo. Read this fully before scaffolding or writing code.
+
+---
+
+## 1. What this is
+
+A web-based form builder. Users design forms in a visual editor, publish them, share a public link, and collect responses. Think Tally / Typeform / Google Forms category.
+
+**Positioning — read this before you over-build anything.**
+The general form builder is the **cost of entry, not the product.** Tally already gives away a clean general builder for free; out-polishing it is not a business. v1 must be a *credible* general builder — not a gold-plated one. The moat and the money come from what we layer on top *later* (logic/quiz/calculator forms, forms that take payments, forms that trigger workflows). So:
+
+- Ship the **thinnest credible general engine** that a real user would trust with a real form.
+- Do **not** spend weeks perfecting general-form niceties. ~8 field types is enough to launch.
+- Every architectural decision in v1 must leave the door open for the wedges in §9. Where there's a tension between "perfect v1 polish" and "clean extension point," choose the extension point.
+
+Freemium from day one: generous free tier, a few things behind a paywall (see §8).
+
+---
+
+## 2. Stack
+
+**Frontend** (carries over from prior work — don't re-litigate):
+- Vue 3 (`<script setup>`, Composition API), Vite, TypeScript (strict), Tailwind CSS, Pinia.
+
+**Backend** (we own a real backend this time):
+- Node + TypeScript, **Fastify** for the API.
+- **Postgres** (Neon). Form schemas stored as `jsonb`; responses stored relationally + `jsonb` answers.
+- **Lucia** for auth (don't hand-roll sessions/passwords).
+- **Cloudflare R2** for file storage (added when file-upload fields land — not v1 core).
+- **Zod** for runtime validation at API boundaries.
+
+**Billing** (when paid tier goes live):
+- **Lemon Squeezy or Paddle** as merchant-of-record. Do **not** wire raw Stripe — MoR handles global VAT/GST/sales-tax across jurisdictions, which we are not going to own as a solo operation.
+
+**Repo:** pnpm monorepo.
+
+```
+/packages/schema   # shared TS types + pure validation — the single source of truth
+/apps/web          # Vue 3 builder + public renderer
+/apps/api          # Fastify API
+```
+
+---
+
+## 3. The one decision everything hangs on: the form schema
+
+The **form schema is the contract** between builder, renderer, validation, storage, and export. It is the only thing that is genuinely painful to change once real forms exist in the wild. Get this right and everything else flows.
+
+### Three non-negotiables (cheap now, agonizing to retrofit)
+
+1. **Immutable field IDs (UUID).** A field's `id` is its identity forever. Responses are keyed by `id`, never by label or position. Renaming or reordering a field must never orphan a single response.
+2. **Immutable published versions + versioning.** Publishing snapshots the current schema into a frozen `FormVersion`. Published versions are **never mutated.** Every submission records the `versionId` it was collected under, so old responses always map to the exact schema that produced them.
+3. **Label snapshot on submit.** At submission time, denormalize each field's label onto the response (`labelSnapshot`). A CSV export stays human-readable even after the form has been edited or fields deleted.
+
+### Schema types (`packages/schema`)
+
+```ts
+type FieldType =
+  | 'short_text' | 'long_text' | 'email' | 'phone' | 'number'
+  | 'single_select' | 'multi_select' | 'dropdown'
+  | 'date' | 'rating' | 'section_break';
+
+interface FieldOption {
+  id: string;            // stable uuid (selects only)
+  label: string;
+  value?: string;        // defaults to label
+}
+
+interface FieldValidation {
+  min?: number; max?: number;
+  minLength?: number; maxLength?: number;
+  pattern?: string; patternMessage?: string;
+}
+
+interface Field {
+  id: string;            // IMMUTABLE uuid — the response key, forever
+  type: FieldType;
+  label: string;
+  required: boolean;
+  description?: string;
+  placeholder?: string;
+  options?: FieldOption[];          // select-family only
+  validation?: FieldValidation;
+  // RESERVED for the logic wedge (§9). Renderer must already no-op on it
+  // so v1 forms are forward-compatible with v2 logic.
+  visibleIf?: unknown;              // becomes `Condition` in v2
+}
+
+interface Theme {
+  primaryColor: string;
+  fontFamily: string;
+  borderRadius: number;
+}
+
+interface FormDraft {              // editable working copy
+  id: string;
+  ownerId: string;
+  title: string;
+  fields: Field[];
+  theme: Theme;
+  updatedAt: string;
+}
+
+interface FormVersion {            // IMMUTABLE — created on publish
+  versionId: string;
+  formId: string;
+  version: number;                 // monotonic: 1, 2, 3…
+  fields: Field[];                 // frozen
+  theme: Theme;
+  publishedAt: string;
+}
+
+interface Submission {
+  id: string;
+  formId: string;
+  versionId: string;                       // schema version collected under
+  answers: Record<string, unknown>;        // keyed by Field.id
+  labelSnapshot: Record<string, string>;   // Field.id -> label at submit time
+  meta: { submittedAt: string; ip?: string; userAgent?: string };
+}
+```
+
+### Validation lives here, used by BOTH sides
+`packages/schema` exports a **pure** `validateAnswers(version: FormVersion, answers): ValidationResult`. The client uses it for instant feedback; the server uses the *same* function as the trust boundary. One source of truth — never two divergent validators. The client validator is UX; the **server re-validates every submission** and is authoritative. Never trust the client.
+
+---
+
+## 4. Build order — renderer BEFORE builder
+
+Counterintuitive but correct. A schema-driven renderer that eats a hand-written form JSON and produces a working, validating, submittable form proves the entire model end-to-end *before* any drag-and-drop exists — and it guarantees builder and renderer can never drift, because **the builder is just a UI that emits the JSON the renderer already consumes.** (This is the design-system instinct: schema is the props contract, renderer is the dumb consumer.)
+
+1. **`packages/schema`** — TS types + `validateAnswers`. Zero runtime deps. Build and test this first, in isolation.
+2. **Schema-driven renderer** — `<FormRenderer :version="FormVersion" />` in `apps/web`. Renders every field type, runs client validation, emits a submission payload. Test by hand-authoring `FormVersion` JSON fixtures. **No builder yet.**
+3. **Builder UI** — field palette, drag/reorder, per-field config panel, live preview (which is literally `<FormRenderer>` fed the draft). Emits `FormDraft`. Pinia holds builder state.
+4. **Persistence + submissions + responses** — API, Postgres, public submit endpoint, responses table view, CSV export.
+5. **Auth + freemium gate** — Lucia, plan/limits, the paywall.
+
+Do not start step *n+1* until step *n* works end to end.
+
+---
+
+## 5. Data model (Postgres)
+
+```sql
+users          (id uuid pk, email citext unique, plan text default 'free', created_at timestamptz)
+forms          (id uuid pk, owner_id uuid fk, title text,
+                current_draft jsonb,           -- the editable FormDraft
+                published_version_id uuid null, -- -> form_versions.id
+                created_at, updated_at)
+form_versions  (id uuid pk, form_id uuid fk, version int,
+                schema jsonb,                  -- frozen Field[]
+                theme jsonb, published_at timestamptz)   -- IMMUTABLE rows
+submissions    (id uuid pk, form_id uuid fk, version_id uuid fk,
+                answers jsonb,                 -- keyed by Field.id
+                label_snapshot jsonb,
+                submitted_at timestamptz, meta jsonb)
+```
+
+- `form_versions` rows are **insert-only**. No updates, ever.
+- Index `submissions(form_id, submitted_at)` for the responses view.
+- CSV export = union of field ids across the form's versions, headers from `label_snapshot`, one row per submission.
+
+---
+
+## 6. API (Fastify)
+
+```
+# Authenticated (owner)
+POST   /api/forms                       create
+GET    /api/forms                       list
+GET    /api/forms/:id                   get draft
+PATCH  /api/forms/:id                   update draft (autosave)
+POST   /api/forms/:id/publish           snapshot draft -> new form_version, set published_version_id
+DELETE /api/forms/:id
+GET    /api/forms/:id/submissions       list responses
+GET    /api/forms/:id/submissions.csv   export
+
+# Public (no auth)
+GET    /api/f/:formId                    returns the PUBLISHED FormVersion for the renderer
+POST   /api/f/:formId/submissions        validate (server-side) against published version, store
+```
+
+- Public submit handler: load the published `FormVersion`, run `validateAnswers`, reject on failure, write `labelSnapshot` from that version. Rate-limit this endpoint.
+- All boundary payloads parsed with Zod before they touch logic.
+
+---
+
+## 7. Conventions
+
+- **Components use the `Ui` prefix** (`UiButton`, `UiField`, `UiTextInput`, `UiSelect`…) for design-system primitives. The prefix also satisfies Vue's multi-word component-name rule, avoiding collisions with native HTML elements. Build a small set of primitives first; the renderer and builder both consume them.
+- `<script setup lang="ts">` everywhere. TS `strict: true`. No `any` without a `// reason:` comment.
+- The `packages/schema` types are the **only** definition of field shapes. Never redeclare a `Field` shape in `web` or `api` — import it.
+- Pinia stores are thin; business logic that's shared (validation, schema migration) lives in `packages/schema`, not in a store.
+- Keep `apps/api` framework-thin: routes call services; services are plain TS and testable without Fastify.
+- Commit messages: imperative, scoped (`renderer: add date field`, `schema: reserve visibleIf`).
+
+---
+
+## 8. Freemium gate (v1)
+
+Centralize all limits in one `limits.ts` — never scatter plan checks.
+
+- **Free:** unlimited forms, N responses/month (start at 100), the core field types, a small "Made with —" badge on public forms.
+- **Paid:** remove the badge, file-upload fields, higher/unlimited responses, (custom domains later).
+
+Gate is a single middleware + the central limits map. The badge-removal + file-uploads + response cap is the standard, proven shape — don't get clever for v1.
+
+---
+
+## 9. Future wedges — leave the door open, don't build them yet
+
+These are *post-v1*. Listed so v1 doesn't accidentally wall them off:
+
+- **Logic / quiz / calculator** (likely first wedge): activate the reserved `Field.visibleIf` into a real `Condition` type; renderer evaluates conditions to show/hide/score. The renderer already ignores `visibleIf` in v1, so v1 forms stay valid.
+- **Forms that take payments:** a `payment` field type + MoR integration; `FormVersion` gains pricing config.
+- **Forms that do something:** post-submission actions (webhooks, email, approvals) keyed off a submission-created event. Keep submission writes in a place where emitting an event later is trivial.
+
+When you build a wedge, it rides on the *same* engine — that's the whole reason general-core comes first.
+
+---
+
+## 10. Hard DON'Ts (these are the known failure modes)
+
+- ❌ Don't gold-plate the v1 general builder. Credible, not exhaustive. Ship.
+- ❌ Don't key responses by label or position — only by immutable `Field.id`.
+- ❌ Don't mutate a published `FormVersion`. Publishing always inserts a new version.
+- ❌ Don't trust client validation — the server re-validates with the same shared function.
+- ❌ Don't hand-roll auth — use Lucia.
+- ❌ Don't wire raw Stripe for tax — use a merchant-of-record.
+- ❌ Don't build logic/payments/workflows in v1 — only reserve their seams.
+- ❌ Don't let two definitions of the schema exist. `packages/schema` or nothing.
+
+---
+
+## 11. Commands
+
+```bash
+pnpm i                      # install (monorepo)
+pnpm --filter schema build  # build shared types/validation first
+pnpm --filter web dev       # Vue app
+pnpm --filter api dev       # Fastify API
+pnpm --filter api migrate   # run db migrations
+pnpm test                   # run all package tests
+```
+
+---
+
+## 12. Definition of done for v1
+
+A real user can: sign up → build a form with ~8 field types and required/validation rules → publish it → share a public link → have a stranger fill and submit it on mobile and desktop → see responses in a table → export CSV → and the free/paid gate works. Nothing more. That's the launch line.
