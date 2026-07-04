@@ -34,12 +34,35 @@ Freemium from day one: generous free tier, a few things behind a paywall (see §
 **Billing** (when paid tier goes live):
 - **Lemon Squeezy or Paddle** as merchant-of-record. Do **not** wire raw Stripe — MoR handles global VAT/GST/sales-tax across jurisdictions, which we are not going to own as a solo operation.
 
-**Repo:** pnpm monorepo.
+**Repo:** a single git repo with two top-level app directories.
 
 ```
-/packages/schema   # shared TS types + pure validation — the single source of truth
-/apps/web          # Vue 3 builder + public renderer
-/apps/api          # Fastify API
+Main repo
+  ├── frontend     # Vue 3 builder + public renderer
+  ├── backend      # Fastify API + the shared form schema (source of truth)
+  └── claude.md
+```
+
+**Where the shared schema lives.** The form schema (TS types + pure `validateAnswers`)
+is the one thing both sides must agree on, so it has exactly one home:
+`backend/src/schema`. The backend is the server-side trust boundary, so it owns the
+canonical definition. The **frontend imports it** via a Vite path alias (`@schema`) —
+it never re-declares or copies it. One definition, two consumers (see §10).
+
+```
+frontend/
+  src/
+    components/        # Ui* primitives, FormRenderer, builder UI
+    stores/            # Pinia (thin)
+    pages/
+  vite.config.ts       # alias @schema -> ../backend/src/schema
+backend/
+  src/
+    schema/            # SHARED: FieldType, Field, FormVersion, validateAnswers — the single source of truth
+    routes/            # Fastify route handlers (framework-thin)
+    services/          # plain TS business logic, testable without Fastify
+    db/                # migrations, queries
+    index.ts
 ```
 
 ---
@@ -54,7 +77,7 @@ The **form schema is the contract** between builder, renderer, validation, stora
 2. **Immutable published versions + versioning.** Publishing snapshots the current schema into a frozen `FormVersion`. Published versions are **never mutated.** Every submission records the `versionId` it was collected under, so old responses always map to the exact schema that produced them.
 3. **Label snapshot on submit.** At submission time, denormalize each field's label onto the response (`labelSnapshot`). A CSV export stays human-readable even after the form has been edited or fields deleted.
 
-### Schema types (`packages/schema`)
+### Schema types (`backend/src/schema`)
 
 ```ts
 type FieldType =
@@ -123,7 +146,7 @@ interface Submission {
 ```
 
 ### Validation lives here, used by BOTH sides
-`packages/schema` exports a **pure** `validateAnswers(version: FormVersion, answers): ValidationResult`. The client uses it for instant feedback; the server uses the *same* function as the trust boundary. One source of truth — never two divergent validators. The client validator is UX; the **server re-validates every submission** and is authoritative. Never trust the client.
+`backend/src/schema` exports a **pure** `validateAnswers(version: FormVersion, answers): ValidationResult`. The client uses it for instant feedback; the server uses the *same* function as the trust boundary. One source of truth — never two divergent validators. The client validator is UX; the **server re-validates every submission** and is authoritative. Never trust the client.
 
 ---
 
@@ -131,8 +154,8 @@ interface Submission {
 
 Counterintuitive but correct. A schema-driven renderer that eats a hand-written form JSON and produces a working, validating, submittable form proves the entire model end-to-end *before* any drag-and-drop exists — and it guarantees builder and renderer can never drift, because **the builder is just a UI that emits the JSON the renderer already consumes.** (This is the design-system instinct: schema is the props contract, renderer is the dumb consumer.)
 
-1. **`packages/schema`** — TS types + `validateAnswers`. Zero runtime deps. Build and test this first, in isolation.
-2. **Schema-driven renderer** — `<FormRenderer :version="FormVersion" />` in `apps/web`. Renders every field type, runs client validation, emits a submission payload. Test by hand-authoring `FormVersion` JSON fixtures. **No builder yet.**
+1. **`backend/src/schema`** — TS types + `validateAnswers`. Zero runtime deps. Build and test this first, in isolation.
+2. **Schema-driven renderer** — `<FormRenderer :version="FormVersion" />` in `frontend`. Renders every field type, runs client validation, emits a submission payload. Test by hand-authoring `FormVersion` JSON fixtures. **No builder yet.**
 3. **Builder UI** — field palette, drag/reorder, per-field config panel, live preview (which is literally `<FormRenderer>` fed the draft). Emits `FormDraft`. Pinia holds builder state.
 4. **Persistence + submissions + responses** — API, Postgres, public submit endpoint, responses table view, CSV export.
 5. **Auth + freemium gate** — Lucia, plan/limits, the paywall.
@@ -191,9 +214,9 @@ POST   /api/f/:formId/submissions        validate (server-side) against publishe
 
 - **Components use the `Ui` prefix** (`UiButton`, `UiField`, `UiTextInput`, `UiSelect`…) for design-system primitives. The prefix also satisfies Vue's multi-word component-name rule, avoiding collisions with native HTML elements. Build a small set of primitives first; the renderer and builder both consume them.
 - `<script setup lang="ts">` everywhere. TS `strict: true`. No `any` without a `// reason:` comment.
-- The `packages/schema` types are the **only** definition of field shapes. Never redeclare a `Field` shape in `web` or `api` — import it.
-- Pinia stores are thin; business logic that's shared (validation, schema migration) lives in `packages/schema`, not in a store.
-- Keep `apps/api` framework-thin: routes call services; services are plain TS and testable without Fastify.
+- The `backend/src/schema` types are the **only** definition of field shapes. Never redeclare a `Field` shape in `frontend` — import it via the `@schema` alias.
+- Pinia stores are thin; business logic that's shared (validation, schema migration) lives in `backend/src/schema`, not in a store.
+- Keep the `backend` framework-thin: routes call services; services are plain TS and testable without Fastify.
 - Commit messages: imperative, scoped (`renderer: add date field`, `schema: reserve visibleIf`).
 
 ---
@@ -230,19 +253,24 @@ When you build a wedge, it rides on the *same* engine — that's the whole reaso
 - ❌ Don't hand-roll auth — use Lucia.
 - ❌ Don't wire raw Stripe for tax — use a merchant-of-record.
 - ❌ Don't build logic/payments/workflows in v1 — only reserve their seams.
-- ❌ Don't let two definitions of the schema exist. `packages/schema` or nothing.
+- ❌ Don't let two definitions of the schema exist. `backend/src/schema` (imported by the frontend via `@schema`) or nothing.
 
 ---
 
 ## 11. Commands
 
+Each app manages its own dependencies. Run commands from within `frontend/` or `backend/`.
+
 ```bash
-pnpm i                      # install (monorepo)
-pnpm --filter schema build  # build shared types/validation first
-pnpm --filter web dev       # Vue app
-pnpm --filter api dev       # Fastify API
-pnpm --filter api migrate   # run db migrations
-pnpm test                   # run all package tests
+# backend/  (owns the shared schema — build/test it first)
+pnpm i                  # install backend deps
+pnpm test               # schema + api tests
+pnpm dev                # Fastify API
+pnpm migrate            # run db migrations
+
+# frontend/
+pnpm i                  # install frontend deps
+pnpm dev                # Vue app (Vite; @schema alias -> ../backend/src/schema)
 ```
 
 ---
