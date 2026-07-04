@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Step-2 harness: render the sample FormVersion and show the emitted payload.
-// No builder yet — this proves the renderer + shared validator end to end.
+// (The builder from step 3 will replace this as the app's home.)
 import { ref } from 'vue';
 import FormRenderer from './components/FormRenderer.vue';
 import { sampleForm } from './fixtures/sampleForm';
@@ -13,12 +13,16 @@ function onSubmit(answers: Record<string, unknown>): void {
 </script>
 
 <template>
-  <main class="min-h-screen bg-gray-50 px-4 py-10">
-    <FormRenderer :version="sampleForm" title="Event signup" @submit="onSubmit" />
+  <main class="min-h-screen bg-ink-50 px-4 py-12">
+    <div class="mx-auto max-w-xl">
+      <div class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8">
+        <FormRenderer :version="sampleForm" title="Event signup" @submit="onSubmit" />
+      </div>
 
-    <section v-if="submission" class="mx-auto mt-8 max-w-xl">
-      <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">Submitted payload</h2>
-      <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-green-300">{{ JSON.stringify(submission, null, 2) }}</pre>
-    </section>
+      <section v-if="submission" class="mt-6">
+        <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">Submitted payload</h2>
+        <pre class="overflow-x-auto rounded-xl bg-ink-900 p-4 text-sm leading-relaxed text-brand-200">{{ JSON.stringify(submission, null, 2) }}</pre>
+      </section>
+    </div>
   </main>
 </template>

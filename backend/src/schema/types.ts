@@ -5,13 +5,20 @@
 
 export type FieldType =
   | 'short_text' | 'long_text' | 'email' | 'phone' | 'number'
-  | 'single_select' | 'multi_select' | 'dropdown'
-  | 'date' | 'rating' | 'section_break';
+  | 'single_select' | 'multi_select' | 'dropdown' | 'multi_dropdown'
+  | 'date' | 'date_range' | 'rating' | 'section_break';
+
+// Answer shape for a date_range field (both ends ISO 'YYYY-MM-DD').
+export interface DateRangeValue {
+  start: string;
+  end: string;
+}
 
 export interface FieldOption {
   id: string;            // stable uuid (selects only)
   label: string;
   value?: string;        // defaults to label
+  description?: string;  // optional helper text shown under the option label
 }
 
 export interface FieldValidation {

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-// Star rating. Emits a number 1..max.
+// Star rating — form-themed (filled stars use --fb-primary). Emits 1..max.
+import { ref } from 'vue';
+
 withDefaults(
   defineProps<{
     modelValue: number | undefined;
@@ -8,20 +10,31 @@ withDefaults(
   { max: 5 },
 );
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
+
+const hover = ref(0);
 </script>
 
 <template>
-  <div class="flex gap-1">
+  <div class="flex gap-1.5" @mouseleave="hover = 0">
     <button
       v-for="n in max"
       :key="n"
       type="button"
-      class="text-2xl leading-none transition"
-      :class="(modelValue ?? 0) >= n ? 'fb-star--on' : 'text-gray-300 hover:text-gray-400'"
+      class="rounded-md p-0.5 transition-transform duration-150 ease-soft hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
       :aria-label="`${n} star${n === 1 ? '' : 's'}`"
+      @mouseenter="hover = n"
       @click="emit('update:modelValue', n)"
     >
-      ★
+      <svg
+        viewBox="0 0 24 24"
+        class="h-7 w-7 transition-colors duration-150"
+        :style="{ color: (hover || modelValue || 0) >= n ? 'var(--fb-primary)' : '#dcd9e3' }"
+        fill="currentColor"
+      >
+        <path
+          d="M12 17.3l-5.4 3.2 1.4-6.1-4.7-4.1 6.2-.5L12 4l2.5 5.7 6.2.5-4.7 4.1 1.4 6.1z"
+        />
+      </svg>
     </button>
   </div>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-// Radios (single_select) or checkboxes (multi_select). single emits a string;
-// multiple emits a string[] of selected option values.
+// Custom radios (single_select) / checkboxes (multi_select). Clean inline layout,
+// no card chrome, no hover fill. The check/radio mark state is driven explicitly
+// from Vue (not CSS :has) so it stays robust. Native input kept for a11y/keyboard.
 import type { FieldOption } from '@schema';
 
 const props = defineProps<{
@@ -35,17 +36,47 @@ function onChange(v: string): void {
 </script>
 
 <template>
-  <div class="space-y-2">
-    <label v-for="o in options" :key="o.id" class="flex cursor-pointer items-center gap-2">
+  <div class="space-y-1">
+    <label
+      v-for="o in options"
+      :key="o.id"
+      class="flex cursor-pointer items-start gap-3 py-1.5"
+    >
       <input
         :type="multiple ? 'checkbox' : 'radio'"
         :name="name"
         :value="optValue(o)"
         :checked="isChecked(optValue(o))"
-        class="fb-choice"
+        class="peer sr-only"
         @change="onChange(optValue(o))"
       />
-      <span class="text-gray-800">{{ o.label }}</span>
+      <span
+        :class="[
+          'fb-mark',
+          multiple ? 'fb-mark--check' : 'fb-mark--radio',
+          isChecked(optValue(o)) && 'fb-mark--on',
+          'peer-focus-visible:ring-2 peer-focus-visible:ring-brand-300 peer-focus-visible:ring-offset-1',
+        ]"
+        aria-hidden="true"
+      >
+        <svg
+          v-if="multiple && isChecked(optValue(o))"
+          viewBox="0 0 16 16"
+          class="h-3.5 w-3.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 8.5l3.2 3.2L13 5" />
+        </svg>
+        <span v-else-if="!multiple && isChecked(optValue(o))" class="h-2 w-2 rounded-full bg-white"></span>
+      </span>
+      <span class="min-w-0">
+        <span class="block leading-snug text-ink-800">{{ o.label }}</span>
+        <span v-if="o.description" class="mt-0.5 block text-sm leading-snug text-ink-500">{{ o.description }}</span>
+      </span>
     </label>
   </div>
 </template>

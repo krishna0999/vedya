@@ -1,0 +1,28 @@
+/* Design tokens — the single source of visual truth (CLAUDE.md §7 Design system).
+   Two layers:
+   1. Product theme: our fixed brand, expressed through Tailwind tokens + these vars.
+   2. Form theme defaults: the --fb-* vars below are DEFAULTS only. FormRenderer
+      overrides them per form from FormVersion.theme, scoped to the rendered form. */
+
+:root {
+  /* motion */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 130ms;
+  --dur-base: 180ms;
+
+  /* Form-theme DEFAULTS (overridden per form by FormRenderer). */
+  --fb-primary: #4f46e5;
+  --fb-radius: 10px;
+}
+
+html {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: #faf9fb; /* ink-50 */
+  color: #1d1b26; /* ink-900 */
+}

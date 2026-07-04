@@ -105,6 +105,12 @@ describe('selects: membership', () => {
     expect(validateAnswers(f, { m: ['red', 'nope'] }).errors.m).toBeDefined();
     expect(validateAnswers(f, { m: ['red', 'Green'] }).errors.m).toContain('at most 1');
   });
+  it('multi_dropdown validates identically to multi_select', () => {
+    const f = versionOf([field({ id: 'm', type: 'multi_dropdown', options: opts, required: true })]);
+    expect(validateAnswers(f, { m: ['red', 'Green'] }).valid).toBe(true);
+    expect(validateAnswers(f, { m: ['blue'] }).errors.m).toBeDefined();
+    expect(validateAnswers(f, { m: [] }).errors.m).toBeDefined();
+  });
 });
 
 describe('date', () => {
@@ -116,6 +122,19 @@ describe('date', () => {
     for (const bad of ['07/04/2026', '2026-13-40', 'yesterday', '2026-7-4']) {
       expect(validateAnswers(f, { d: bad }).errors.d).toBeDefined();
     }
+  });
+});
+
+describe('date_range', () => {
+  const f = versionOf([field({ id: 'dr', type: 'date_range', required: true })]);
+  it('accepts a valid {start,end} object', () => {
+    expect(validateAnswers(f, { dr: { start: '2026-07-01', end: '2026-07-10' } }).valid).toBe(true);
+    expect(validateAnswers(f, { dr: { start: '2026-07-01', end: '2026-07-01' } }).valid).toBe(true);
+  });
+  it('rejects reversed, malformed, or missing ranges', () => {
+    expect(validateAnswers(f, { dr: { start: '2026-07-10', end: '2026-07-01' } }).errors.dr).toContain('on or after');
+    expect(validateAnswers(f, { dr: { start: 'nope', end: '2026-07-01' } }).errors.dr).toBeDefined();
+    expect(validateAnswers(f, {}).errors.dr).toBeDefined();
   });
 });
 

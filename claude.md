@@ -82,13 +82,14 @@ The **form schema is the contract** between builder, renderer, validation, stora
 ```ts
 type FieldType =
   | 'short_text' | 'long_text' | 'email' | 'phone' | 'number'
-  | 'single_select' | 'multi_select' | 'dropdown'
-  | 'date' | 'rating' | 'section_break';
+  | 'single_select' | 'multi_select' | 'dropdown' | 'multi_dropdown'
+  | 'date' | 'date_range' | 'rating' | 'section_break';
 
 interface FieldOption {
   id: string;            // stable uuid (selects only)
   label: string;
   value?: string;        // defaults to label
+  description?: string;  // optional helper text shown under the option label
 }
 
 interface FieldValidation {
@@ -218,6 +219,42 @@ POST   /api/f/:formId/submissions        validate (server-side) against publishe
 - Pinia stores are thin; business logic that's shared (validation, schema migration) lives in `backend/src/schema`, not in a store.
 - Keep the `backend` framework-thin: routes call services; services are plain TS and testable without Fastify.
 - Commit messages: imperative, scoped (`renderer: add date field`, `schema: reserve visibleIf`).
+
+### Design system — design is a feature, not a coat of paint
+
+We compete on trust and polish. A stranger has to feel safe typing real data into a
+form we rendered; a creator has to feel the builder is a serious tool. So design is a
+first-class concern, built as a reusable system — not styled per screen.
+
+**Direction: warm & approachable, professional.** Soft surfaces, comfortably rounded
+corners, an indigo/violet brand accent, generous spacing, gentle elevation, and subtle
+motion (~150–200ms ease). Friendly, but never toy-like. Think Notion/Typeform warmth
+with the precision of a real product.
+
+**Custom components only — no raw browser controls.** Every interactive element in our
+surface is a styled `Ui*` primitive that consumes tokens. Native `<select>`, checkbox,
+radio, and file inputs must be visually replaced (custom chevron, custom check/radio
+marks, custom rating), never shipped with default browser chrome. If it looks like an
+unstyled HTML element, it's a bug.
+
+**Tokens are the single source of visual truth.** Colors, typography, spacing, radius,
+shadow, and motion live as design tokens (Tailwind theme + CSS variables in
+`frontend/src/styles/tokens.css`). Components reference tokens, never hardcoded hex.
+Retuning the brand = editing tokens, not hunting through components.
+
+**Two theme layers — keep them separate (this is architectural, not cosmetic):**
+1. **Product theme** — *our* brand. Fixed tokens used by all app chrome (builder,
+   dashboard, buttons, panels). This is where "professionalism" is expressed.
+2. **Form theme** — the *end-user's* per-form styling (`FormVersion.theme`:
+   `primaryColor`, `fontFamily`, `borderRadius`). `FormRenderer` applies it via CSS
+   variables **scoped to the rendered form only**. Its defaults derive from product
+   tokens, but a creator overrides them per form.
+   - Never let form-theme variables leak into product chrome, and never bake our brand
+     into the form output. The renderer must theme purely from `FormVersion.theme`.
+
+**Accessibility is part of polish:** visible focus rings (`focus-visible`), real labels,
+full keyboard operability, and ARIA on custom controls. A custom checkbox that a
+keyboard can't toggle is not done.
 
 ---
 

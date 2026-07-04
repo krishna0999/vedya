@@ -8,6 +8,13 @@ import type { Field, FormVersion, ValidationResult } from './types';
 // deliverability — the latter is a delivery-time concern, not a form concern.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/; // ISO calendar date (YYYY-MM-DD)
+// E.164: '+' then 7–15 digits, first non-zero. Rich per-country validity is a
+// client-side concern (libphonenumber); this is the shared shape check.
+const PHONE_RE = /^\+[1-9]\d{6,14}$/;
+
+function isIsoDate(value: unknown): boolean {
+  return typeof value === 'string' && DATE_RE.test(value) && !Number.isNaN(Date.parse(value));
+}
 
 function isEmpty(value: unknown): boolean {
   if (value === undefined || value === null) return true;
@@ -33,9 +40,13 @@ function validateField(field: Field, value: unknown): string | null {
   const v = field.validation ?? {};
 
   switch (field.type) {
-    case 'short_text':
-    case 'long_text':
     case 'phone': {
+      if (typeof value !== 'string' || !PHONE_RE.test(value)) return 'Enter a valid phone number.';
+      return null;
+    }
+
+    case 'short_text':
+    case 'long_text': {
       if (typeof value !== 'string') return 'Expected text.';
       if (v.minLength != null && value.length < v.minLength) {
         return `Must be at least ${v.minLength} character${v.minLength === 1 ? '' : 's'}.`;
@@ -77,7 +88,8 @@ function validateField(field: Field, value: unknown): string | null {
       return null;
     }
 
-    case 'multi_select': {
+    case 'multi_select':
+    case 'multi_dropdown': {
       if (!Array.isArray(value)) return 'Select one or more options.';
       const allowed = allowedOptionValues(field);
       for (const item of value) {
@@ -94,9 +106,18 @@ function validateField(field: Field, value: unknown): string | null {
     }
 
     case 'date': {
-      if (typeof value !== 'string' || !DATE_RE.test(value) || Number.isNaN(Date.parse(value))) {
-        return 'Enter a valid date.';
-      }
+      if (!isIsoDate(value)) return 'Enter a valid date.';
+      return null;
+    }
+
+    case 'date_range': {
+      if (typeof value !== 'object' || value === null) return 'Select a date range.';
+      const r = value as { start?: unknown; end?: unknown };
+      const okStart = isIsoDate(r.start);
+      const okEnd = isIsoDate(r.end);
+      if (!okStart || !okEnd) return 'Select a valid date range.';
+      // ISO 'YYYY-MM-DD' compares correctly as strings.
+      if ((r.start as string) > (r.end as string)) return 'The end date must be on or after the start date.';
       return null;
     }
 

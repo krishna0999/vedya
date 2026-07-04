@@ -2,30 +2,84 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design-system primitives styled once. Theme is injected as CSS variables
-   (--fb-primary, --fb-radius) by FormRenderer from FormVersion.theme. */
+/* Form-control primitives used by FormRenderer. These are FORM-THEMED: they
+   read --fb-primary / --fb-radius, which FormRenderer sets per form. Product
+   chrome (builder/dashboard) is styled with Tailwind brand/ink tokens instead. */
 @layer components {
   .fb-input {
-    @apply w-full border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition;
-    border-radius: var(--fb-radius, 8px);
+    @apply w-full border bg-white px-3.5 py-2.5 text-ink-900 outline-none placeholder:text-ink-400;
+    border-color: #dcd9e3; /* ink-300 */
+    border-radius: var(--fb-radius, 10px);
+    transition:
+      border-color var(--dur-base) var(--ease-soft),
+      box-shadow var(--dur-base) var(--ease-soft);
+  }
+  .fb-input:hover {
+    border-color: #b8b4c2; /* ink-400 */
   }
   .fb-input:focus {
-    border-color: var(--fb-primary, #4f46e5);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fb-primary, #4f46e5) 25%, transparent);
+    border-color: var(--fb-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fb-primary) 22%, transparent);
   }
   .fb-input--invalid {
-    @apply border-red-400;
+    border-color: #dc2626;
   }
-  .fb-choice {
-    @apply h-4 w-4;
-    accent-color: var(--fb-primary, #4f46e5);
+  .fb-input--invalid:focus {
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
   }
-  .fb-star--on {
-    color: var(--fb-primary, #4f46e5);
+
+  /* Custom check/radio mark. Checked state is applied by the component via
+     .fb-mark--on (explicit, not CSS :has) so it's robust across markup. */
+  .fb-mark {
+    @apply mt-0.5 grid h-5 w-5 shrink-0 place-items-center border bg-white text-white;
+    border-color: #b8b4c2;
+    transition: all var(--dur-fast) var(--ease-soft);
   }
+  .fb-mark--radio {
+    @apply rounded-full;
+  }
+  .fb-mark--check {
+    border-radius: 6px;
+  }
+  .fb-mark--on {
+    border-color: var(--fb-primary);
+    background: var(--fb-primary);
+  }
+
+  /* Phone input container — one field housing the country selector + number. */
+  .fb-phone {
+    @apply flex items-stretch overflow-hidden border bg-white;
+    border-color: #dcd9e3;
+    border-radius: var(--fb-radius, 10px);
+    transition:
+      border-color var(--dur-base) var(--ease-soft),
+      box-shadow var(--dur-base) var(--ease-soft);
+  }
+  .fb-phone:focus-within {
+    border-color: var(--fb-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fb-primary) 22%, transparent);
+  }
+  .fb-phone--invalid {
+    border-color: #dc2626;
+  }
+
+  /* Form submit button — form-themed. */
   .fb-btn {
-    @apply px-5 py-2.5 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60;
-    background: var(--fb-primary, #4f46e5);
-    border-radius: var(--fb-radius, 8px);
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium text-white;
+    background: var(--fb-primary);
+    border-radius: var(--fb-radius, 10px);
+    transition:
+      filter var(--dur-base) var(--ease-soft),
+      transform var(--dur-fast) var(--ease-soft);
+  }
+  .fb-btn:hover {
+    filter: brightness(1.06);
+  }
+  .fb-btn:active {
+    transform: translateY(1px);
+  }
+  .fb-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fb-primary) 35%, transparent);
   }
 }
