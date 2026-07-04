@@ -18,13 +18,21 @@ describe('UiPhoneInput', () => {
     expect(wrapper.emitted('update:modelValue')!.at(-1)![0]).toBe('');
   });
 
-  it('shows a validation message for an invalid number after blur', async () => {
+  it('renders no error message of its own — the error is owned by UiField', async () => {
+    // The control never duplicates the field error; it only reflects the parent's
+    // `invalid` prop via the .fb-phone--invalid class (see the double-error fix).
     const wrapper = mount(UiPhoneInput, { props: { modelValue: '' } });
     const input = wrapper.find('input[type="tel"]');
     await input.setValue('12');
-    expect(wrapper.text()).not.toContain('valid phone');
     await input.trigger('blur');
-    expect(wrapper.text()).toContain('Enter a valid phone number');
+    expect(wrapper.text()).not.toContain('valid phone');
+  });
+
+  it('reflects the invalid prop via the fb-phone--invalid class', () => {
+    const invalid = mount(UiPhoneInput, { props: { modelValue: '', invalid: true } });
+    expect(invalid.find('.fb-phone').classes()).toContain('fb-phone--invalid');
+    const valid = mount(UiPhoneInput, { props: { modelValue: '', invalid: false } });
+    expect(valid.find('.fb-phone').classes()).not.toContain('fb-phone--invalid');
   });
 
   it('parses an existing E.164 value into country + national number', () => {

@@ -6,6 +6,7 @@ import type { Field, FormDraft, FormVersion, Submission, Theme } from '../schema
 import { pool } from '../db/pool';
 import { notFound } from '../lib/errors';
 import { DEFAULT_THEME } from '../lib/theme';
+import { limitsForPlan } from '../limits';
 import { toCsv, type CsvColumn } from './csv';
 
 // Every value bound to a jsonb column is JSON-stringified explicitly: node-postgres
@@ -160,6 +161,34 @@ export async function getPublishedVersion(formId: string): Promise<FormVersion> 
     fields: row.schema,
     theme: row.theme,
     publishedAt: row.published_at.toISOString(),
+  };
+}
+
+// Public: the published version plus whether to show the "Made with —" badge,
+// derived from the owner's plan (CLAUDE.md §8). One query, no owner scoping.
+export async function getPublicForm(formId: string): Promise<{ version: FormVersion; branding: boolean }> {
+  const { rows } = await pool.query<{
+    id: string; version: number; schema: Field[]; theme: Theme; published_at: Date; plan: string;
+  }>(
+    `SELECT fv.id, fv.version, fv.schema, fv.theme, fv.published_at, u.plan
+       FROM forms f
+       JOIN form_versions fv ON fv.id = f.published_version_id
+       JOIN users u ON u.id = f.owner_id
+      WHERE f.id = $1`,
+    [formId],
+  );
+  const row = rows[0];
+  if (!row) throw notFound('Form');
+  return {
+    version: {
+      versionId: row.id,
+      formId,
+      version: row.version,
+      fields: row.schema,
+      theme: row.theme,
+      publishedAt: row.published_at.toISOString(),
+    },
+    branding: limitsForPlan(row.plan).branding,
   };
 }
 

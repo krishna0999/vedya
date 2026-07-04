@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { Submission } from '@schema';
 import { api } from '@/api/client';
 import UiButton from '@/components/ui/UiButton.vue';
+import UiLogo from '@/components/ui/UiLogo.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -68,11 +69,9 @@ onMounted(load);
     <header class="border-b border-ink-200 bg-white">
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4">
         <div class="flex min-w-0 items-center gap-2.5">
-          <router-link
-            :to="{ name: 'dashboard' }"
-            class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white transition hover:bg-brand-700"
-            title="All forms"
-          >F</router-link>
+          <router-link :to="{ name: 'dashboard' }" class="shrink-0 rounded-lg transition hover:opacity-80" title="All forms">
+            <UiLogo :wordmark="false" />
+          </router-link>
           <div class="min-w-0">
             <h1 class="truncate text-base font-semibold">{{ title }}</h1>
             <p class="text-xs text-ink-400">

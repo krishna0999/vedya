@@ -13,6 +13,7 @@ const route = useRoute();
 const formId = route.params.formId as string;
 
 const version = ref<FormVersion | null>(null);
+const branding = ref(true);
 const loading = ref(true);
 const loadError = ref<string | null>(null);
 
@@ -24,7 +25,9 @@ async function load(): Promise<void> {
   loading.value = true;
   loadError.value = null;
   try {
-    version.value = await api.getPublishedVersion(formId);
+    const form = await api.getPublicForm(formId);
+    version.value = form.version;
+    branding.value = form.branding;
   } catch (err) {
     loadError.value =
       err instanceof ApiError && err.status === 404
@@ -77,7 +80,7 @@ onMounted(load);
           </p>
           <FormRenderer :version="version" :submitting="submitting" @submit="onSubmit" />
         </div>
-        <p class="mt-6 text-center text-xs text-ink-400">Made with Forms</p>
+        <p v-if="branding" class="mt-6 text-center text-xs text-ink-400">Made with Vedya</p>
       </div>
     </div>
   </div>

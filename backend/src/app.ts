@@ -6,7 +6,9 @@ import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { env } from './config/env';
+import { populateUser } from './auth/session';
 import { AppError } from './lib/errors';
+import { authRoutes } from './routes/auth';
 import { formRoutes } from './routes/forms';
 import { healthRoutes } from './routes/health';
 import { publicRoutes } from './routes/public';
@@ -21,6 +23,10 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(cors, { origin: env.corsOrigins, credentials: true });
   // Generous global cap; the public submit route tightens this further.
   await app.register(rateLimit, { global: false, max: 200, timeWindow: '1 minute' });
+
+  // Resolve the session cookie into request.user for every request.
+  app.decorateRequest('user', null);
+  app.addHook('onRequest', populateUser);
 
   app.setErrorHandler((error, _req, reply) => {
     if (error instanceof AppError) {
@@ -39,6 +45,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   await app.register(healthRoutes, { prefix: '/api' });
+  await app.register(authRoutes, { prefix: '/api' });
   await app.register(formRoutes, { prefix: '/api' });
   await app.register(publicRoutes, { prefix: '/api' });
 

@@ -19,6 +19,19 @@ export interface DraftPatch {
   theme?: Theme;
 }
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  plan: string;
+}
+
+// Public form envelope: the published version + whether to show the free-tier
+// "Made with —" badge (derived server-side from the owner's plan).
+export interface PublicForm {
+  version: FormVersion;
+  branding: boolean;
+}
+
 // Error carrying the HTTP status and any machine-readable body (e.g. per-field
 // validation errors on a 422 submit).
 export class ApiError extends Error {
@@ -39,6 +52,7 @@ async function request<T>(
 ): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method,
+    credentials: "include", // send/receive the Lucia session cookie
     headers:
       body === undefined ? undefined : { "content-type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -57,7 +71,15 @@ async function request<T>(
 }
 
 export const api = {
-  // Owner (dev owner until auth lands in step 5)
+  // Auth
+  signup: (email: string, password: string) =>
+    request<AuthUser>("POST", "/auth/signup", { email, password }),
+  login: (email: string, password: string) =>
+    request<AuthUser>("POST", "/auth/login", { email, password }),
+  logout: () => request<{ ok: true }>("POST", "/auth/logout"),
+  me: () => request<AuthUser>("GET", "/auth/me"),
+
+  // Owner (authenticated)
   createForm: (title?: string) =>
     request<FormDraft>("POST", "/forms", { title }),
   listForms: () => request<FormSummary[]>("GET", "/forms"),
@@ -72,8 +94,8 @@ export const api = {
   csvUrl: (id: string) => `${BASE}/forms/${id}/submissions.csv`,
 
   // Public
-  getPublishedVersion: (formId: string) =>
-    request<FormVersion>("GET", `/f/${formId}`),
+  getPublicForm: (formId: string) =>
+    request<PublicForm>("GET", `/f/${formId}`),
   submit: (formId: string, answers: Record<string, unknown>) =>
     request<{ id: string; submittedAt: string }>(
       "POST",

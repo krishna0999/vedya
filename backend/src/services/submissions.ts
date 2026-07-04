@@ -4,7 +4,8 @@
 import { randomUUID } from 'node:crypto';
 import { validateAnswers, type Field } from '../schema/index';
 import { pool } from '../db/pool';
-import { unprocessable } from '../lib/errors';
+import { AppError, unprocessable } from '../lib/errors';
+import { limitsForPlan } from '../limits';
 import { getPublishedVersion } from './forms';
 
 export interface SubmitMeta {
@@ -17,12 +18,33 @@ const json = (v: unknown) => JSON.stringify(v);
 // Fields that carry an answer (section_break is presentational).
 const answerFields = (fields: Field[]) => fields.filter((f) => f.type !== 'section_break');
 
+// Freemium gate (CLAUDE.md §8): reject once the owner is at their monthly cap,
+// counted across ALL of their forms in the current calendar month.
+async function assertWithinQuota(formId: string): Promise<void> {
+  const { rows } = await pool.query<{ plan: string; month_count: string }>(
+    `SELECT u.plan,
+            (SELECT count(*) FROM submissions s
+               JOIN forms f2 ON f2.id = s.form_id
+              WHERE f2.owner_id = u.id
+                AND s.submitted_at >= date_trunc('month', now())) AS month_count
+       FROM forms f JOIN users u ON u.id = f.owner_id
+      WHERE f.id = $1`,
+    [formId],
+  );
+  const row = rows[0];
+  if (!row) return; // getPublishedVersion already 404s if the form is missing
+  if (Number(row.month_count) >= limitsForPlan(row.plan).responsesPerMonth) {
+    throw new AppError(403, 'This form is not accepting responses right now.');
+  }
+}
+
 export async function submit(
   formId: string,
   answers: Record<string, unknown>,
   meta: SubmitMeta,
 ): Promise<{ id: string; submittedAt: string }> {
   const version = await getPublishedVersion(formId); // 404 if unpublished/missing
+  await assertWithinQuota(formId); // freemium response cap
 
   const result = validateAnswers(version, answers);
   if (!result.valid) throw unprocessable('The form has validation errors.', result.errors);

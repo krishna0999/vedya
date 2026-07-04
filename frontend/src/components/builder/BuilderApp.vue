@@ -11,6 +11,7 @@ import FieldConfigPanel from './FieldConfigPanel.vue';
 import FormSettingsPanel from './FormSettingsPanel.vue';
 import FormRenderer from '@/components/FormRenderer.vue';
 import UiButton from '@/components/ui/UiButton.vue';
+import UiLogo from '@/components/ui/UiLogo.vue';
 
 const builder = useBuilderStore();
 const mode = ref<'edit' | 'preview'>('edit');
@@ -49,11 +50,9 @@ async function copyLink(): Promise<void> {
   <div class="flex h-screen flex-col bg-ink-50 text-ink-900">
     <header class="flex items-center justify-between gap-3 border-b border-ink-200 bg-white px-4 py-2.5">
       <div class="flex min-w-0 items-center gap-2">
-        <router-link
-          :to="{ name: 'dashboard' }"
-          class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white transition hover:bg-brand-700"
-          title="All forms"
-        >F</router-link>
+        <router-link :to="{ name: 'dashboard' }" class="shrink-0 rounded-lg transition hover:opacity-80" title="All forms">
+          <UiLogo :wordmark="false" size="sm" />
+        </router-link>
         <span class="truncate text-sm font-semibold text-ink-900">{{ builder.draft.title }}</span>
         <span class="hidden text-xs text-ink-400 sm:inline">· {{ builder.draft.fields.length }} fields</span>
         <span
