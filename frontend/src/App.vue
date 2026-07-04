@@ -1,9 +1,8 @@
 <script setup lang="ts">
-// Step 3: the app is the builder. (Public renderer route arrives with the
-// backend in step 4.)
-import BuilderApp from './components/builder/BuilderApp.vue';
+// Step 4: the app is now routed. Dashboard + builder + responses are owner
+// chrome; /f/:formId is the public renderer. See router.ts.
 </script>
 
 <template>
-  <BuilderApp />
+  <router-view />
 </template>

@@ -1,8 +1,11 @@
-// Builder state: the editable FormDraft + selection. Thin store — no business
-// logic beyond mutating the draft (validation lives in the shared schema).
+// Builder state: the editable FormDraft + selection, now backed by the API.
+// Mutations stay thin; persistence is a debounced autosave triggered from
+// touch(), so every existing action transparently saves. Validation still lives
+// only in the shared schema.
 import { defineStore } from 'pinia';
 import type { Field, FieldType, FormDraft, FormVersion, Theme } from '@schema';
 import { makeField } from '@/data/fieldTypes';
+import { api } from '@/api/client';
 
 const DEFAULT_THEME: Theme = {
   primaryColor: '#4f46e5',
@@ -17,7 +20,7 @@ function uuid(): string {
 function emptyDraft(): FormDraft {
   return {
     id: uuid(),
-    ownerId: 'local', // real owner arrives with auth (step 5)
+    ownerId: 'local',
     title: 'Untitled form',
     fields: [],
     theme: { ...DEFAULT_THEME },
@@ -25,10 +28,22 @@ function emptyDraft(): FormDraft {
   };
 }
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+type PublishStatus = 'idle' | 'publishing' | 'published' | 'error';
+
+// Debounce handle kept at module scope so it survives across action calls.
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+const SAVE_DEBOUNCE_MS = 600;
+
 export const useBuilderStore = defineStore('builder', {
   state: () => ({
     draft: emptyDraft(),
     selectedId: null as string | null,
+    loaded: false, // true once a real form is loaded from the API
+    saveStatus: 'idle' as SaveStatus,
+    publishStatus: 'idle' as PublishStatus,
+    lastPublished: null as FormVersion | null,
+    error: null as string | null,
   }),
   getters: {
     selectedField(state): Field | null {
@@ -47,8 +62,70 @@ export const useBuilderStore = defineStore('builder', {
     },
   },
   actions: {
+    // Load an existing form from the API into the builder.
+    async loadForm(id: string) {
+      this.loaded = false;
+      this.error = null;
+      this.publishStatus = 'idle';
+      this.lastPublished = null;
+      try {
+        this.draft = await api.getForm(id);
+        this.selectedId = null;
+        this.saveStatus = 'saved';
+        this.loaded = true;
+      } catch (err) {
+        this.error = err instanceof Error ? err.message : 'Failed to load form.';
+      }
+    },
+
+    // Debounced autosave. Called from touch(); a no-op until a form is loaded.
+    scheduleSave() {
+      if (!this.loaded) return;
+      this.saveStatus = 'saving';
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        void this.persistNow();
+      }, SAVE_DEBOUNCE_MS);
+    },
+
+    // Flush the draft to the server immediately (used before publish + on demand).
+    async persistNow() {
+      if (!this.loaded) return;
+      if (saveTimer) {
+        clearTimeout(saveTimer);
+        saveTimer = null;
+      }
+      try {
+        await api.updateForm(this.draft.id, {
+          title: this.draft.title,
+          fields: this.draft.fields,
+          theme: this.draft.theme,
+        });
+        this.saveStatus = 'saved';
+      } catch (err) {
+        this.saveStatus = 'error';
+        this.error = err instanceof Error ? err.message : 'Failed to save.';
+      }
+    },
+
+    // Snapshot the current draft into a new immutable published version. Flushes
+    // any pending edits first so the published version is never stale.
+    async publish() {
+      this.publishStatus = 'publishing';
+      this.error = null;
+      try {
+        await this.persistNow();
+        this.lastPublished = await api.publishForm(this.draft.id);
+        this.publishStatus = 'published';
+      } catch (err) {
+        this.publishStatus = 'error';
+        this.error = err instanceof Error ? err.message : 'Failed to publish.';
+      }
+    },
+
     touch() {
       this.draft.updatedAt = new Date().toISOString();
+      this.scheduleSave();
     },
     setTitle(title: string) {
       this.draft.title = title;
