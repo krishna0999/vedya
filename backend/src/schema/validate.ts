@@ -106,18 +106,15 @@ function validateField(field: Field, value: unknown): string | null {
     }
 
     case 'date': {
+      if (field.date?.mode === 'range') {
+        if (typeof value !== 'object' || value === null) return 'Select a date range.';
+        const r = value as { start?: unknown; end?: unknown };
+        if (!isIsoDate(r.start) || !isIsoDate(r.end)) return 'Select a valid date range.';
+        // ISO 'YYYY-MM-DD' compares correctly as strings.
+        if ((r.start as string) > (r.end as string)) return 'The end date must be on or after the start date.';
+        return null;
+      }
       if (!isIsoDate(value)) return 'Enter a valid date.';
-      return null;
-    }
-
-    case 'date_range': {
-      if (typeof value !== 'object' || value === null) return 'Select a date range.';
-      const r = value as { start?: unknown; end?: unknown };
-      const okStart = isIsoDate(r.start);
-      const okEnd = isIsoDate(r.end);
-      if (!okStart || !okEnd) return 'Select a valid date range.';
-      // ISO 'YYYY-MM-DD' compares correctly as strings.
-      if ((r.start as string) > (r.end as string)) return 'The end date must be on or after the start date.';
       return null;
     }
 

@@ -21,8 +21,21 @@ export const sampleForm: FormVersion = {
       validation: { maxLength: 280 },
     },
     { id: 'party_size', type: 'number', label: 'Party size', required: true, validation: { min: 1, max: 12 } },
-    { id: 'event_date', type: 'date', label: 'Preferred date', required: true },
-    { id: 'stay_dates', type: 'date_range', label: 'Dates of stay', required: false, description: 'Pick a check-in and check-out date.' },
+    {
+      id: 'event_date',
+      type: 'date',
+      label: 'Preferred date',
+      required: true,
+      date: { mode: 'single', showPresets: true, presets: [{ label: 'Today', offsetDays: 0 }, { label: 'Tomorrow', offsetDays: 1 }] },
+    },
+    {
+      id: 'stay_dates',
+      type: 'date',
+      label: 'Dates of stay',
+      required: false,
+      description: 'Pick a check-in and check-out date.',
+      date: { mode: 'range', showPresets: false, presets: [] },
+    },
     {
       id: 'plan',
       type: 'single_select',

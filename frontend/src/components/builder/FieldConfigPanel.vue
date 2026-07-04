@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Right pane (edit mode): configure the selected field.
 import { computed } from 'vue';
-import type { Field, FieldValidation } from '@schema';
-import { metaFor, typeHasOptions } from '@/data/fieldTypes';
+import type { DateConfig, DatePreset, Field, FieldValidation } from '@schema';
+import { DATE_PRESET_CATALOG, metaFor, typeHasOptions } from '@/data/fieldTypes';
 import { useBuilderStore } from '@/stores/builder';
 import UiToggle from '@/components/ui/UiToggle.vue';
 import OptionsEditor from './OptionsEditor.vue';
@@ -23,9 +23,27 @@ const isText = computed(() => props.field.type === 'short_text' || props.field.t
 const isNumber = computed(() => props.field.type === 'number');
 const isRating = computed(() => props.field.type === 'rating');
 const isMulti = computed(() => props.field.type === 'multi_select' || props.field.type === 'multi_dropdown');
+const isDate = computed(() => props.field.type === 'date');
 
 function update(patch: Partial<Field>): void {
   builder.updateField(props.field.id, patch);
+}
+
+// --- date config ---
+const dateCfg = computed<DateConfig>(
+  () => props.field.date ?? { mode: 'single', showPresets: true, presets: [] },
+);
+const availablePresets = computed(() =>
+  DATE_PRESET_CATALOG.filter((p) => !dateCfg.value.presets.some((x) => x.label === p.label)),
+);
+function setDate(patch: Partial<DateConfig>): void {
+  update({ date: { ...dateCfg.value, ...patch } });
+}
+function addPreset(p: DatePreset): void {
+  setDate({ presets: [...dateCfg.value.presets, p] });
+}
+function removePreset(label: string): void {
+  setDate({ presets: dateCfg.value.presets.filter((p) => p.label !== label) });
 }
 function numOrUndef(v: string): number | undefined {
   const t = v.trim();
@@ -66,6 +84,61 @@ function setValidation(patch: Partial<FieldValidation>): void {
 
     <div v-if="hasOptions" class="border-t border-ink-100 pt-3">
       <OptionsEditor :field="field" />
+    </div>
+
+    <!-- date settings -->
+    <div v-if="isDate" class="space-y-3 border-t border-ink-100 pt-3">
+      <div>
+        <p class="ui-label">Selection</p>
+        <div class="inline-flex w-full rounded-lg border border-ink-200 bg-ink-50 p-0.5 text-sm">
+          <button
+            type="button"
+            class="flex-1 rounded-md py-1 font-medium transition-colors"
+            :class="dateCfg.mode === 'single' ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-500 hover:text-ink-800'"
+            @click="setDate({ mode: 'single' })"
+          >
+            Single date
+          </button>
+          <button
+            type="button"
+            class="flex-1 rounded-md py-1 font-medium transition-colors"
+            :class="dateCfg.mode === 'range' ? 'bg-white text-ink-900 shadow-sm' : 'text-ink-500 hover:text-ink-800'"
+            @click="setDate({ mode: 'range' })"
+          >
+            Date range
+          </button>
+        </div>
+      </div>
+
+      <!-- presets only apply to single-date selection -->
+      <div v-if="dateCfg.mode === 'single'">
+        <UiToggle :model-value="dateCfg.showPresets" label="Show quick presets" @update:model-value="setDate({ showPresets: $event })" />
+
+        <div v-if="dateCfg.showPresets" class="mt-2">
+          <p class="mb-1.5 text-xs text-ink-500">Presets shown to respondents</p>
+          <div v-if="dateCfg.presets.length" class="mb-2 flex flex-wrap gap-1.5">
+            <span v-for="p in dateCfg.presets" :key="p.label" class="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-sm text-brand-700">
+              {{ p.label }}
+              <button type="button" class="grid h-4 w-4 place-items-center rounded hover:bg-brand-100" aria-label="Remove preset" @click="removePreset(p.label)">
+                <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+              </button>
+            </span>
+          </div>
+          <p v-else class="mb-2 text-xs text-ink-400">No presets added.</p>
+
+          <div v-if="availablePresets.length" class="flex flex-wrap gap-1.5">
+            <button
+              v-for="p in availablePresets"
+              :key="p.label"
+              type="button"
+              class="inline-flex items-center gap-1 rounded-full border border-dashed border-ink-300 px-2.5 py-1 text-sm text-ink-600 hover:border-brand-400 hover:text-brand-700"
+              @click="addPreset(p)"
+            >
+              <span class="text-base leading-none">+</span> {{ p.label }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- validation -->

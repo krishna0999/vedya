@@ -142,16 +142,8 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
         <UiDatePicker
           v-else-if="field.type === 'date'"
           :id="field.id"
-          :placeholder="field.placeholder"
-          :model-value="asText(field.id) as string | undefined"
-          :invalid="!!errorFor(field)"
-          @update:model-value="setAnswer(field, $event)"
-        />
-
-        <UiDatePicker
-          v-else-if="field.type === 'date_range'"
-          range
-          :id="field.id"
+          :range="field.date?.mode === 'range'"
+          :presets="field.date?.showPresets ? (field.date?.presets ?? []) : []"
           :placeholder="field.placeholder"
           :model-value="asDateRange(field.id)"
           :invalid="!!errorFor(field)"

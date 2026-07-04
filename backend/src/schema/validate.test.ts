@@ -125,8 +125,10 @@ describe('date', () => {
   });
 });
 
-describe('date_range', () => {
-  const f = versionOf([field({ id: 'dr', type: 'date_range', required: true })]);
+describe('date (range mode)', () => {
+  const f = versionOf([
+    field({ id: 'dr', type: 'date', required: true, date: { mode: 'range', showPresets: false, presets: [] } }),
+  ]);
   it('accepts a valid {start,end} object', () => {
     expect(validateAnswers(f, { dr: { start: '2026-07-01', end: '2026-07-10' } }).valid).toBe(true);
     expect(validateAnswers(f, { dr: { start: '2026-07-01', end: '2026-07-01' } }).valid).toBe(true);
@@ -135,6 +137,11 @@ describe('date_range', () => {
     expect(validateAnswers(f, { dr: { start: '2026-07-10', end: '2026-07-01' } }).errors.dr).toContain('on or after');
     expect(validateAnswers(f, { dr: { start: 'nope', end: '2026-07-01' } }).errors.dr).toBeDefined();
     expect(validateAnswers(f, {}).errors.dr).toBeDefined();
+  });
+  it('single-mode date still expects an ISO string', () => {
+    const single = versionOf([field({ id: 'd', type: 'date', required: true })]);
+    expect(validateAnswers(single, { d: '2026-07-04' }).valid).toBe(true);
+    expect(validateAnswers(single, { d: { start: '2026-07-01', end: '2026-07-10' } }).errors.d).toBeDefined();
   });
 });
 

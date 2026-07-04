@@ -6,12 +6,26 @@
 export type FieldType =
   | 'short_text' | 'long_text' | 'email' | 'phone' | 'number'
   | 'single_select' | 'multi_select' | 'dropdown' | 'multi_dropdown'
-  | 'date' | 'date_range' | 'rating' | 'section_break';
+  | 'date' | 'rating' | 'section_break';
 
-// Answer shape for a date_range field (both ends ISO 'YYYY-MM-DD').
+// Answer shape for a date field in range mode (both ends ISO 'YYYY-MM-DD').
 export interface DateRangeValue {
   start: string;
   end: string;
+}
+
+// A date-picker shortcut, e.g. { label: 'Tomorrow', offsetDays: 1 }.
+export interface DatePreset {
+  label: string;
+  offsetDays: number;
+}
+
+// Per-field config for `date` fields. `mode` decides single date vs a range;
+// presets are optional shortcut buttons the creator opts into.
+export interface DateConfig {
+  mode: 'single' | 'range';
+  showPresets: boolean;
+  presets: DatePreset[];
 }
 
 export interface FieldOption {
@@ -36,6 +50,7 @@ export interface Field {
   placeholder?: string;
   options?: FieldOption[];          // select-family only
   validation?: FieldValidation;
+  date?: DateConfig;                // `date` fields only (single/range + presets)
   // RESERVED for the logic wedge (§9). Renderer must already no-op on it
   // so v1 forms are forward-compatible with v2 logic.
   visibleIf?: unknown;              // becomes `Condition` in v2

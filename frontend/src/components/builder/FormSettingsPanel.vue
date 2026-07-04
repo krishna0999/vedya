@@ -2,6 +2,7 @@
 // Right pane when no field is selected: form title + form theme (the end-user's
 // per-form styling, distinct from our product chrome).
 import { useBuilderStore } from '@/stores/builder';
+import BuilderSelect from './BuilderSelect.vue';
 
 const builder = useBuilderStore();
 
@@ -51,13 +52,11 @@ const FONTS = [
       />
 
       <label class="mb-1 mt-3 block text-xs text-ink-500">Font</label>
-      <select
-        class="ui-input"
-        :value="builder.draft.theme.fontFamily"
-        @change="builder.setTheme({ fontFamily: ($event.target as HTMLSelectElement).value })"
-      >
-        <option v-for="f in FONTS" :key="f.value" :value="f.value">{{ f.label }}</option>
-      </select>
+      <BuilderSelect
+        :model-value="builder.draft.theme.fontFamily"
+        :options="FONTS"
+        @update:model-value="builder.setTheme({ fontFamily: $event })"
+      />
     </div>
   </div>
 </template>

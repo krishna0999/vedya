@@ -83,7 +83,7 @@ The **form schema is the contract** between builder, renderer, validation, stora
 type FieldType =
   | 'short_text' | 'long_text' | 'email' | 'phone' | 'number'
   | 'single_select' | 'multi_select' | 'dropdown' | 'multi_dropdown'
-  | 'date' | 'date_range' | 'rating' | 'section_break';
+  | 'date' | 'rating' | 'section_break';   // `date` supports single/range via Field.date
 
 interface FieldOption {
   id: string;            // stable uuid (selects only)
@@ -107,6 +107,7 @@ interface Field {
   placeholder?: string;
   options?: FieldOption[];          // select-family only
   validation?: FieldValidation;
+  date?: DateConfig;                // `date` fields: { mode: 'single'|'range', showPresets, presets[] }
   // RESERVED for the logic wedge (§9). Renderer must already no-op on it
   // so v1 forms are forward-compatible with v2 logic.
   visibleIf?: unknown;              // becomes `Condition` in v2
