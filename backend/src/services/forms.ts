@@ -40,13 +40,23 @@ async function loadOwnedDraft(ownerId: string, formId: string): Promise<FormDraf
   return row.current_draft;
 }
 
-export async function createForm(ownerId: string, title?: string): Promise<FormDraft> {
+// Seed for a new form: whatever fields/theme the caller already has in hand.
+// This is the ONE insert path for a fresh form — a blank create, a template
+// instantiation (services/templates), and AI generation all flow through here,
+// so they can never drift on how a draft is persisted.
+export interface NewFormSeed {
+  title?: string;
+  fields?: Field[];
+  theme?: Theme;
+}
+
+export async function createFormWith(ownerId: string, seed: NewFormSeed = {}): Promise<FormDraft> {
   const draft: FormDraft = {
     id: randomUUID(),
     ownerId,
-    title: title?.trim() || 'Untitled form',
-    fields: [],
-    theme: { ...DEFAULT_THEME },
+    title: seed.title?.trim() || 'Untitled form',
+    fields: seed.fields ?? [],
+    theme: seed.theme ?? { ...DEFAULT_THEME },
     updatedAt: new Date().toISOString(),
   };
   await pool.query(
@@ -54,6 +64,10 @@ export async function createForm(ownerId: string, title?: string): Promise<FormD
     [draft.id, ownerId, draft.title, json(draft)],
   );
   return draft;
+}
+
+export async function createForm(ownerId: string, title?: string): Promise<FormDraft> {
+  return createFormWith(ownerId, { title });
 }
 
 export async function listForms(ownerId: string): Promise<FormSummary[]> {

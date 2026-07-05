@@ -2,13 +2,14 @@
 // resolve the authenticated owner, delegate to the forms service. The whole
 // plugin is gated by requireAuth, so req.user is always present in a handler.
 import type { FastifyPluginAsync } from 'fastify';
-import { CreateFormSchema, DraftPatchSchema } from '../api/schemas';
+import { CreateFormSchema, DraftPatchSchema, FromTemplateSchema } from '../api/schemas';
 import { getUserId, requireAuth } from '../auth/session';
 import type { DraftPatch } from '../services/forms';
 import {
   createForm, deleteForm, exportSubmissionsCsv, getForm, listForms,
   listSubmissions, publishForm, updateForm,
 } from '../services/forms';
+import { createFormFromTemplate } from '../services/templates';
 
 type IdParams = { Params: { id: string } };
 
@@ -19,6 +20,12 @@ export const formRoutes: FastifyPluginAsync = async (app) => {
   app.post('/forms', async (req, reply) => {
     const { title } = CreateFormSchema.parse(req.body ?? {});
     const draft = await createForm(getUserId(req), title);
+    return reply.status(201).send(draft);
+  });
+
+  app.post('/forms/from-template', async (req, reply) => {
+    const { templateId } = FromTemplateSchema.parse(req.body ?? {});
+    const draft = await createFormFromTemplate(getUserId(req), templateId);
     return reply.status(201).send(draft);
   });
 

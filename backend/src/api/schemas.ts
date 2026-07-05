@@ -54,6 +54,12 @@ export const CreateFormSchema = z.object({
   title: z.string().optional(),
 });
 
+// Instantiate a form from a catalog template. The id is a stable template slug;
+// the service validates it exists (404 otherwise).
+export const FromTemplateSchema = z.object({
+  templateId: z.string().min(1),
+});
+
 // Autosave patch: any subset of the editable draft. Fields must all parse if present.
 export const DraftPatchSchema = z
   .object({

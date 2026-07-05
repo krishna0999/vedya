@@ -25,6 +25,22 @@ export interface AuthUser {
   plan: string;
 }
 
+// A gallery card: catalog metadata plus the fields (for client-side preview).
+export interface TemplateSummary {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  icon: string;
+  fieldCount: number;
+  fields: Field[];
+}
+
+export interface TemplateCatalog {
+  categories: string[];
+  templates: TemplateSummary[];
+}
+
 // Public form envelope: the published version + whether to show the free-tier
 // "Made with —" badge (derived server-side from the owner's plan).
 export interface PublicForm {
@@ -82,6 +98,9 @@ export const api = {
   // Owner (authenticated)
   createForm: (title?: string) =>
     request<FormDraft>("POST", "/forms", { title }),
+  listTemplates: () => request<TemplateCatalog>("GET", "/templates"),
+  createFromTemplate: (templateId: string) =>
+    request<FormDraft>("POST", "/forms/from-template", { templateId }),
   listForms: () => request<FormSummary[]>("GET", "/forms"),
   getForm: (id: string) => request<FormDraft>("GET", `/forms/${id}`),
   updateForm: (id: string, patch: DraftPatch) =>

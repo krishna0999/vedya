@@ -11,6 +11,7 @@ import { AppError } from './lib/errors';
 import { authRoutes } from './routes/auth';
 import { formRoutes } from './routes/forms';
 import { healthRoutes } from './routes/health';
+import { templateRoutes } from './routes/templates';
 import { publicRoutes } from './routes/public';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -47,6 +48,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(healthRoutes, { prefix: '/api' });
   await app.register(authRoutes, { prefix: '/api' });
   await app.register(formRoutes, { prefix: '/api' });
+  await app.register(templateRoutes, { prefix: '/api' });
   await app.register(publicRoutes, { prefix: '/api' });
 
   return app;
