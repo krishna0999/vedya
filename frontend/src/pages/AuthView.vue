@@ -2,46 +2,55 @@
 // Login + signup share one screen (mode prop). Product chrome — uses .ui-input /
 // brand tokens, never the form theme. On success, return to the intended route
 // (?redirect) or the dashboard.
-import { computed, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
-import { ApiError } from '@/api/client';
-import UiButton from '@/components/ui/UiButton.vue';
-import UiLogo from '@/components/ui/UiLogo.vue';
+import { computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { ApiError } from "@/api/client";
+import UiButton from "@/components/ui/UiButton.vue";
+import UiLogo from "@/components/ui/UiLogo.vue";
 
-const props = defineProps<{ mode: 'login' | 'signup' }>();
+const props = defineProps<{ mode: "login" | "signup" }>();
 
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
-const email = ref('');
-const password = ref('');
+const email = ref("");
+const password = ref("");
 const error = ref<string | null>(null);
 const busy = ref(false);
 
-const isSignup = computed(() => props.mode === 'signup');
-const heading = computed(() => (isSignup.value ? 'Create your account' : 'Welcome back'));
-const cta = computed(() => (isSignup.value ? 'Sign up' : 'Log in'));
+const isSignup = computed(() => props.mode === "signup");
+const heading = computed(() =>
+  isSignup.value ? "Create your account" : "Welcome back",
+);
+const cta = computed(() => (isSignup.value ? "Sign up" : "Log in"));
 
 async function submit(): Promise<void> {
   error.value = null;
   if (!email.value.trim() || !password.value) {
-    error.value = 'Enter your email and password.';
+    error.value = "Enter your email and password.";
     return;
   }
   if (isSignup.value && password.value.length < 8) {
-    error.value = 'Password must be at least 8 characters.';
+    error.value = "Password must be at least 8 characters.";
     return;
   }
   busy.value = true;
   try {
     if (isSignup.value) await auth.signup(email.value.trim(), password.value);
     else await auth.login(email.value.trim(), password.value);
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard';
+    const redirect =
+      typeof route.query.redirect === "string"
+        ? route.query.redirect
+        : "/dashboard";
     router.replace(redirect);
   } catch (err) {
-    error.value = err instanceof ApiError ? err.message : 'Something went wrong. Please try again.';
+    error.value =
+      err instanceof ApiError
+        ? err.message
+        : "Something went wrong. Please try again.";
+    console.error(err);
   } finally {
     busy.value = false;
   }
@@ -58,11 +67,18 @@ async function submit(): Promise<void> {
       <div class="rounded-2xl border border-ink-200 bg-white p-7 shadow-card">
         <h1 class="text-lg font-semibold text-ink-900">{{ heading }}</h1>
         <p class="mt-0.5 text-sm text-ink-500">
-          {{ isSignup ? 'Start building forms in seconds.' : 'Log in to your forms.' }}
+          {{
+            isSignup
+              ? "Start building forms in seconds."
+              : "Log in to your forms."
+          }}
         </p>
 
         <form class="mt-5 space-y-4" novalidate @submit.prevent="submit">
-          <p v-if="error" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger">
+          <p
+            v-if="error"
+            class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger"
+          >
             {{ error }}
           </p>
 
@@ -91,7 +107,7 @@ async function submit(): Promise<void> {
           </div>
 
           <UiButton type="submit" :disabled="busy" class="w-full">
-            {{ busy ? 'Please wait…' : cta }}
+            {{ busy ? "Please wait…" : cta }}
           </UiButton>
         </form>
       </div>
@@ -99,11 +115,19 @@ async function submit(): Promise<void> {
       <p class="mt-5 text-center text-sm text-ink-500">
         <template v-if="isSignup">
           Already have an account?
-          <router-link :to="{ name: 'login', query: route.query }" class="font-medium text-brand-700 hover:text-brand-800">Log in</router-link>
+          <router-link
+            :to="{ name: 'login', query: route.query }"
+            class="font-medium text-brand-700 hover:text-brand-800"
+            >Log in</router-link
+          >
         </template>
         <template v-else>
           New here?
-          <router-link :to="{ name: 'signup', query: route.query }" class="font-medium text-brand-700 hover:text-brand-800">Create an account</router-link>
+          <router-link
+            :to="{ name: 'signup', query: route.query }"
+            class="font-medium text-brand-700 hover:text-brand-800"
+            >Create an account</router-link
+          >
         </template>
       </p>
     </div>
