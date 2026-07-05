@@ -12,9 +12,8 @@ services:
     rootDir: backend
     # Render uses corepack + the packageManager field in package.json for pnpm.
     buildCommand: pnpm install --frozen-lockfile
-    startCommand: pnpm start
-    # Runs once per deploy, before traffic shifts to the new instance.
-    preDeployCommand: pnpm migrate
+    # Migrations run first on every start. They're idempotent (no-op if already applied).
+    startCommand: pnpm migrate && pnpm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
