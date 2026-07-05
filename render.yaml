@@ -1,0 +1,29 @@
+# Render Blueprint for the Fastify API (backend/).
+# The frontend is deployed separately on Vercel — this file only covers the API.
+#
+# On first deploy: create the service from this blueprint, then set the two
+# `sync: false` secrets in the Render dashboard (DATABASE_URL, CORS_ORIGIN).
+# Point the api.vedya.app custom domain at this service in Settings → Custom Domains.
+services:
+  - type: web
+    name: vedya-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    # Render uses corepack + the packageManager field in package.json for pnpm.
+    buildCommand: pnpm install --frozen-lockfile
+    startCommand: pnpm start
+    # Runs once per deploy, before traffic shifts to the new instance.
+    preDeployCommand: pnpm migrate
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # Neon production connection string — set in the dashboard, never commit.
+      - key: DATABASE_URL
+        sync: false
+      # Exact origin of the deployed frontend, e.g. https://vedya.app
+      - key: CORS_ORIGIN
+        sync: false
