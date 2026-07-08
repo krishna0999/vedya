@@ -26,3 +26,7 @@ services:
       # Exact origin of the deployed frontend, e.g. https://vedya.app
       - key: CORS_ORIGIN
         sync: false
+      # OpenAI key for AI form generation — set in the dashboard, never commit.
+      # Until set, the generate endpoint returns 503 and the rest of the API works.
+      - key: OPENAI_API_KEY
+        sync: false

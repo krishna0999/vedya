@@ -77,7 +77,9 @@ function onDragEnd(): void {
             </div>
           </div>
 
-          <div class="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+          <!-- Hover-reveal is desktop-only; touch screens have no hover, so the
+               actions stay visible below lg. -->
+          <div class="flex items-center gap-0.5 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
             <button type="button" class="grid h-7 w-7 place-items-center rounded-md text-ink-400 hover:bg-ink-100 hover:text-ink-700 disabled:opacity-40" title="Move up" :disabled="i === 0" @click.stop="builder.moveField(i, i - 1)">
               <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5-5 5 5" /></svg>
             </button>

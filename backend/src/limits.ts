@@ -5,6 +5,8 @@
 export interface PlanLimits {
   // Max submissions per calendar month across all of an owner's forms.
   responsesPerMonth: number;
+  // Max AI form generations per calendar month (ROADMAP: free metered → 💰 credits).
+  aiGenerationsPerMonth: number;
   // Whether file-upload fields are allowed (field type lands post-v1; seam only).
   fileUploads: boolean;
   // Whether public forms show the "Made with —" badge (free tier does).
@@ -12,8 +14,13 @@ export interface PlanLimits {
 }
 
 export const PLAN_LIMITS = {
-  free: { responsesPerMonth: 100, fileUploads: false, branding: true },
-  pro: { responsesPerMonth: Number.POSITIVE_INFINITY, fileUploads: true, branding: false },
+  free: { responsesPerMonth: 100, aiGenerationsPerMonth: 10, fileUploads: false, branding: true },
+  pro: {
+    responsesPerMonth: Number.POSITIVE_INFINITY,
+    aiGenerationsPerMonth: 200,
+    fileUploads: true,
+    branding: false,
+  },
 } as const satisfies Record<string, PlanLimits>;
 
 export type Plan = keyof typeof PLAN_LIMITS;

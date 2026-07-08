@@ -101,6 +101,8 @@ export const api = {
   listTemplates: () => request<TemplateCatalog>("GET", "/templates"),
   createFromTemplate: (templateId: string) =>
     request<FormDraft>("POST", "/forms/from-template", { templateId }),
+  generateForm: (prompt: string) =>
+    request<FormDraft>("POST", "/forms/generate", { prompt }),
   listForms: () => request<FormSummary[]>("GET", "/forms"),
   getForm: (id: string) => request<FormDraft>("GET", `/forms/${id}`),
   updateForm: (id: string, patch: DraftPatch) =>

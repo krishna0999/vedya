@@ -6,6 +6,9 @@ import { useBuilderStore } from '@/stores/builder';
 
 const builder = useBuilderStore();
 
+// Parents listen so mobile presentations (bottom sheet) can close after an add.
+const emit = defineEmits<{ add: [type: FieldType] }>();
+
 const GROUPS: { key: FieldTypeMeta['group']; label: string }[] = [
   { key: 'text', label: 'Text' },
   { key: 'choice', label: 'Choice' },
@@ -19,15 +22,18 @@ function typesIn(group: FieldTypeMeta['group']): FieldTypeMeta[] {
 
 function add(type: FieldType): void {
   builder.addField(type);
+  emit('add', type);
 }
 </script>
 
 <template>
-  <aside class="w-56 shrink-0 overflow-y-auto border-r border-ink-200 bg-white p-3">
-    <h2 class="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-ink-500">Add field</h2>
+  <!-- Layout-agnostic: the parent sets width/borders (sidebar on lg+, bottom
+       sheet below). Below lg the types flow in two columns to cut scrolling. -->
+  <aside class="overflow-y-auto bg-white p-3">
+    <h2 class="mb-2 hidden px-1 text-xs font-semibold uppercase tracking-wide text-ink-500 lg:block">Add field</h2>
     <div v-for="g in GROUPS" :key="g.key" class="mb-3">
       <p class="mb-1 px-1 text-[11px] font-medium uppercase tracking-wide text-ink-400">{{ g.label }}</p>
-      <div class="space-y-1">
+      <div class="grid grid-cols-2 gap-1 lg:grid-cols-1">
         <button
           v-for="t in typesIn(g.key)"
           :key="t.type"

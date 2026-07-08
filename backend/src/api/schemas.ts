@@ -60,6 +60,15 @@ export const FromTemplateSchema = z.object({
   templateId: z.string().min(1),
 });
 
+// AI generation: the user's natural-language description of the form they want.
+export const GenerateFormSchema = z.object({
+  prompt: z
+    .string()
+    .trim()
+    .min(10, 'Describe the form in at least a few words.')
+    .max(1000, 'Keep the description under 1000 characters.'),
+});
+
 // Autosave patch: any subset of the editable draft. Fields must all parse if present.
 export const DraftPatchSchema = z
   .object({

@@ -1,17 +1,22 @@
 <script setup lang="ts">
 // Owner dashboard: list forms, create, jump to editor / responses, share, delete.
 // Owner is the dev stub until auth (step 5); this is the "my forms" surface.
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { api, type FormSummary } from "@/api/client";
+import AiGenerateCard from "@/components/AiGenerateCard.vue";
 import DashboardNav from "@/components/DashboardNav.vue";
 import TemplateGallery from "@/components/TemplateGallery.vue";
+import UiActionMenu, {
+  type UiActionItem,
+} from "@/components/ui/UiActionMenu.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiLogo from "@/components/ui/UiLogo.vue";
 import UiSearchInput from "@/components/ui/UiSearchInput.vue";
 import UiUserMenu from "@/components/ui/UiUserMenu.vue";
 
 const router = useRouter();
+const route = useRoute();
 
 const forms = ref<FormSummary[]>([]);
 const loading = ref(true);
@@ -19,12 +24,16 @@ const error = ref<string | null>(null);
 const creating = ref(false);
 
 // The sidebar switches between two content views in-place — templates render
-// inline here, not in a modal.
-const activeView = ref<"dashboard" | "templates">("dashboard");
+// inline here, not in a modal. The view lives in the URL (?view=templates) so
+// other screens (e.g. the builder's nav menu) can deep-link straight to it.
+const activeView = computed<"dashboard" | "templates">(() =>
+  route.query.view === "templates" ? "templates" : "dashboard",
+);
 function setView(view: "dashboard" | "templates"): void {
-  activeView.value = view;
-  query.value = ""; // search is per-view; don't carry a stale query across
+  router.replace({ query: view === "templates" ? { view } : {} });
 }
+// search is per-view; don't carry a stale query across
+watch(activeView, () => (query.value = ""));
 
 // Off-canvas sidebar for small screens (the desktop sidebar is always visible).
 const sidebarOpen = ref(false);
@@ -115,6 +124,53 @@ async function copyLink(form: FormSummary): Promise<void> {
   );
 }
 
+// Per-card action menu. Link actions need a published form; they stay visible
+// but disabled so the affordance is discoverable before first publish.
+function actionsFor(form: FormSummary): UiActionItem[] {
+  const needsPublish = form.published
+    ? undefined
+    : "Publish the form to get a link";
+  return [
+    { id: "edit", label: "Edit form", icon: "pencil" },
+    { id: "responses", label: "Responses", icon: "responses" },
+    {
+      id: "copy",
+      label: "Copy link",
+      icon: "copy",
+      disabled: !form.published,
+      title: needsPublish,
+    },
+    {
+      id: "open",
+      label: "Open form",
+      icon: "external",
+      disabled: !form.published,
+      title: needsPublish,
+    },
+    { id: "delete", label: "Delete form", icon: "trash", danger: true },
+  ];
+}
+
+function onAction(form: FormSummary, actionId: string): void {
+  switch (actionId) {
+    case "edit":
+      router.push({ name: "builder", params: { id: form.id } });
+      break;
+    case "responses":
+      router.push({ name: "responses", params: { id: form.id } });
+      break;
+    case "copy":
+      copyLink(form);
+      break;
+    case "open":
+      window.open(`/f/${form.id}`, "_blank", "noopener");
+      break;
+    case "delete":
+      remove(form);
+      break;
+  }
+}
+
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.round(diff / 60000);
@@ -192,6 +248,10 @@ onMounted(load);
       <!-- Content — centered; shares the topbar's max-w-4xl column so the search
            box above lines up with this content's left edge. -->
       <main class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
+        <!-- AI generation rides above the forms list (adoption engine — the
+             fastest path from intent to a draft). -->
+        <AiGenerateCard v-if="activeView === 'dashboard'" class="mb-6" />
+
         <div class="mb-5 flex items-baseline justify-between">
           <h1 class="text-lg font-semibold text-ink-900">
             {{ activeView === "templates" ? "Templates" : "My forms" }}
@@ -258,10 +318,12 @@ onMounted(load);
           </div>
 
           <ul v-else class="space-y-3">
+            <!-- All card actions live in the kebab menu, so the card stays a
+                 single compact row at every width. -->
             <li
               v-for="form in filteredForms"
               :key="form.id"
-              class="flex items-center gap-4 rounded-xl border border-ink-200 bg-white p-4 shadow-card transition hover:border-ink-300"
+              class="flex items-center gap-3 rounded-xl border border-ink-200 bg-white p-4 shadow-card transition hover:border-ink-300"
             >
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
@@ -287,45 +349,21 @@ onMounted(load);
                     form.responseCount === 1 ? "" : "s"
                   }}
                   · edited {{ relativeTime(form.updatedAt) }}
+                  <!-- Copy feedback lands here since the menu closes on select -->
+                  <span
+                    v-if="copied === form.id"
+                    class="font-medium text-brand-700"
+                    >· Link copied!</span
+                  >
                 </p>
               </div>
 
-              <div class="flex shrink-0 items-center gap-1.5">
-                <UiButton
-                  variant="ghost"
-                  size="sm"
-                  :disabled="!form.published"
-                  :title="
-                    form.published
-                      ? 'Copy public link'
-                      : 'Publish the form to get a link'
-                  "
-                  @click="copyLink(form)"
-                >
-                  {{ copied === form.id ? "Copied!" : "Copy link" }}
-                </UiButton>
-                <UiButton
-                  variant="secondary"
-                  size="sm"
-                  @click="
-                    router.push({ name: 'responses', params: { id: form.id } })
-                  "
-                >
-                  Responses
-                </UiButton>
-                <UiButton
-                  variant="secondary"
-                  size="sm"
-                  @click="
-                    router.push({ name: 'builder', params: { id: form.id } })
-                  "
-                >
-                  Edit
-                </UiButton>
-                <UiButton variant="danger" size="sm" @click="remove(form)"
-                  >Delete</UiButton
-                >
-              </div>
+              <UiActionMenu
+                class="shrink-0"
+                :items="actionsFor(form)"
+                :label="`Actions for ${form.title}`"
+                @select="onAction(form, $event)"
+              />
             </li>
           </ul>
         </template>

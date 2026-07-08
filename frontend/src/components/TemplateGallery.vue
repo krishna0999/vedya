@@ -4,8 +4,11 @@
 // driven by the shared topbar search (`query` prop) plus a local category filter.
 // Product-chrome only (ink/brand tokens); never touches form theme.
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import type { FormVersion } from "@schema";
 import { api, type TemplateSummary } from "@/api/client";
 import { metaFor } from "@/data/fieldTypes";
+import { DEFAULT_THEME } from "@/stores/builder";
+import FormRenderer from "@/components/FormRenderer.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 
 const props = defineProps<{ query?: string; busy?: boolean }>();
@@ -26,14 +29,26 @@ const previewId = ref<string | null>(null);
 const previewTemplate = computed(
   () => templates.value.find((t) => t.id === previewId.value) ?? null,
 );
+// The preview is the real thing: <FormRenderer> fed the template's fields as an
+// ad-hoc FormVersion (default theme), so what you review is exactly the form a
+// respondent would see — not a list of its elements.
+const previewVersion = computed<FormVersion | null>(() =>
+  previewTemplate.value
+    ? {
+        versionId: "preview",
+        formId: previewTemplate.value.id,
+        version: 0,
+        fields: previewTemplate.value.fields,
+        theme: { ...DEFAULT_THEME },
+        publishedAt: new Date().toISOString(),
+      }
+    : null,
+);
 function openPreview(id: string): void {
   previewId.value = id;
 }
 function closePreview(): void {
   previewId.value = null;
-}
-function fieldTypeLabel(type: string): string {
-  return metaFor(type as never)?.label ?? type;
 }
 // Close the preview on Escape while it's open.
 function onPreviewKey(e: KeyboardEvent): void {
@@ -193,7 +208,7 @@ onMounted(load);
         role="dialog"
         aria-modal="true"
         :aria-label="`Preview: ${previewTemplate.title}`"
-        class="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white shadow-xl"
+        class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-xl"
       >
         <!-- Header -->
         <header
@@ -231,43 +246,18 @@ onMounted(load);
           </button>
         </header>
 
-        <!-- Field review -->
-        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          <ol class="space-y-3">
-            <li
-              v-for="(field, i) in previewTemplate.fields"
-              :key="field.id"
-              class="rounded-xl border border-ink-100 bg-ink-50 p-3"
-            >
-              <div class="flex items-baseline justify-between gap-2">
-                <span class="text-sm font-medium text-ink-900">
-                  <span class="text-ink-400">{{ i + 1 }}.</span>
-                  {{ field.label }}
-                  <span v-if="field.required" class="text-danger">*</span>
-                </span>
-                <span
-                  class="shrink-0 rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-medium text-ink-500"
-                >
-                  {{ fieldTypeLabel(field.type) }}
-                </span>
-              </div>
-              <p v-if="field.description" class="mt-1 text-xs text-ink-500">
-                {{ field.description }}
-              </p>
-              <ul
-                v-if="field.options && field.options.length"
-                class="mt-2 flex flex-wrap gap-1"
-              >
-                <li
-                  v-for="o in field.options"
-                  :key="o.id"
-                  class="rounded-md bg-white px-2 py-0.5 text-xs text-ink-600 ring-1 ring-ink-200"
-                >
-                  {{ o.label }}
-                </li>
-              </ul>
-            </li>
-          </ol>
+        <!-- Live form preview: what a respondent would actually see -->
+        <div class="min-h-0 flex-1 overflow-y-auto bg-ink-50 px-4 py-5 sm:px-5">
+          <div
+            v-if="previewVersion"
+            class="rounded-2xl border border-ink-200 bg-white p-5 shadow-card sm:p-6"
+          >
+            <FormRenderer
+              :key="previewVersion.formId"
+              :version="previewVersion"
+              :title="previewTemplate.title"
+            />
+          </div>
         </div>
 
         <!-- Footer -->

@@ -7,7 +7,9 @@ import type { Field, FieldType, FormDraft, FormVersion, Theme } from '@schema';
 import { makeField } from '@/data/fieldTypes';
 import { api } from '@/api/client';
 
-const DEFAULT_THEME: Theme = {
+// Exported so other surfaces that render an ad-hoc preview FormVersion (e.g.
+// the template gallery) use the same defaults as a fresh draft.
+export const DEFAULT_THEME: Theme = {
   primaryColor: '#4f46e5',
   fontFamily: 'Inter, system-ui, sans-serif',
   borderRadius: 10,

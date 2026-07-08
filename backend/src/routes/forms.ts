@@ -2,8 +2,9 @@
 // resolve the authenticated owner, delegate to the forms service. The whole
 // plugin is gated by requireAuth, so req.user is always present in a handler.
 import type { FastifyPluginAsync } from 'fastify';
-import { CreateFormSchema, DraftPatchSchema, FromTemplateSchema } from '../api/schemas';
+import { CreateFormSchema, DraftPatchSchema, FromTemplateSchema, GenerateFormSchema } from '../api/schemas';
 import { getUserId, requireAuth } from '../auth/session';
+import { generateForm } from '../services/ai';
 import type { DraftPatch } from '../services/forms';
 import {
   createForm, deleteForm, exportSubmissionsCsv, getForm, listForms,
@@ -28,6 +29,19 @@ export const formRoutes: FastifyPluginAsync = async (app) => {
     const draft = await createFormFromTemplate(getUserId(req), templateId);
     return reply.status(201).send(draft);
   });
+
+  // AI form generation (ROADMAP Phase 1): NL prompt → persisted FormDraft.
+  // Monthly quota lives in the service (limits.ts); this rate limit only guards
+  // against hammering the upstream AI call.
+  app.post(
+    '/forms/generate',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
+    async (req, reply) => {
+      const { prompt } = GenerateFormSchema.parse(req.body ?? {});
+      const draft = await generateForm(getUserId(req), req.user!.plan, prompt);
+      return reply.status(201).send(draft);
+    },
+  );
 
   app.get('/forms', async (req) => listForms(getUserId(req)));
 

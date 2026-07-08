@@ -29,7 +29,7 @@ JSON the engine already consumes, so architectural risk is near-zero.
 | Feature | Tier | Notes |
 |---|---|---|
 | **Template library + industry templates** | 🟢 Free (premium templates 💰 later) | Biggest activation lever. A template is a seeded `FormDraft` → duplicate. **[in progress]** |
-| **AI form generation** | 🟢 Free (metered) → 💰 credits | NL prompt → `FormDraft` → existing `validateAnswers`. Meter free generations; more via paid AI credits. **[next]** |
+| **AI form generation** | 🟢 Free (metered) → 💰 credits | NL prompt → `FormDraft` → existing `validateAnswers`. Meter free generations; more via paid AI credits. **[in progress — shipped behind OPENAI_API_KEY]** |
 | **Basic form analytics** | 🟢 Free (advanced 💰) | View event on public renderer + counts. Views / submissions / conversion. |
 | **Mobile + a11y polish** | ⚪ Baseline | Already in the v1 DoD. Maintain, don't "project." |
 
