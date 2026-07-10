@@ -11,6 +11,7 @@ import UiActionMenu, {
   type UiActionItem,
 } from "@/components/ui/UiActionMenu.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiFilterMenu from "@/components/ui/UiFilterMenu.vue";
 import UiLogo from "@/components/ui/UiLogo.vue";
 import UiSearchInput from "@/components/ui/UiSearchInput.vue";
 import UiUserMenu from "@/components/ui/UiUserMenu.vue";
@@ -53,10 +54,23 @@ watch(sidebarOpen, (open) => {
 
 // Client-side search over the active view — the topbar search box binds here.
 const query = ref("");
+// Status filter (Published/Draft, multi-select). Empty = show all.
+const STATUS_OPTIONS = [
+  { id: "published", label: "Published" },
+  { id: "draft", label: "Draft" },
+];
+const statusFilter = ref<string[]>([]);
 const filteredForms = computed(() => {
   const q = query.value.trim().toLowerCase();
-  if (!q) return forms.value;
-  return forms.value.filter((f) => f.title.toLowerCase().includes(q));
+  return forms.value.filter((f) => {
+    if (q && !f.title.toLowerCase().includes(q)) return false;
+    if (
+      statusFilter.value.length &&
+      !statusFilter.value.includes(f.published ? "published" : "draft")
+    )
+      return false;
+    return true;
+  });
 });
 
 async function load(): Promise<void> {
@@ -256,12 +270,17 @@ onMounted(load);
           <h1 class="text-lg font-semibold text-ink-900">
             {{ activeView === "templates" ? "Templates" : "My forms" }}
           </h1>
-          <span
+          <div
             v-if="activeView === 'dashboard' && !loading && forms.length"
-            class="text-xs text-ink-400"
+            class="flex items-center gap-3"
           >
-            {{ forms.length }} form{{ forms.length === 1 ? "" : "s" }}
-          </span>
+            <span class="text-xs text-ink-400">
+              {{ filteredForms.length }} form{{
+                filteredForms.length === 1 ? "" : "s"
+              }}
+            </span>
+            <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
+          </div>
           <span
             v-else-if="activeView === 'templates'"
             class="text-xs text-ink-400"
@@ -314,7 +333,8 @@ onMounted(load);
             v-else-if="filteredForms.length === 0"
             class="py-16 text-center text-sm text-ink-400"
           >
-            No forms match “{{ query }}”.
+            No forms match
+            {{ query.trim() ? `“${query}”` : "the selected filters" }}.
           </div>
 
           <ul v-else class="space-y-3">
@@ -348,6 +368,7 @@ onMounted(load);
                   {{ form.responseCount }} response{{
                     form.responseCount === 1 ? "" : "s"
                   }}
+                  · {{ form.viewCount }} view{{ form.viewCount === 1 ? "" : "s" }}
                   · edited {{ relativeTime(form.updatedAt) }}
                   <!-- Copy feedback lands here since the menu closes on select -->
                   <span

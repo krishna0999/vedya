@@ -20,6 +20,14 @@ export interface FormSummary {
   updatedAt: string;
   published: boolean;
   responseCount: number;
+  viewCount: number;
+}
+
+// Basic analytics (ROADMAP Phase 1): the three headline numbers. Conversion is
+// derived client-side (submissions / views).
+export interface FormStats {
+  views: number;
+  submissions: number;
 }
 
 export interface DraftPatch {
@@ -72,11 +80,13 @@ export async function createForm(ownerId: string, title?: string): Promise<FormD
 
 export async function listForms(ownerId: string): Promise<FormSummary[]> {
   const { rows } = await pool.query<{
-    id: string; title: string; updated_at: Date; published: boolean; response_count: string;
+    id: string; title: string; updated_at: Date; published: boolean;
+    response_count: string; view_count: string;
   }>(
     `SELECT f.id, f.title, f.updated_at,
             f.published_version_id IS NOT NULL AS published,
-            (SELECT count(*) FROM submissions s WHERE s.form_id = f.id) AS response_count
+            (SELECT count(*) FROM submissions s WHERE s.form_id = f.id) AS response_count,
+            (SELECT count(*) FROM form_views v WHERE v.form_id = f.id) AS view_count
        FROM forms f
       WHERE f.owner_id = $1
       ORDER BY f.updated_at DESC`,
@@ -88,6 +98,7 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
     updatedAt: r.updated_at.toISOString(),
     published: r.published,
     responseCount: Number(r.response_count),
+    viewCount: Number(r.view_count),
   }));
 }
 
@@ -204,6 +215,30 @@ export async function getPublicForm(formId: string): Promise<{ version: FormVers
     },
     branding: limitsForPlan(row.plan).branding,
   };
+}
+
+// Public: record one renderer view. Only published forms count (the WHERE
+// doubles as the existence check), and it never throws — analytics must not
+// break the public path. Callers fire-and-forget.
+export async function recordView(formId: string): Promise<void> {
+  await pool
+    .query(
+      `INSERT INTO form_views (form_id)
+       SELECT id FROM forms WHERE id = $1 AND published_version_id IS NOT NULL`,
+      [formId],
+    )
+    .catch(() => {}); // malformed uuid, db hiccup — swallow, a lost view is fine
+}
+
+// Owner: headline analytics numbers for one form.
+export async function getFormStats(ownerId: string, formId: string): Promise<FormStats> {
+  await assertOwnsForm(ownerId, formId);
+  const { rows } = await pool.query<{ views: string; submissions: string }>(
+    `SELECT (SELECT count(*) FROM form_views  WHERE form_id = $1) AS views,
+            (SELECT count(*) FROM submissions WHERE form_id = $1) AS submissions`,
+    [formId],
+  );
+  return { views: Number(rows[0]!.views), submissions: Number(rows[0]!.submissions) };
 }
 
 async function assertOwnsForm(ownerId: string, formId: string): Promise<void> {

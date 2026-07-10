@@ -11,6 +11,13 @@ export interface FormSummary {
   updatedAt: string;
   published: boolean;
   responseCount: number;
+  viewCount: number;
+}
+
+// Basic analytics: headline numbers for one form (conversion derived client-side).
+export interface FormStats {
+  views: number;
+  submissions: number;
 }
 
 export interface DraftPatch {
@@ -112,11 +119,15 @@ export const api = {
   deleteForm: (id: string) => request<void>("DELETE", `/forms/${id}`),
   listSubmissions: (id: string) =>
     request<Submission[]>("GET", `/forms/${id}/submissions`),
+  getFormStats: (id: string) =>
+    request<FormStats>("GET", `/forms/${id}/stats`),
   csvUrl: (id: string) => `${BASE}/forms/${id}/submissions.csv`,
 
   // Public
   getPublicForm: (formId: string) =>
     request<PublicForm>("GET", `/f/${formId}`),
+  recordView: (formId: string) =>
+    request<void>("POST", `/f/${formId}/views`),
   submit: (formId: string, answers: Record<string, unknown>) =>
     request<{ id: string; submittedAt: string }>(
       "POST",

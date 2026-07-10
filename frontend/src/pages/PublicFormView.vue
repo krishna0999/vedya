@@ -28,6 +28,7 @@ async function load(): Promise<void> {
     const form = await api.getPublicForm(formId);
     version.value = form.version;
     branding.value = form.branding;
+    trackView();
   } catch (err) {
     loadError.value =
       err instanceof ApiError && err.status === 404
@@ -36,6 +37,19 @@ async function load(): Promise<void> {
   } finally {
     loading.value = false;
   }
+}
+
+// Analytics view ping — once per tab session (refreshes don't inflate counts),
+// fire-and-forget: analytics must never affect the respondent's experience.
+function trackView(): void {
+  const key = `vedya-viewed:${formId}`;
+  try {
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+  } catch {
+    // storage unavailable (private mode etc.) — still count the view
+  }
+  api.recordView(formId).catch(() => {});
 }
 
 async function onSubmit(answers: Record<string, unknown>): Promise<void> {

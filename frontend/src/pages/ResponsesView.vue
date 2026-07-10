@@ -5,7 +5,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { Submission } from '@schema';
-import { api } from '@/api/client';
+import { api, type FormStats } from '@/api/client';
 import AppNavMenu from '@/components/AppNavMenu.vue';
 import UiButton from '@/components/ui/UiButton.vue';
 
@@ -15,6 +15,7 @@ const formId = route.params.id as string;
 
 const title = ref('Responses');
 const submissions = ref<Submission[]>([]);
+const stats = ref<FormStats | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
@@ -22,15 +23,27 @@ async function load(): Promise<void> {
   loading.value = true;
   error.value = null;
   try {
-    const [form, subs] = await Promise.all([api.getForm(formId), api.listSubmissions(formId)]);
+    const [form, subs, formStats] = await Promise.all([
+      api.getForm(formId),
+      api.listSubmissions(formId),
+      api.getFormStats(formId),
+    ]);
     title.value = form.title;
     submissions.value = subs;
+    stats.value = formStats;
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load responses.';
   } finally {
     loading.value = false;
   }
 }
+
+// Completion rate = submissions / views. Views can lag submissions (views only
+// count since analytics shipped), so cap the display at 100%.
+const completionRate = computed(() => {
+  if (!stats.value || stats.value.views === 0) return null;
+  return Math.min(100, Math.round((stats.value.submissions / stats.value.views) * 100));
+});
 
 // Column set: first-seen id wins its (latest) label, since submissions arrive
 // newest-first from the API.
@@ -90,6 +103,24 @@ onMounted(load);
 
     <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <p v-if="error" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">{{ error }}</p>
+
+      <!-- Basic analytics (ROADMAP Phase 1): views / submissions / completion. -->
+      <dl v-if="!loading && stats" class="mb-6 grid grid-cols-3 gap-3">
+        <div class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card">
+          <dt class="text-xs font-medium text-ink-400">Views</dt>
+          <dd class="mt-0.5 text-xl font-semibold text-ink-900">{{ stats.views }}</dd>
+        </div>
+        <div class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card">
+          <dt class="text-xs font-medium text-ink-400">Responses</dt>
+          <dd class="mt-0.5 text-xl font-semibold text-ink-900">{{ stats.submissions }}</dd>
+        </div>
+        <div class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card">
+          <dt class="text-xs font-medium text-ink-400">Completion</dt>
+          <dd class="mt-0.5 text-xl font-semibold text-ink-900">
+            {{ completionRate === null ? '—' : `${completionRate}%` }}
+          </dd>
+        </div>
+      </dl>
 
       <div v-if="loading" class="py-16 text-center text-sm text-ink-400">Loading responses…</div>
 

@@ -7,8 +7,8 @@ import { getUserId, requireAuth } from '../auth/session';
 import { generateForm } from '../services/ai';
 import type { DraftPatch } from '../services/forms';
 import {
-  createForm, deleteForm, exportSubmissionsCsv, getForm, listForms,
-  listSubmissions, publishForm, updateForm,
+  createForm, deleteForm, exportSubmissionsCsv, getForm, getFormStats,
+  listForms, listSubmissions, publishForm, updateForm,
 } from '../services/forms';
 import { createFormFromTemplate } from '../services/templates';
 
@@ -63,6 +63,9 @@ export const formRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get<IdParams>('/forms/:id/submissions', async (req) => listSubmissions(getUserId(req), req.params.id));
+
+  // Basic analytics (ROADMAP Phase 1): views / submissions for one form.
+  app.get<IdParams>('/forms/:id/stats', async (req) => getFormStats(getUserId(req), req.params.id));
 
   app.get<IdParams>('/forms/:id/submissions.csv', async (req, reply) => {
     const csv = await exportSubmissionsCsv(getUserId(req), req.params.id);
