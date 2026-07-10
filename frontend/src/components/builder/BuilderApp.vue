@@ -11,7 +11,6 @@ import FieldConfigPanel from './FieldConfigPanel.vue';
 import FormSettingsPanel from './FormSettingsPanel.vue';
 import FormRenderer from '@/components/FormRenderer.vue';
 import UiButton from '@/components/ui/UiButton.vue';
-import AppNavMenu from '@/components/AppNavMenu.vue';
 
 const builder = useBuilderStore();
 const mode = ref<'edit' | 'preview'>('edit');
@@ -63,11 +62,10 @@ async function copyLink(): Promise<void> {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col bg-ink-50 text-ink-900">
+  <div class="flex h-full flex-col bg-ink-50 text-ink-900">
     <header class="border-b border-ink-200 bg-white">
       <div class="flex items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-2.5">
         <div class="flex min-w-0 items-center gap-1.5 sm:gap-2">
-          <AppNavMenu />
           <span class="truncate text-sm font-semibold text-ink-900">{{ builder.draft.title }}</span>
           <span class="hidden shrink-0 text-xs text-ink-400 md:inline">· {{ builder.draft.fields.length }} fields</span>
           <span

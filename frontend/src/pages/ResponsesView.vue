@@ -6,7 +6,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { Submission } from '@schema';
 import { api, type FormStats } from '@/api/client';
-import AppNavMenu from '@/components/AppNavMenu.vue';
+import AppShell from '@/components/AppShell.vue';
 import UiButton from '@/components/ui/UiButton.vue';
 
 const route = useRoute();
@@ -78,17 +78,14 @@ onMounted(load);
 </script>
 
 <template>
-  <div class="min-h-screen bg-ink-50 text-ink-900">
+  <AppShell>
     <header class="border-b border-ink-200 bg-white">
-      <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
-        <div class="flex min-w-0 items-center gap-2.5">
-          <AppNavMenu />
-          <div class="min-w-0">
-            <h1 class="truncate text-base font-semibold">{{ title }}</h1>
-            <p class="text-xs text-ink-400">
-              {{ submissions.length }} response{{ submissions.length === 1 ? '' : 's' }}
-            </p>
-          </div>
+      <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+        <div class="min-w-0">
+          <h1 class="truncate text-base font-semibold">{{ title }}</h1>
+          <p class="text-xs text-ink-400">
+            {{ submissions.length }} response{{ submissions.length === 1 ? '' : 's' }}
+          </p>
         </div>
         <div class="flex shrink-0 items-center gap-1.5">
           <UiButton variant="secondary" size="sm" @click="router.push({ name: 'builder', params: { id: formId } })">
@@ -101,7 +98,7 @@ onMounted(load);
       </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+    <main class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <p v-if="error" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">{{ error }}</p>
 
       <!-- Basic analytics (ROADMAP Phase 1): views / submissions / completion. -->
@@ -168,5 +165,5 @@ onMounted(load);
         </table>
       </div>
     </main>
-  </div>
+  </AppShell>
 </template>

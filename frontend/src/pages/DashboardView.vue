@@ -5,14 +5,13 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api, type FormSummary } from "@/api/client";
 import AiGenerateCard from "@/components/AiGenerateCard.vue";
-import DashboardNav from "@/components/DashboardNav.vue";
+import AppShell from "@/components/AppShell.vue";
 import TemplateGallery from "@/components/TemplateGallery.vue";
 import UiActionMenu, {
   type UiActionItem,
 } from "@/components/ui/UiActionMenu.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiFilterMenu from "@/components/ui/UiFilterMenu.vue";
-import UiLogo from "@/components/ui/UiLogo.vue";
 import UiSearchInput from "@/components/ui/UiSearchInput.vue";
 import UiUserMenu from "@/components/ui/UiUserMenu.vue";
 
@@ -35,22 +34,6 @@ function setView(view: "dashboard" | "templates"): void {
 }
 // search is per-view; don't carry a stale query across
 watch(activeView, () => (query.value = ""));
-
-// Off-canvas sidebar for small screens (the desktop sidebar is always visible).
-const sidebarOpen = ref(false);
-function onNavSelect(view: "dashboard" | "templates"): void {
-  setView(view);
-  sidebarOpen.value = false;
-}
-// Close the slideover on Escape while it's open (one stable handler so the
-// add/remove pair references the same function).
-function onSlideoverKey(e: KeyboardEvent): void {
-  if (e.key === "Escape") sidebarOpen.value = false;
-}
-watch(sidebarOpen, (open) => {
-  if (open) document.addEventListener("keydown", onSlideoverKey);
-  else document.removeEventListener("keydown", onSlideoverKey);
-});
 
 // Client-side search over the active view — the topbar search box binds here.
 const query = ref("");
@@ -199,46 +182,17 @@ onMounted(load);
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-ink-50 text-ink-900">
-    <!-- Sidebar -->
-    <aside
-      class="hidden w-60 shrink-0 flex-col border-r border-ink-200 bg-white md:flex"
-    >
-      <div class="px-5 py-4">
-        <UiLogo />
-      </div>
-      <DashboardNav :active="activeView" class="px-3 py-2" @select="setView" />
-    </aside>
-
-    <!-- Right column: topbar + content -->
-    <div class="flex min-w-0 flex-1 flex-col">
-      <!-- Topbar — the inner row shares the content's centered max-w-4xl column
-           so the search box lines up with the forms/templates below it. New form
-           + avatar ride the end of that row until xl, where the content centers
-           and a margin opens up — there they break out to the screen's far right
-           (see the actions block below). -->
-      <header class="relative border-b border-ink-200 bg-white">
-        <div
-          class="mx-auto flex w-full max-w-4xl items-center gap-3 px-4 py-3 sm:px-6"
-        >
-          <button
-            type="button"
-            class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-ink-600 transition hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 md:hidden"
-            aria-label="Open menu"
-            @click="sidebarOpen = true"
-          >
-            <svg
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linecap="round"
-              class="h-5 w-5"
-            >
-              <path d="M3 5h14M3 10h14M3 15h14" />
-            </svg>
-          </button>
-          <UiSearchInput
+  <AppShell>
+    <!-- Topbar — the inner row shares the content's centered max-w-4xl column
+         so the search box lines up with the forms/templates below it. New form
+         + avatar ride the end of that row until xl, where the content centers
+         and a margin opens up — there they break out to the screen's far right
+         (see the actions block below). -->
+    <header class="relative border-b border-ink-200 bg-white">
+      <div
+        class="mx-auto flex w-full max-w-4xl items-center gap-3 px-4 py-3 sm:px-6"
+      >
+        <UiSearchInput
             v-model="query"
             class="min-w-0 w-full max-w-4xl"
             :aria-label="
@@ -389,55 +343,5 @@ onMounted(load);
           </ul>
         </template>
       </main>
-    </div>
-
-    <!-- Mobile slideover: the sidebar off-canvas on small screens -->
-    <transition
-      enter-active-class="transition-opacity duration-200 ease-soft"
-      enter-from-class="opacity-0"
-      leave-active-class="transition-opacity duration-150 ease-soft"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="sidebarOpen"
-        class="fixed inset-0 z-40 bg-ink-900/40 md:hidden"
-        @click="sidebarOpen = false"
-      ></div>
-    </transition>
-    <transition
-      enter-active-class="transition-transform duration-200 ease-soft"
-      enter-from-class="-translate-x-full"
-      leave-active-class="transition-transform duration-150 ease-soft"
-      leave-to-class="-translate-x-full"
-    >
-      <aside
-        v-if="sidebarOpen"
-        class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white shadow-xl md:hidden"
-      >
-        <div class="flex items-center justify-between px-5 py-4">
-          <UiLogo />
-          <button
-            type="button"
-            class="rounded-lg p-2 text-ink-400 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-            aria-label="Close menu"
-            @click="sidebarOpen = false"
-          >
-            <svg viewBox="0 0 20 20" fill="none" class="h-5 w-5">
-              <path
-                d="M6 6l8 8M14 6l-8 8"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-              />
-            </svg>
-          </button>
-        </div>
-        <DashboardNav
-          :active="activeView"
-          class="px-3 py-2"
-          @select="onNavSelect"
-        />
-      </aside>
-    </transition>
-  </div>
+  </AppShell>
 </template>
