@@ -3,6 +3,7 @@
 import type { Field, FieldOption } from '@schema';
 import { makeOption } from '@/data/fieldTypes';
 import { useBuilderStore } from '@/stores/builder';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const props = defineProps<{ field: Field }>();
 const builder = useBuilderStore();
@@ -46,11 +47,11 @@ function add(): void {
             :disabled="options().length <= 1"
             @click="remove(o.id)"
           >
-            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15" /></svg>
+            <UiIcon name="x-mark" class="text-inherit h-5 w-5" />
           </button>
         </div>
         <input
-          class="ui-input mt-1.5 text-xs"
+          class="ui-input mt-1.5 text-sm"
           :value="o.description ?? ''"
           placeholder="Description (optional)"
           @input="setDescription(o.id, ($event.target as HTMLInputElement).value)"

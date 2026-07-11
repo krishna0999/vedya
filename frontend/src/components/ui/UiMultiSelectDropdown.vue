@@ -4,6 +4,7 @@
 // a checkbox list. Emits string[] of selected option values.
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
 import type { FieldOption } from '@schema';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const props = defineProps<{
   id?: string;
@@ -135,24 +136,11 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
             class="grid h-4 w-4 place-items-center rounded hover:bg-brand-100"
             @click.stop="remove(o)"
           >
-            <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <path d="M4 4l8 8M12 4l-8 8" />
-            </svg>
+            <UiIcon name="x-mark" class="text-inherit h-3 w-3" />
           </span>
         </span>
       </span>
-      <svg
-        class="ml-auto h-4 w-4 shrink-0 text-ink-400 transition-transform duration-150"
-        :class="open && 'rotate-180'"
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M6 8l4 4 4-4" />
-      </svg>
+      <UiIcon name="chevron-down" class="ml-auto h-5 w-5 shrink-0 text-ink-400 transition-transform duration-150" :class="open && 'rotate-180'" />
     </button>
 
     <transition
@@ -166,10 +154,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
         class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop"
       >
         <div class="flex items-center gap-2 border-b border-ink-100 px-3">
-          <svg class="h-4 w-4 shrink-0 text-ink-400" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="9" r="6" />
-            <path d="M18 18l-4-4" />
-          </svg>
+          <UiIcon name="magnifying-glass" class="h-5 w-5 shrink-0 text-ink-400" />
           <input
             ref="searchEl"
             v-model="query"
@@ -194,9 +179,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
               class="grid h-5 w-5 shrink-0 place-items-center rounded-[6px] border transition-colors duration-150"
               :class="isChecked(o) ? 'border-brand-600 bg-brand-600 text-white' : 'border-ink-300 bg-white'"
             >
-              <svg v-if="isChecked(o)" class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 8.5l3.2 3.2L13 5" />
-              </svg>
+              <UiIcon v-if="isChecked(o)" name="check" class="text-inherit h-3.5 w-3.5" />
             </span>
             <span class="min-w-0">
               <span class="block truncate leading-snug">{{ o.label }}</span>

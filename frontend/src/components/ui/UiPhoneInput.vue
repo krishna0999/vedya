@@ -10,6 +10,7 @@ import {
   type CountryCode,
 } from "libphonenumber-js";
 import { COUNTRIES, flagEmoji, type Country } from "@/data/countries";
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const props = defineProps<{
   id?: string;
@@ -153,18 +154,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         @keydown="onKeydown"
       >
         <span class="text-lg leading-none">{{ flagEmoji(country.iso2) }}</span>
-        <svg
-          class="h-4 w-4 text-ink-400 transition-transform duration-150"
-          :class="open && 'rotate-180'"
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M6 8l4 4 4-4" />
-        </svg>
+        <UiIcon name="chevron-down" class="h-5 w-5 text-ink-400 transition-transform duration-150" :class="open && 'rotate-180'" />
       </button>
 
       <div class="flex flex-1 items-center gap-1.5 px-3">
@@ -192,18 +182,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         class="absolute z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop"
       >
         <div class="flex items-center gap-2 border-b border-ink-100 px-3">
-          <svg
-            class="h-4 w-4 shrink-0 text-ink-400"
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="9" cy="9" r="6" />
-            <path d="M18 18l-4-4" />
-          </svg>
+          <UiIcon name="magnifying-glass" class="h-5 w-5 shrink-0 text-ink-400" />
           <input
             ref="searchEl"
             v-model="query"
@@ -228,18 +207,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             <span class="min-w-0 flex-1 truncate"
               >{{ c.name }} ({{ c.dial }})</span
             >
-            <svg
-              v-if="c.iso2 === country.iso2"
-              class="h-4 w-4 shrink-0 text-brand-600"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.4"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 8.5l3.2 3.2L13 5" />
-            </svg>
+            <UiIcon v-if="c.iso2 === country.iso2" name="check" class="h-5 w-5 shrink-0 text-brand-600" />
           </li>
           <li
             v-if="filtered.length === 0"

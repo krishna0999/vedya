@@ -20,6 +20,25 @@ export interface FormStats {
   submissions: number;
 }
 
+// Account-level analytics for the /usage dashboard (mirrors the backend shape).
+export interface UsageDay {
+  day: string; // YYYY-MM-DD
+  views: number;
+  submissions: number;
+}
+
+export interface AccountUsage {
+  plan: string;
+  limits: { responsesPerMonth: number | null; aiGenerationsPerMonth: number }; // null = unlimited
+  forms: number;
+  published: number;
+  views: number;
+  submissions: number;
+  monthSubmissions: number;
+  monthAiGenerations: number;
+  timeline: UsageDay[];
+}
+
 export interface DraftPatch {
   title?: string;
   fields?: Field[];
@@ -29,6 +48,7 @@ export interface DraftPatch {
 export interface AuthUser {
   id: string;
   email: string;
+  name: string | null;
   plan: string;
 }
 
@@ -101,6 +121,14 @@ export const api = {
     request<AuthUser>("POST", "/auth/login", { email, password }),
   logout: () => request<{ ok: true }>("POST", "/auth/logout"),
   me: () => request<AuthUser>("GET", "/auth/me"),
+  updateProfile: (name: string) =>
+    request<AuthUser>("PATCH", "/auth/profile", { name }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<{ ok: true }>("PATCH", "/auth/password", {
+      currentPassword,
+      newPassword,
+    }),
+  deleteAccount: () => request<void>("DELETE", "/auth/account"),
 
   // Owner (authenticated)
   createForm: (title?: string) =>
@@ -121,6 +149,8 @@ export const api = {
     request<Submission[]>("GET", `/forms/${id}/submissions`),
   getFormStats: (id: string) =>
     request<FormStats>("GET", `/forms/${id}/stats`),
+  getUsage: () => request<AccountUsage>("GET", "/usage"),
+  exportUrl: () => `${BASE}/account/export`,
   csvUrl: (id: string) => `${BASE}/forms/${id}/submissions.csv`,
 
   // Public

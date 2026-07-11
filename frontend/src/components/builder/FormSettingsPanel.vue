@@ -16,7 +16,7 @@ const FONTS = [
 
 <template>
   <div class="space-y-4">
-    <span class="rounded bg-ink-100 px-2 py-0.5 text-xs font-medium text-ink-600">Form settings</span>
+    <span class="rounded bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-600">Form settings</span>
 
     <div>
       <label class="ui-label">Title</label>
@@ -26,7 +26,7 @@ const FONTS = [
     <div class="border-t border-ink-100 pt-3">
       <p class="ui-label">Theme</p>
 
-      <label class="mb-1 block text-xs text-ink-500">Primary color</label>
+      <label class="mb-1 block text-sm text-ink-500">Primary color</label>
       <div class="flex items-center gap-2">
         <input
           type="color"
@@ -41,7 +41,7 @@ const FONTS = [
         />
       </div>
 
-      <label class="mb-1 mt-3 block text-xs text-ink-500">Corner radius: {{ builder.draft.theme.borderRadius }}px</label>
+      <label class="mb-1 mt-3 block text-sm text-ink-500">Corner radius: {{ builder.draft.theme.borderRadius }}px</label>
       <input
         type="range"
         min="0"
@@ -51,7 +51,7 @@ const FONTS = [
         @input="builder.setTheme({ borderRadius: Number(($event.target as HTMLInputElement).value) })"
       />
 
-      <label class="mb-1 mt-3 block text-xs text-ink-500">Font</label>
+      <label class="mb-1 mt-3 block text-sm text-ink-500">Font</label>
       <BuilderSelect
         :model-value="builder.draft.theme.fontFamily"
         :options="FONTS"

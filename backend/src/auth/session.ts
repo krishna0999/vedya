@@ -8,6 +8,7 @@ import { lucia } from './lucia';
 export interface SessionUser {
   id: string;
   email: string;
+  name: string | null;
   plan: string;
 }
 

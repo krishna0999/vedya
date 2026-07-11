@@ -11,6 +11,7 @@ import FieldConfigPanel from './FieldConfigPanel.vue';
 import FormSettingsPanel from './FormSettingsPanel.vue';
 import FormRenderer from '@/components/FormRenderer.vue';
 import UiButton from '@/components/ui/UiButton.vue';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const builder = useBuilderStore();
 const mode = ref<'edit' | 'preview'>('edit');
@@ -67,10 +68,10 @@ async function copyLink(): Promise<void> {
       <div class="flex items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-2.5">
         <div class="flex min-w-0 items-center gap-1.5 sm:gap-2">
           <span class="truncate text-sm font-semibold text-ink-900">{{ builder.draft.title }}</span>
-          <span class="hidden shrink-0 text-xs text-ink-400 md:inline">· {{ builder.draft.fields.length }} fields</span>
+          <span class="hidden shrink-0 text-sm text-ink-400 md:inline">· {{ builder.draft.fields.length }} fields</span>
           <span
             v-if="saveLabel"
-            class="hidden shrink-0 text-xs sm:inline"
+            class="hidden shrink-0 text-sm sm:inline"
             :class="builder.saveStatus === 'error' ? 'text-danger' : 'text-ink-400'"
           >· {{ saveLabel }}</span>
         </div>
@@ -93,7 +94,7 @@ async function copyLink(): Promise<void> {
             aria-label="Responses"
             @click="$router.push({ name: 'responses', params: { id: builder.draft.id } })"
           >
-            <svg class="h-4 w-4 sm:hidden" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l1.5 2.5h3L13 12h4" /><path d="M5.2 4h9.6L17 12v4H3v-4l2.2-8z" /></svg>
+            <UiIcon name="eye" class="text-inherit h-5 w-5 sm:hidden" />
             <span class="hidden sm:inline">Responses</span>
           </UiButton>
           <UiButton size="sm" :disabled="!canPublish" @click="builder.publish()">
@@ -120,11 +121,11 @@ async function copyLink(): Promise<void> {
       class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-brand-100 bg-brand-50 px-4 py-2 text-sm"
     >
       <span class="font-medium text-brand-800">Published{{ builder.lastPublished ? ` · v${builder.lastPublished.version}` : '' }}.</span>
-      <code class="truncate rounded bg-white px-2 py-0.5 text-xs text-ink-600 ring-1 ring-ink-200">{{ publicUrl }}</code>
-      <button type="button" class="text-xs font-medium text-brand-700 hover:text-brand-800" @click="copyLink">
+      <code class="truncate rounded bg-white px-2 py-0.5 text-sm text-ink-600 ring-1 ring-ink-200">{{ publicUrl }}</code>
+      <button type="button" class="text-sm font-medium text-brand-700 hover:text-brand-800" @click="copyLink">
         {{ copied ? 'Copied!' : 'Copy link' }}
       </button>
-      <a :href="publicUrl" target="_blank" rel="noopener" class="text-xs font-medium text-brand-700 hover:text-brand-800">Open ↗</a>
+      <a :href="publicUrl" target="_blank" rel="noopener" class="text-sm font-medium text-brand-700 hover:text-brand-800">Open ↗</a>
     </div>
     <p
       v-else-if="builder.publishStatus === 'error'"
@@ -141,7 +142,7 @@ async function copyLink(): Promise<void> {
           <span class="text-base leading-none">+</span> Add field
         </UiButton>
         <UiButton variant="ghost" size="sm" @click="settingsOpen = true">
-          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.5" /><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4" /></svg>
+          <UiIcon name="cog-6-tooth" class="text-inherit h-5 w-5" />
           Form settings
         </UiButton>
       </div>
@@ -169,7 +170,7 @@ async function copyLink(): Promise<void> {
         </div>
 
         <section v-if="previewSubmission" class="mt-6">
-          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">Validated submission (preview)</h2>
+          <h2 class="mb-2 text-sm font-semibold uppercase tracking-wider text-ink-500">Validated submission (preview)</h2>
           <pre class="overflow-x-auto rounded-xl bg-ink-900 p-4 text-sm leading-relaxed text-brand-200">{{ JSON.stringify(previewSubmission, null, 2) }}</pre>
         </section>
       </div>
@@ -214,7 +215,7 @@ async function copyLink(): Promise<void> {
             aria-label="Close"
             @click="paletteOpen = false"
           >
-            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l8 8M14 6l-8 8" /></svg>
+            <UiIcon name="x-mark" class="text-inherit h-5 w-5" />
           </button>
         </div>
         <FieldPalette class="min-h-0 flex-1 border-t border-ink-100" @add="paletteOpen = false" />

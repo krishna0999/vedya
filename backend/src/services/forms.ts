@@ -299,3 +299,177 @@ export async function exportSubmissionsCsv(ownerId: string, formId: string): Pro
   ]);
   return toCsv(columns, submissions);
 }
+
+// ---------------------------------------------------------------------------
+// Account-level usage (the /usage analytics dashboard).
+
+export interface UsageDay {
+  day: string; // YYYY-MM-DD
+  views: number;
+  submissions: number;
+}
+
+export interface AccountUsage {
+  plan: string;
+  // null = unlimited (Infinity doesn't survive JSON)
+  limits: { responsesPerMonth: number | null; aiGenerationsPerMonth: number };
+  forms: number;
+  published: number;
+  views: number;
+  submissions: number;
+  monthSubmissions: number;
+  monthAiGenerations: number;
+  timeline: UsageDay[]; // last 30 days, gaps filled with zeros
+}
+
+export async function getAccountUsage(ownerId: string, plan: string): Promise<AccountUsage> {
+  const totalsQ = pool.query<{
+    forms: string; published: string; views: string; submissions: string;
+    month_submissions: string; month_ai: string;
+  }>(
+    `SELECT
+       (SELECT count(*) FROM forms WHERE owner_id = $1) AS forms,
+       (SELECT count(*) FROM forms WHERE owner_id = $1 AND published_version_id IS NOT NULL) AS published,
+       (SELECT count(*) FROM form_views v JOIN forms f ON f.id = v.form_id WHERE f.owner_id = $1) AS views,
+       (SELECT count(*) FROM submissions s JOIN forms f ON f.id = s.form_id WHERE f.owner_id = $1) AS submissions,
+       (SELECT count(*) FROM submissions s JOIN forms f ON f.id = s.form_id
+         WHERE f.owner_id = $1 AND s.submitted_at >= date_trunc('month', now())) AS month_submissions,
+       (SELECT count(*) FROM ai_generations WHERE user_id = $1 AND created_at >= date_trunc('month', now())) AS month_ai`,
+    [ownerId],
+  );
+  // ponytail: days bucket in the server's timezone; per-owner TZ if it ever matters.
+  const timelineQ = pool.query<{ day: string; views: string; submissions: string }>(
+    `SELECT to_char(d.day, 'YYYY-MM-DD') AS day,
+            coalesce(v.c, 0) AS views,
+            coalesce(s.c, 0) AS submissions
+       FROM generate_series(current_date - 29, current_date, interval '1 day') AS d(day)
+       LEFT JOIN (SELECT v.viewed_at::date AS day, count(*) AS c
+                    FROM form_views v JOIN forms f ON f.id = v.form_id
+                   WHERE f.owner_id = $1 AND v.viewed_at >= current_date - 29
+                   GROUP BY 1) v ON v.day = d.day::date
+       LEFT JOIN (SELECT s.submitted_at::date AS day, count(*) AS c
+                    FROM submissions s JOIN forms f ON f.id = s.form_id
+                   WHERE f.owner_id = $1 AND s.submitted_at >= current_date - 29
+                   GROUP BY 1) s ON s.day = d.day::date
+      ORDER BY 1`,
+    [ownerId],
+  );
+  const [totals, timeline] = await Promise.all([totalsQ, timelineQ]);
+  const t = totals.rows[0]!;
+  const lim = limitsForPlan(plan);
+  return {
+    plan,
+    limits: {
+      responsesPerMonth: Number.isFinite(lim.responsesPerMonth) ? lim.responsesPerMonth : null,
+      aiGenerationsPerMonth: lim.aiGenerationsPerMonth,
+    },
+    forms: Number(t.forms),
+    published: Number(t.published),
+    views: Number(t.views),
+    submissions: Number(t.submissions),
+    monthSubmissions: Number(t.month_submissions),
+    monthAiGenerations: Number(t.month_ai),
+    timeline: timeline.rows.map((r) => ({
+      day: r.day,
+      views: Number(r.views),
+      submissions: Number(r.submissions),
+    })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Account-wide data export ("own your data"): the full dump of everything an
+// owner has — profile, every form's draft, its published versions, and every
+// submission. One JSON document; the browser downloads it.
+
+export interface AccountExport {
+  exportedAt: string;
+  account: { id: string; email: string; name: string | null; plan: string; createdAt: string };
+  forms: Array<{
+    id: string;
+    title: string;
+    currentDraft: unknown;
+    publishedVersionId: string | null;
+    createdAt: string;
+    updatedAt: string;
+    versions: Array<{ id: string; version: number; schema: unknown; theme: unknown; publishedAt: string }>;
+    submissions: Array<{
+      id: string; versionId: string; answers: unknown; labelSnapshot: unknown;
+      submittedAt: string; meta: unknown;
+    }>;
+  }>;
+}
+
+// ponytail: whole dump assembled in memory — fine for v1 volumes; stream or
+// paginate if an account ever holds enough submissions to strain the response.
+export async function exportAccount(ownerId: string): Promise<AccountExport> {
+  const accountQ = pool.query<{ id: string; email: string; name: string | null; plan: string; created_at: Date }>(
+    'SELECT id, email, name, plan, created_at FROM users WHERE id = $1',
+    [ownerId],
+  );
+  const formsQ = pool.query<{
+    id: string; title: string; current_draft: unknown; published_version_id: string | null;
+    created_at: Date; updated_at: Date;
+  }>(
+    `SELECT id, title, current_draft, published_version_id, created_at, updated_at
+       FROM forms WHERE owner_id = $1 ORDER BY created_at`,
+    [ownerId],
+  );
+  const versionsQ = pool.query<{
+    id: string; form_id: string; version: number; schema: unknown; theme: unknown; published_at: Date;
+  }>(
+    `SELECT v.id, v.form_id, v.version, v.schema, v.theme, v.published_at
+       FROM form_versions v JOIN forms f ON f.id = v.form_id
+      WHERE f.owner_id = $1 ORDER BY v.form_id, v.version`,
+    [ownerId],
+  );
+  const submissionsQ = pool.query<{
+    id: string; form_id: string; version_id: string; answers: unknown; label_snapshot: unknown;
+    submitted_at: Date; meta: unknown;
+  }>(
+    `SELECT s.id, s.form_id, s.version_id, s.answers, s.label_snapshot, s.submitted_at, s.meta
+       FROM submissions s JOIN forms f ON f.id = s.form_id
+      WHERE f.owner_id = $1 ORDER BY s.form_id, s.submitted_at`,
+    [ownerId],
+  );
+  const [account, forms, versions, submissions] = await Promise.all([
+    accountQ, formsQ, versionsQ, submissionsQ,
+  ]);
+
+  const a = account.rows[0];
+  if (!a) throw notFound('Account');
+
+  // Bucket children by form_id so each form carries its own versions/submissions.
+  const versionsByForm = new Map<string, AccountExport['forms'][number]['versions']>();
+  for (const v of versions.rows) {
+    const list = versionsByForm.get(v.form_id) ?? [];
+    list.push({ id: v.id, version: v.version, schema: v.schema, theme: v.theme, publishedAt: v.published_at.toISOString() });
+    versionsByForm.set(v.form_id, list);
+  }
+  const subsByForm = new Map<string, AccountExport['forms'][number]['submissions']>();
+  for (const s of submissions.rows) {
+    const list = subsByForm.get(s.form_id) ?? [];
+    list.push({
+      id: s.id, versionId: s.version_id, answers: s.answers, labelSnapshot: s.label_snapshot,
+      submittedAt: s.submitted_at.toISOString(), meta: s.meta,
+    });
+    subsByForm.set(s.form_id, list);
+  }
+
+  return {
+    exportedAt: new Date().toISOString(),
+    account: {
+      id: a.id, email: a.email, name: a.name, plan: a.plan, createdAt: a.created_at.toISOString(),
+    },
+    forms: forms.rows.map((f) => ({
+      id: f.id,
+      title: f.title,
+      currentDraft: f.current_draft,
+      publishedVersionId: f.published_version_id,
+      createdAt: f.created_at.toISOString(),
+      updatedAt: f.updated_at.toISOString(),
+      versions: versionsByForm.get(f.id) ?? [],
+      submissions: subsByForm.get(f.id) ?? [],
+    })),
+  };
+}

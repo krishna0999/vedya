@@ -82,7 +82,19 @@ export const SubmissionBodySchema = z.object({
   answers: z.record(z.string(), z.unknown()),
 });
 
+const PasswordSchema = z.string().min(8, 'Password must be at least 8 characters.').max(256);
+
 export const CredentialsSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email address.'),
-  password: z.string().min(8, 'Password must be at least 8 characters.').max(256),
+  password: PasswordSchema,
+});
+
+export const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Enter your current password.'),
+  newPassword: PasswordSchema,
+});
+
+// Empty string clears the name (stored as NULL); the UI falls back to email.
+export const UpdateProfileSchema = z.object({
+  name: z.string().trim().max(80, 'Name must be 80 characters or fewer.'),
 });

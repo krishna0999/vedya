@@ -7,8 +7,8 @@ import { getUserId, requireAuth } from '../auth/session';
 import { generateForm } from '../services/ai';
 import type { DraftPatch } from '../services/forms';
 import {
-  createForm, deleteForm, exportSubmissionsCsv, getForm, getFormStats,
-  listForms, listSubmissions, publishForm, updateForm,
+  createForm, deleteForm, exportAccount, exportSubmissionsCsv, getAccountUsage,
+  getForm, getFormStats, listForms, listSubmissions, publishForm, updateForm,
 } from '../services/forms';
 import { createFormFromTemplate } from '../services/templates';
 
@@ -66,6 +66,19 @@ export const formRoutes: FastifyPluginAsync = async (app) => {
 
   // Basic analytics (ROADMAP Phase 1): views / submissions for one form.
   app.get<IdParams>('/forms/:id/stats', async (req) => getFormStats(getUserId(req), req.params.id));
+
+  // Account-level analytics: totals, monthly quota consumption, 30-day timeline.
+  app.get('/usage', async (req) => getAccountUsage(getUserId(req), req.user!.plan));
+
+  // Full account data export ("own your data"): one JSON dump, browser-downloaded.
+  app.get('/account/export', async (req, reply) => {
+    const data = await exportAccount(getUserId(req));
+    const date = new Date().toISOString().slice(0, 10);
+    return reply
+      .header('content-type', 'application/json; charset=utf-8')
+      .header('content-disposition', `attachment; filename="vedya-export-${date}.json"`)
+      .send(data);
+  });
 
   app.get<IdParams>('/forms/:id/submissions.csv', async (req, reply) => {
     const csv = await exportSubmissionsCsv(getUserId(req), req.params.id);

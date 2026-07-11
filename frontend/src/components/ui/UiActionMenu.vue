@@ -3,7 +3,9 @@
 // each rendered as <icon> <text>. Icons are optional per item (named from the
 // built-in set below); an item without one renders text-only. Same dropdown
 // idiom as UiUserMenu (outside-mousedown + Escape close, soft transition).
-import { onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount, ref } from "vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import type { IconName } from "@/lib/icons";
 
 export interface UiActionItem {
   id: string;
@@ -14,19 +16,24 @@ export interface UiActionItem {
   title?: string; // tooltip, e.g. why the item is disabled
 }
 
-export type UiActionIcon = 'pencil' | 'responses' | 'copy' | 'external' | 'trash';
+export type UiActionIcon =
+  | "pencil"
+  | "responses"
+  | "copy"
+  | "external"
+  | "trash";
 
-// One multi-subpath `d` per icon (20×20 viewBox, stroked) keeps the set compact.
-const ICONS: Record<UiActionIcon, string> = {
-  pencil: 'M13.5 4.5l2 2L7 15l-2.7.7.7-2.7 8.5-8.5zM12 6l2 2',
-  responses: 'M3 12h4l1.5 2.5h3L13 12h4M5.2 4h9.6L17 12v4H3v-4l2.2-8z',
-  copy: 'M7 7h9v9H7V7zM5 13H4V4h9v1',
-  external: 'M8.5 5H6a2 2 0 00-2 2v7a2 2 0 002 2h7a2 2 0 002-2v-2.5M12 4h4v4M15.5 4.5L9 11',
-  trash: 'M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10M8.5 9v4M11.5 9v4',
+// Map each menu action to a shared icon-registry name (see @/lib/icons).
+const ICONS: Record<UiActionIcon, IconName> = {
+  pencil: "pencil-square",
+  responses: "list-bullet",
+  copy: "document-duplicate",
+  external: "arrow-top-right-on-square",
+  trash: "trash",
 };
 
 withDefaults(defineProps<{ items: UiActionItem[]; label?: string }>(), {
-  label: 'Actions',
+  label: "Actions",
 });
 const emit = defineEmits<{ select: [id: string] }>();
 
@@ -38,12 +45,12 @@ function onDocPointer(e: MouseEvent): void {
 }
 function openMenu(): void {
   open.value = true;
-  document.addEventListener('mousedown', onDocPointer);
+  document.addEventListener("mousedown", onDocPointer);
 }
 function close(): void {
   if (!open.value) return;
   open.value = false;
-  document.removeEventListener('mousedown', onDocPointer);
+  document.removeEventListener("mousedown", onDocPointer);
 }
 function toggle(): void {
   open.value ? close() : openMenu();
@@ -51,10 +58,10 @@ function toggle(): void {
 function pick(item: UiActionItem): void {
   if (item.disabled) return;
   close();
-  emit('select', item.id);
+  emit("select", item.id);
 }
 
-onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
+onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
 </script>
 
 <template>
@@ -67,7 +74,11 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
       :aria-label="label"
       @click="toggle"
     >
-      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><circle cx="5" cy="10" r="1.4" /><circle cx="10" cy="10" r="1.4" /><circle cx="15" cy="10" r="1.4" /></svg>
+      <UiIcon
+        name="ellipsis-horizontal"
+        type="solid"
+        class="text-inherit h-5 w-5"
+      />
     </button>
 
     <transition
@@ -87,24 +98,21 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
           type="button"
           role="menuitem"
           class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-          :class="item.danger ? 'text-danger hover:bg-red-50' : 'text-ink-700 hover:bg-ink-50'"
+          :class="
+            item.danger
+              ? 'text-danger hover:bg-red-50'
+              : 'text-ink-700 hover:bg-ink-50'
+          "
           :disabled="item.disabled"
           :title="item.title"
           @click="pick(item)"
         >
-          <svg
+          <UiIcon
             v-if="item.icon"
-            class="h-4 w-4 shrink-0"
+            :name="ICONS[item.icon]"
+            class="h-5 w-5 shrink-0"
             :class="item.danger ? 'text-danger' : 'text-ink-400'"
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path :d="ICONS[item.icon]" />
-          </svg>
+          />
           {{ item.label }}
         </button>
       </div>

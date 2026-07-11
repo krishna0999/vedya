@@ -2,7 +2,7 @@
 // Cookies are set via Set-Cookie from the Lucia session cookie serializer.
 import { randomUUID } from 'node:crypto';
 import type { FastifyPluginAsync } from 'fastify';
-import { CredentialsSchema } from '../api/schemas';
+import { ChangePasswordSchema, CredentialsSchema, UpdateProfileSchema } from '../api/schemas';
 import { hashPassword, verifyPassword } from '../auth/password';
 import { lucia } from '../auth/lucia';
 import { pool } from '../db/pool';
@@ -11,6 +11,7 @@ import { AppError } from '../lib/errors';
 interface UserRow {
   id: string;
   email: string;
+  name: string | null;
   plan: string;
   password_hash: string | null;
 }
@@ -40,13 +41,13 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
       throw err;
     }
     await startSession(reply, id);
-    return reply.status(201).send({ id, email, plan: 'free' });
+    return reply.status(201).send({ id, email, name: null, plan: 'free' });
   });
 
   app.post('/auth/login', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req, reply) => {
     const { email, password } = CredentialsSchema.parse(req.body ?? {});
     const { rows } = await pool.query<UserRow>(
-      'SELECT id, email, plan, password_hash FROM users WHERE email = $1',
+      'SELECT id, email, name, plan, password_hash FROM users WHERE email = $1',
       [email],
     );
     const user = rows[0];
@@ -58,7 +59,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     if (!user || !ok) throw new AppError(401, 'Incorrect email or password.');
 
     await startSession(reply, user.id);
-    return { id: user.id, email: user.email, plan: user.plan };
+    return { id: user.id, email: user.email, name: user.name, plan: user.plan };
   });
 
   app.post('/auth/logout', async (req, reply) => {
@@ -71,5 +72,46 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
   app.get('/auth/me', async (req) => {
     if (!req.user) throw new AppError(401, 'Not signed in.');
     return req.user;
+  });
+
+  // Update profile (display name only — email change needs verification infra we
+  // don't have yet). Empty string clears the name back to NULL.
+  app.patch('/auth/profile', async (req) => {
+    if (!req.user) throw new AppError(401, 'Not signed in.');
+    const { name } = UpdateProfileSchema.parse(req.body ?? {});
+    const value = name.length ? name : null;
+    await pool.query('UPDATE users SET name = $1 WHERE id = $2', [value, req.user.id]);
+    return { ...req.user, name: value };
+  });
+
+  // Change password: verify the current one, store the new hash, then rotate —
+  // invalidate every session and start a fresh one for this device.
+  app.patch('/auth/password', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req, reply) => {
+    if (!req.user) throw new AppError(401, 'Not signed in.');
+    const { currentPassword, newPassword } = ChangePasswordSchema.parse(req.body ?? {});
+    const { rows } = await pool.query<{ password_hash: string | null }>(
+      'SELECT password_hash FROM users WHERE id = $1',
+      [req.user.id],
+    );
+    const hash = rows[0]?.password_hash;
+    if (!hash || !(await verifyPassword(hash, currentPassword))) {
+      throw new AppError(401, 'Current password is incorrect.');
+    }
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [
+      await hashPassword(newPassword),
+      req.user.id,
+    ]);
+    await lucia.invalidateUserSessions(req.user.id);
+    await startSession(reply, req.user.id);
+    return { ok: true };
+  });
+
+  // Delete account: the users row cascades to sessions, forms, versions,
+  // submissions, and views (FKs in migrations 001/002/004).
+  app.delete('/auth/account', async (req, reply) => {
+    if (!req.user) throw new AppError(401, 'Not signed in.');
+    await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
+    reply.header('set-cookie', lucia.createBlankSessionCookie().serialize());
+    return reply.status(204).send();
   });
 };

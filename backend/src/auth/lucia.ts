@@ -15,6 +15,7 @@ export const lucia = new Lucia(adapter, {
   },
   getUserAttributes: (attributes) => ({
     email: attributes.email,
+    name: attributes.name,
     plan: attributes.plan,
   }),
 });
@@ -23,6 +24,7 @@ export const lucia = new Lucia(adapter, {
 // email + plan to the app; password_hash stays out of the session user object.
 interface DatabaseUserAttributes {
   email: string;
+  name: string | null;
   plan: string;
   password_hash: string | null;
   created_at: Date;

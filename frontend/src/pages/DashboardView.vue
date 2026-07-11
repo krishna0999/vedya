@@ -4,8 +4,9 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api, type FormSummary } from "@/api/client";
-import AiGenerateCard from "@/components/AiGenerateCard.vue";
+import AiGenerateForm from "@/components/AiGenerateForm.vue";
 import AppShell from "@/components/AppShell.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 import TemplateGallery from "@/components/TemplateGallery.vue";
 import UiActionMenu, {
   type UiActionItem,
@@ -22,6 +23,8 @@ const forms = ref<FormSummary[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const creating = ref(false);
+// Navbar "generate with AI" modal — same flow as the inline card, always reachable.
+const aiOpen = ref(false);
 
 // The sidebar switches between two content views in-place — templates render
 // inline here, not in a modal. The view lives in the URL (?view=templates) so
@@ -188,7 +191,7 @@ onMounted(load);
          + avatar ride the end of that row until xl, where the content centers
          and a margin opens up — there they break out to the screen's far right
          (see the actions block below). -->
-    <header class="relative border-b border-ink-200 bg-white">
+    <header class="sticky top-0 z-20 border-b border-ink-200 bg-white">
       <div
         class="mx-auto flex w-full max-w-4xl items-center gap-3 px-4 py-3 sm:px-6"
       >
@@ -205,6 +208,15 @@ onMounted(load);
           <div
             class="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 xl:absolute xl:inset-y-0 xl:right-6 xl:ml-0"
           >
+            <button
+              type="button"
+              class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700 transition hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              aria-label="Generate a form with AI"
+              title="Generate with AI"
+              @click="aiOpen = true"
+            >
+              <UiIcon name="sparkles" class="text-inherit h-5 w-5" />
+            </button>
             <UiButton :disabled="creating" @click="createForm">
               <span>{{ creating ? "Creating…" : "New form" }}</span>
             </UiButton>
@@ -216,10 +228,6 @@ onMounted(load);
       <!-- Content — centered; shares the topbar's max-w-4xl column so the search
            box above lines up with this content's left edge. -->
       <main class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
-        <!-- AI generation rides above the forms list (adoption engine — the
-             fastest path from intent to a draft). -->
-        <AiGenerateCard v-if="activeView === 'dashboard'" class="mb-6" />
-
         <div class="mb-5 flex items-baseline justify-between">
           <h1 class="text-lg font-semibold text-ink-900">
             {{ activeView === "templates" ? "Templates" : "My forms" }}
@@ -228,7 +236,7 @@ onMounted(load);
             v-if="activeView === 'dashboard' && !loading && forms.length"
             class="flex items-center gap-3"
           >
-            <span class="text-xs text-ink-400">
+            <span class="text-sm text-ink-400">
               {{ filteredForms.length }} form{{
                 filteredForms.length === 1 ? "" : "s"
               }}
@@ -237,7 +245,7 @@ onMounted(load);
           </div>
           <span
             v-else-if="activeView === 'templates'"
-            class="text-xs text-ink-400"
+            class="text-sm text-ink-400"
           >
             Pick a starting point — edit everything after.
           </span>
@@ -309,16 +317,16 @@ onMounted(load);
                   </router-link>
                   <span
                     v-if="form.published"
-                    class="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700"
+                    class="rounded-full bg-brand-50 px-2 py-0.5 text-sm font-medium text-brand-700"
                     >Published</span
                   >
                   <span
                     v-else
-                    class="rounded-full bg-ink-100 px-2 py-0.5 text-xs font-medium text-ink-500"
+                    class="rounded-full bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-500"
                     >Draft</span
                   >
                 </div>
-                <p class="mt-0.5 text-xs text-ink-400">
+                <p class="mt-0.5 text-sm text-ink-400">
                   {{ form.responseCount }} response{{
                     form.responseCount === 1 ? "" : "s"
                   }}
@@ -343,5 +351,50 @@ onMounted(load);
           </ul>
         </template>
       </main>
+
+    <!-- AI generate modal — opened from the navbar sparkles button. Hosts the
+         same <AiGenerateForm>, which redirects to the builder on success. -->
+    <Teleport to="body">
+      <div
+        v-if="aiOpen"
+        class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-900/40 p-4 pt-[10vh]"
+        @click.self="aiOpen = false"
+        @keydown.esc="aiOpen = false"
+      >
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Generate a form with AI"
+          class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl sm:p-8"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span
+                class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700"
+                aria-hidden="true"
+              >
+                <UiIcon name="sparkles" class="text-inherit h-5 w-5" />
+              </span>
+              <h2 class="font-semibold text-ink-900">Generate a form with AI</h2>
+            </div>
+            <button
+              type="button"
+              class="shrink-0 rounded-lg p-2 text-ink-400 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              aria-label="Close"
+              @click="aiOpen = false"
+            >
+              <UiIcon name="x-mark" class="text-inherit h-5 w-5" />
+            </button>
+          </div>
+
+          <p class="mt-1 text-sm text-ink-500">
+            Describe what you need — fields, choices, validation — and get an
+            editable draft in seconds.
+          </p>
+
+          <AiGenerateForm autofocus class="mt-3" />
+        </div>
+      </div>
+    </Teleport>
   </AppShell>
 </template>

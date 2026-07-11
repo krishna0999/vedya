@@ -6,25 +6,24 @@
 import { ref } from "vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiLogo from "@/components/ui/UiLogo.vue";
+import UiIcon from '@/components/ui/UiIcon.vue';
+import type { IconName } from '@/lib/icons';
 
-const features = [
+const features: { title: string; body: string; icon: IconName }[] = [
   {
     title: "Design with ease",
     body: "A visual builder with 8 field types, validation, and a live preview — no code.",
-    // pencil / edit
-    path: "M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3zM14.5 6.5l3 3",
+    icon: "pencil-square",
   },
   {
     title: "Publish in a click",
     body: "Snapshot an immutable version, share a link, and collect on any device.",
-    // paper plane
-    path: "M4 12l16-7-7 16-2.5-6.5L4 12z",
+    icon: "paper-airplane",
   },
   {
     title: "Own your data",
     body: "See every response in a table and export clean CSV whenever you need it.",
-    // download / table
-    path: "M12 3v10m0 0l-4-4m4 4l4-4M5 21h14",
+    icon: "arrow-down-tray",
   },
 ];
 
@@ -92,7 +91,7 @@ function toggleFaq(i: number): void {
       <!-- HERO -->
       <section class="pb-10 pt-16 text-center sm:pt-24">
         <span
-          class="inline-block rounded-full border border-brand-100 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700"
+          class="inline-block rounded-full border border-brand-100 bg-white/70 px-3 py-1 text-sm font-medium text-brand-700"
         >
           Build · Publish · Collect
         </span>
@@ -250,17 +249,7 @@ function toggleFaq(i: number): void {
           <span
             class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600"
           >
-            <svg
-              class="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path :d="f.path" />
-            </svg>
+            <UiIcon :name="f.icon" class="text-inherit h-5 w-5" />
           </span>
           <h2 class="mt-4 text-base font-semibold text-ink-900">
             {{ f.title }}
@@ -307,18 +296,7 @@ function toggleFaq(i: number): void {
               @click="toggleFaq(i)"
             >
               <span class="text-sm font-medium text-ink-900">{{ faq.q }}</span>
-              <svg
-                class="h-4 w-4 shrink-0 text-ink-400 transition-transform duration-200"
-                :class="openFaq === i && 'rotate-180'"
-                viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M6 8l4 4 4-4" />
-              </svg>
+              <UiIcon name="chevron-down" class="h-5 w-5 shrink-0 text-ink-400 transition-transform duration-200" :class="openFaq === i && 'rotate-180'" />
             </button>
             <p
               v-if="openFaq === i"
@@ -351,7 +329,7 @@ function toggleFaq(i: number): void {
     </section>
 
     <footer
-      class="mx-auto max-w-5xl px-6 py-8 text-center text-xs text-ink-400"
+      class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-ink-400"
     >
       © Vedya. Built with the thinnest credible engine.
     </footer>

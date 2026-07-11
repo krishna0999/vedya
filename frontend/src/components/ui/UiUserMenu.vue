@@ -5,6 +5,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -12,11 +13,11 @@ const router = useRouter();
 const open = ref(false);
 const root = ref<HTMLElement | null>(null);
 
-// Up to two initials from the email local part (split on . _ + -), else first two.
+// Up to two initials — from the name if set, else the email local part.
 const initials = computed(() => {
-  const local = (auth.user?.email ?? '').split('@')[0] ?? '';
-  const parts = local.split(/[._+-]+/).filter(Boolean);
-  const s = parts.length >= 2 ? (parts[0]![0] ?? '') + (parts[1]![0] ?? '') : local.slice(0, 2);
+  const source = auth.user?.name?.trim() || (auth.user?.email ?? '').split('@')[0] || '';
+  const parts = source.split(/[\s._+-]+/).filter(Boolean);
+  const s = parts.length >= 2 ? (parts[0]![0] ?? '') + (parts[1]![0] ?? '') : source.slice(0, 2);
   return (s || '?').toUpperCase();
 });
 
@@ -69,9 +70,29 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
         class="absolute right-0 z-30 mt-2 w-60 overflow-hidden rounded-xl border border-ink-200 bg-white p-1 shadow-pop"
       >
         <div class="px-3 py-2">
-          <p class="truncate text-sm font-medium text-ink-900">{{ auth.user?.email }}</p>
-          <p class="mt-0.5 text-xs capitalize text-ink-400">{{ auth.user?.plan ?? 'free' }} plan</p>
+          <p v-if="auth.user?.name" class="truncate text-sm font-medium text-ink-900">{{ auth.user.name }}</p>
+          <p class="truncate text-sm" :class="auth.user?.name ? 'text-ink-400' : 'font-medium text-ink-900'">{{ auth.user?.email }}</p>
+          <p class="mt-0.5 text-sm capitalize text-ink-400">{{ auth.user?.plan ?? 'free' }} plan</p>
         </div>
+        <div class="my-1 h-px bg-ink-100"></div>
+        <router-link
+          :to="{ name: 'account' }"
+          role="menuitem"
+          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          @click="close"
+        >
+          <UiIcon name="user-circle" class="h-5 w-5 text-ink-400" />
+          Account
+        </router-link>
+        <router-link
+          :to="{ name: 'settings' }"
+          role="menuitem"
+          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          @click="close"
+        >
+          <UiIcon name="cog-6-tooth" class="h-5 w-5 text-ink-400" />
+          Settings
+        </router-link>
         <div class="my-1 h-px bg-ink-100"></div>
         <button
           type="button"
@@ -79,9 +100,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
           class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="logout"
         >
-          <svg class="h-4 w-4 text-ink-400" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M13 4h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-3M9 14l-4-4 4-4M5 10h9" />
-          </svg>
+          <UiIcon name="arrow-left-start-on-rectangle" class="h-5 w-5 text-ink-400" />
           Log out
         </button>
       </div>

@@ -83,7 +83,7 @@ onMounted(load);
       <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
         <div class="min-w-0">
           <h1 class="truncate text-base font-semibold">{{ title }}</h1>
-          <p class="text-xs text-ink-400">
+          <p class="text-sm text-ink-400">
             {{ submissions.length }} response{{ submissions.length === 1 ? '' : 's' }}
           </p>
         </div>
@@ -104,15 +104,15 @@ onMounted(load);
       <!-- Basic analytics (ROADMAP Phase 1): views / submissions / completion. -->
       <dl v-if="!loading && stats" class="mb-6 grid grid-cols-3 gap-3">
         <div class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card">
-          <dt class="text-xs font-medium text-ink-400">Views</dt>
+          <dt class="text-sm font-medium text-ink-400">Views</dt>
           <dd class="mt-0.5 text-xl font-semibold text-ink-900">{{ stats.views }}</dd>
         </div>
         <div class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card">
-          <dt class="text-xs font-medium text-ink-400">Responses</dt>
+          <dt class="text-sm font-medium text-ink-400">Responses</dt>
           <dd class="mt-0.5 text-xl font-semibold text-ink-900">{{ stats.submissions }}</dd>
         </div>
         <div class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card">
-          <dt class="text-xs font-medium text-ink-400">Completion</dt>
+          <dt class="text-sm font-medium text-ink-400">Completion</dt>
           <dd class="mt-0.5 text-xl font-semibold text-ink-900">
             {{ completionRate === null ? '—' : `${completionRate}%` }}
           </dd>

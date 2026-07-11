@@ -94,7 +94,7 @@ onMounted(load);
           </p>
           <FormRenderer :version="version" :submitting="submitting" @submit="onSubmit" />
         </div>
-        <p v-if="branding" class="mt-6 text-center text-xs text-ink-400">Made with Vedya</p>
+        <p v-if="branding" class="mt-6 text-center text-sm text-ink-400">Made with Vedya</p>
       </div>
     </div>
   </div>

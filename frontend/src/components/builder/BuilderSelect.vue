@@ -2,6 +2,7 @@
 // Product-chrome custom select for builder panels (ink/brand tokens, no native
 // <select>). Small, no search — for short option lists.
 import { computed, onBeforeUnmount, ref } from 'vue';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 interface Opt {
   label: string;
@@ -44,9 +45,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
   <div ref="root" class="relative">
     <button type="button" class="ui-input flex items-center justify-between text-left" :aria-expanded="open" @click="toggle">
       <span class="truncate">{{ selectedLabel }}</span>
-      <svg class="ml-2 h-4 w-4 shrink-0 text-ink-400 transition-transform duration-150" :class="open && 'rotate-180'" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 8l4 4 4-4" />
-      </svg>
+      <UiIcon name="chevron-down" class="ml-2 h-5 w-5 shrink-0 text-ink-400 transition-transform duration-150" :class="open && 'rotate-180'" />
     </button>
 
     <transition
@@ -66,7 +65,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
           @click="choose(o)"
         >
           <span class="truncate">{{ o.label }}</span>
-          <svg v-if="o.value === modelValue" class="ml-2 h-4 w-4 shrink-0 text-brand-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 5" /></svg>
+          <UiIcon v-if="o.value === modelValue" name="check" class="ml-2 h-5 w-5 shrink-0 text-brand-600" />
         </li>
       </ul>
     </transition>

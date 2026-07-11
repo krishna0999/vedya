@@ -10,6 +10,7 @@ import { metaFor } from "@/data/fieldTypes";
 import { DEFAULT_THEME } from "@/stores/builder";
 import FormRenderer from "@/components/FormRenderer.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const props = defineProps<{ query?: string; busy?: boolean }>();
 const emit = defineEmits<{ use: [templateId: string] }>();
@@ -115,7 +116,7 @@ onMounted(load);
       <button
         type="button"
         :class="[
-          'rounded-full px-3 py-1 text-xs font-medium transition',
+          'rounded-full px-3 py-1 text-sm font-medium transition',
           activeCategory === null
             ? 'bg-brand-600 text-white'
             : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
@@ -129,7 +130,7 @@ onMounted(load);
         :key="cat"
         type="button"
         :class="[
-          'rounded-full px-3 py-1 text-xs font-medium transition',
+          'rounded-full px-3 py-1 text-sm font-medium transition',
           activeCategory === cat
             ? 'bg-brand-600 text-white'
             : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
@@ -165,10 +166,10 @@ onMounted(load);
         <div class="text-2xl" aria-hidden="true">{{ t.icon }}</div>
         <h3 class="mt-2 font-semibold text-ink-900">{{ t.title }}</h3>
         <p class="mt-1 flex-1 text-sm text-ink-500">{{ t.description }}</p>
-        <p class="mt-3 text-[11px] font-medium uppercase tracking-wide text-ink-400">
+        <p class="mt-3 text-sm font-medium uppercase tracking-wide text-ink-400">
           {{ t.category }} · {{ t.fieldCount }} question{{ t.fieldCount === 1 ? "" : "s" }}
         </p>
-        <p class="mt-1 truncate text-xs text-ink-400">{{ questionSummary(t) }}</p>
+        <p class="mt-1 truncate text-sm text-ink-400">{{ questionSummary(t) }}</p>
         <div class="mt-4 flex items-center gap-2">
           <UiButton
             variant="secondary"
@@ -219,9 +220,9 @@ onMounted(load);
             <h2 class="mt-1 truncate font-semibold text-ink-900">
               {{ previewTemplate.title }}
             </h2>
-            <p class="text-xs text-ink-500">{{ previewTemplate.description }}</p>
+            <p class="text-sm text-ink-500">{{ previewTemplate.description }}</p>
             <p
-              class="mt-1 text-[11px] font-medium uppercase tracking-wide text-ink-400"
+              class="mt-1 text-sm font-medium uppercase tracking-wide text-ink-400"
             >
               {{ previewTemplate.category }} ·
               {{ previewTemplate.fieldCount }} question{{
@@ -235,14 +236,7 @@ onMounted(load);
             aria-label="Close preview"
             @click="closePreview"
           >
-            <svg viewBox="0 0 20 20" fill="none" class="h-5 w-5">
-              <path
-                d="M6 6l8 8M14 6l-8 8"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-              />
-            </svg>
+            <UiIcon name="x-mark" class="text-inherit h-5 w-5" />
           </button>
         </header>
 

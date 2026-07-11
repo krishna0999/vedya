@@ -30,9 +30,9 @@ function add(type: FieldType): void {
   <!-- Layout-agnostic: the parent sets width/borders (sidebar on lg+, bottom
        sheet below). Below lg the types flow in two columns to cut scrolling. -->
   <aside class="overflow-y-auto bg-white p-3">
-    <h2 class="mb-2 hidden px-1 text-xs font-semibold uppercase tracking-wide text-ink-500 lg:block">Add field</h2>
+    <h2 class="mb-2 hidden px-1 text-sm font-semibold uppercase tracking-wide text-ink-500 lg:block">Add field</h2>
     <div v-for="g in GROUPS" :key="g.key" class="mb-3">
-      <p class="mb-1 px-1 text-[11px] font-medium uppercase tracking-wide text-ink-400">{{ g.label }}</p>
+      <p class="mb-1 px-1 text-sm font-medium uppercase tracking-wide text-ink-400">{{ g.label }}</p>
       <div class="grid grid-cols-2 gap-1 lg:grid-cols-1">
         <button
           v-for="t in typesIn(g.key)"

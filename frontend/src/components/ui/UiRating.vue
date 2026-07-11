@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Star rating — form-themed (filled stars use --fb-primary). Emits 1..max.
 import { ref } from 'vue';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 withDefaults(
   defineProps<{
@@ -25,16 +26,12 @@ const hover = ref(0);
       @mouseenter="hover = n"
       @click="emit('update:modelValue', n)"
     >
-      <svg
-        viewBox="0 0 24 24"
+      <UiIcon
+        name="star"
+        type="solid"
         class="h-7 w-7 transition-colors duration-150"
         :style="{ color: (hover || modelValue || 0) >= n ? 'var(--fb-primary)' : '#dcd9e3' }"
-        fill="currentColor"
-      >
-        <path
-          d="M12 17.3l-5.4 3.2 1.4-6.1-4.7-4.1 6.2-.5L12 4l2.5 5.7 6.2.5-4.7 4.1 1.4 6.1z"
-        />
-      </svg>
+      />
     </button>
   </div>
 </template>

@@ -4,6 +4,7 @@
 // empty means "no filter applied". Same dropdown idiom as UiActionMenu
 // (outside-mousedown + Escape close, soft transition).
 import { onBeforeUnmount, ref } from "vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 export interface UiFilterOption {
   id: string;
@@ -53,7 +54,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
   <div ref="root" class="relative" @keydown.escape="close">
     <button
       type="button"
-      class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+      class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
       :class="
         modelValue.length
           ? 'bg-brand-50 text-brand-700 hover:bg-brand-100'
@@ -63,21 +64,11 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       :aria-expanded="open"
       @click="toggleMenu"
     >
-      <svg
-        class="h-3.5 w-3.5 shrink-0"
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M3 5h14l-5.5 6.5V16l-3-1.5v-3L3 5z" />
-      </svg>
+      <UiIcon name="funnel" class="text-inherit h-5 w-5 shrink-0" />
       {{ label ?? "Filter" }}
       <span
         v-if="modelValue.length"
-        class="grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-semibold text-white"
+        class="grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-sm font-semibold text-white"
       >
         {{ modelValue.length }}
       </span>
@@ -111,18 +102,11 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
                 : 'border-ink-300 bg-white'
             "
           >
-            <svg
+            <UiIcon
               v-if="isChecked(o.id)"
-              class="h-3 w-3"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 8.5l3.2 3.2L13 5" />
-            </svg>
+              name="check"
+              class="text-inherit h-3 w-3"
+            />
           </span>
           {{ o.label }}
         </button>

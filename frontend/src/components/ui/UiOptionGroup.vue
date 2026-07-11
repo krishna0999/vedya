@@ -3,6 +3,7 @@
 // no card chrome, no hover fill. The check/radio mark state is driven explicitly
 // from Vue (not CSS :has) so it stays robust. Native input kept for a11y/keyboard.
 import type { FieldOption } from '@schema';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const props = defineProps<{
   name: string;
@@ -59,18 +60,7 @@ function onChange(v: string): void {
         ]"
         aria-hidden="true"
       >
-        <svg
-          v-if="multiple && isChecked(optValue(o))"
-          viewBox="0 0 16 16"
-          class="h-3.5 w-3.5"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M3 8.5l3.2 3.2L13 5" />
-        </svg>
+        <UiIcon v-if="multiple && isChecked(optValue(o))" name="check" class="text-inherit h-3.5 w-3.5" />
         <span v-else-if="!multiple && isChecked(optValue(o))" class="h-2 w-2 rounded-full bg-white"></span>
       </span>
       <span class="min-w-0">

@@ -5,6 +5,7 @@
 // { start, end } (range) — matching the schema's date / date_range validation.
 import { computed, onBeforeUnmount, ref } from 'vue';
 import type { DateRangeValue } from '@schema';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 interface Preset {
   label: string;
@@ -211,10 +212,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
       @click="toggle"
     >
       <span>{{ display || (placeholder ?? (range ? 'Select a date range' : 'Select a date')) }}</span>
-      <svg class="ml-2 h-4 w-4 shrink-0 text-ink-400" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="4.5" width="14" height="13" rx="2.5" />
-        <path d="M3 8h14M7 3v3M13 3v3" />
-      </svg>
+      <UiIcon name="calendar" class="ml-2 h-5 w-5 shrink-0 text-ink-400" />
     </button>
 
     <transition
@@ -245,16 +243,16 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
 
         <div class="mb-2 flex items-center justify-between px-1">
           <button type="button" class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 hover:bg-ink-100" aria-label="Previous month" @click="prevMonth">
-            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l-5 5 5 5" /></svg>
+            <UiIcon name="chevron-left" class="text-inherit h-5 w-5" />
           </button>
           <span class="text-sm font-semibold text-ink-900">{{ MONTHS[viewM] }} {{ viewY }}</span>
           <button type="button" class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 hover:bg-ink-100" aria-label="Next month" @click="nextMonth">
-            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l5 5-5 5" /></svg>
+            <UiIcon name="chevron-right" class="text-inherit h-5 w-5" />
           </button>
         </div>
 
         <div class="grid grid-cols-7 gap-1 px-1 pb-1">
-          <span v-for="w in WEEKDAYS" :key="w" class="grid h-8 place-items-center text-xs font-medium text-ink-400">{{ w }}</span>
+          <span v-for="w in WEEKDAYS" :key="w" class="grid h-8 place-items-center text-sm font-medium text-ink-400">{{ w }}</span>
         </div>
 
         <div class="grid grid-cols-7 gap-y-1 px-1">

@@ -2,6 +2,8 @@
 // Product-chrome search input — a styled Ui* primitive with a leading search
 // icon, used in app chrome (dashboard topbar). Ink tokens only; never the form
 // theme (CLAUDE.md §7, two theme layers). For in-form text entry use UiTextInput.
+import UiIcon from '@/components/ui/UiIcon.vue';
+
 withDefaults(
   defineProps<{
     modelValue: string;
@@ -15,19 +17,7 @@ const emit = defineEmits<{ "update:modelValue": [value: string] }>();
 
 <template>
   <div class="relative">
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
-    >
-      <circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.6" />
-      <path
-        d="M17 17l-3.5-3.5"
-        stroke="currentColor"
-        stroke-width="1.6"
-        stroke-linecap="round"
-      />
-    </svg>
+    <UiIcon name="magnifying-glass" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-400" />
     <input
       :value="modelValue"
       type="text"

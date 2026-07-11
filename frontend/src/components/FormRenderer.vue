@@ -14,6 +14,7 @@ import UiOptionGroup from './ui/UiOptionGroup.vue';
 import UiRating from './ui/UiRating.vue';
 import UiPhoneInput from './ui/UiPhoneInput.vue';
 import UiDatePicker from './ui/UiDatePicker.vue';
+import UiIcon from '@/components/ui/UiIcon.vue';
 
 const props = defineProps<{ version: FormVersion; title?: string; submitting?: boolean }>();
 const emit = defineEmits<{ submit: [answers: Record<string, unknown>] }>();
@@ -197,17 +198,7 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
     </template>
 
     <button type="submit" class="fb-btn w-full sm:w-auto" :disabled="submitting">
-      <svg
-        v-if="submitting"
-        class="h-4 w-4 animate-spin"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-      >
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-      </svg>
+      <UiIcon v-if="submitting" name="arrow-path" class="text-inherit h-5 w-5 animate-spin" />
       {{ submitting ? 'Submitting…' : 'Submit' }}
     </button>
   </form>
