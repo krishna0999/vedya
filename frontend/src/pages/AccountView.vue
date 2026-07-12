@@ -1,13 +1,12 @@
 <script setup lang="ts">
 // Account: identity — who you are, what plan you're on, and the danger zone.
-// Security (password) lives in /settings; usage numbers in /usage.
+// Security (password) lives in /settings; usage numbers on /dashboard.
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { api, ApiError } from "@/api/client";
 import { useAuthStore } from "@/stores/auth";
 import AppShell from "@/components/AppShell.vue";
 import UiButton from "@/components/ui/UiButton.vue";
-import UiUserMenu from "@/components/ui/UiUserMenu.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -52,14 +51,8 @@ async function deleteAccount(): Promise<void> {
 
 <template>
   <AppShell>
-    <header class="sticky top-0 z-20 border-b border-ink-200 bg-white">
-      <div class="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <h1 class="text-base font-semibold">Account</h1>
-        <UiUserMenu />
-      </div>
-    </header>
-
     <main class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
+      <h1 class="mb-5 text-lg font-semibold text-ink-900">Account</h1>
       <!-- Profile -->
       <section
         class="rounded-2xl border border-ink-200 bg-white p-5 shadow-card sm:p-6"
@@ -95,7 +88,7 @@ async function deleteAccount(): Promise<void> {
         <p class="mt-1 text-sm text-ink-500">
           You're on the <span class="capitalize">{{ auth.user?.plan ?? "free" }}</span> plan.
           See what you've used this month on the
-          <router-link :to="{ name: 'usage' }" class="font-medium text-brand-700 hover:underline">usage page</router-link>.
+          <router-link :to="{ name: 'dashboard' }" class="font-medium text-brand-700 hover:underline">dashboard</router-link>.
         </p>
         <!-- ponytail: upgrade CTA is copy-only until billing (MoR) lands. -->
         <p v-if="(auth.user?.plan ?? 'free') === 'free'" class="mt-2 text-sm text-ink-500">

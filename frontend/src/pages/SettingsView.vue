@@ -9,7 +9,6 @@ import { useAuthStore } from "@/stores/auth";
 import AppShell from "@/components/AppShell.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
-import UiUserMenu from "@/components/ui/UiUserMenu.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -74,14 +73,8 @@ async function logout(): Promise<void> {
 
 <template>
   <AppShell>
-    <header class="sticky top-0 z-20 border-b border-ink-200 bg-white">
-      <div class="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <h1 class="text-base font-semibold">Settings</h1>
-        <UiUserMenu />
-      </div>
-    </header>
-
     <main class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
+      <h1 class="mb-5 text-lg font-semibold text-ink-900">Settings</h1>
       <!-- Profile -->
       <section
         class="rounded-2xl border border-ink-200 bg-white p-5 shadow-card sm:p-6"

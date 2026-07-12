@@ -8,6 +8,7 @@ import { useRoute } from 'vue-router';
 import type { FormVersion } from '@schema';
 import { api, ApiError } from '@/api/client';
 import FormRenderer from '@/components/FormRenderer.vue';
+import UiSkeleton from '@/components/ui/UiSkeleton.vue';
 
 const route = useRoute();
 const formId = route.params.formId as string;
@@ -74,7 +75,16 @@ onMounted(load);
 <template>
   <div class="min-h-screen bg-ink-50 px-4 py-10">
     <div class="mx-auto max-w-xl">
-      <div v-if="loading" class="py-20 text-center text-sm text-ink-400">Loading…</div>
+      <!-- Skeleton mirror of the form card: title + a few label/input pairs -->
+      <div v-if="loading" role="status" class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8">
+        <span class="sr-only">Loading…</span>
+        <UiSkeleton class="h-6 w-2/3" />
+        <div v-for="n in 3" :key="n" class="mt-7 space-y-2">
+          <UiSkeleton class="h-3.5 w-40" />
+          <UiSkeleton class="h-10 w-full rounded-lg" />
+        </div>
+        <UiSkeleton class="mt-8 h-10 w-28 rounded-lg" />
+      </div>
 
       <div v-else-if="loadError" class="rounded-2xl border border-ink-200 bg-white p-10 text-center">
         <h1 class="text-lg font-semibold text-ink-900">Form unavailable</h1>
@@ -85,6 +95,17 @@ onMounted(load);
         <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-2xl text-brand-600">✓</div>
         <h1 class="text-lg font-semibold text-ink-900">Thanks — your response was recorded.</h1>
         <p class="mt-1 text-sm text-ink-500">You can close this tab now.</p>
+        <!-- Growth loop, free-tier forms only: paid removes our branding (§8),
+             so the CTA rides the same flag as the "Made with" badge. -->
+        <template v-if="branding">
+          <router-link
+            :to="{ name: 'signup' }"
+            class="mt-6 inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+          >
+            Create your own form
+          </router-link>
+          <p class="mt-2 text-sm text-ink-400">Free with Vedya — no card needed.</p>
+        </template>
       </div>
 
       <div v-else-if="version">

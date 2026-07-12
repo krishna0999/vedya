@@ -9,9 +9,9 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'landing', component: () => import('@/pages/LandingView.vue') },
     { path: '/dashboard', name: 'dashboard', component: () => import('@/pages/DashboardView.vue'), meta: { requiresAuth: true } },
+    { path: '/forms', name: 'forms', component: () => import('@/pages/FormsView.vue'), meta: { requiresAuth: true } },
     { path: '/forms/:id/edit', name: 'builder', component: () => import('@/pages/BuilderView.vue'), meta: { requiresAuth: true } },
     { path: '/forms/:id/responses', name: 'responses', component: () => import('@/pages/ResponsesView.vue'), meta: { requiresAuth: true } },
-    { path: '/usage', name: 'usage', component: () => import('@/pages/UsageView.vue'), meta: { requiresAuth: true } },
     { path: '/settings', name: 'settings', component: () => import('@/pages/SettingsView.vue'), meta: { requiresAuth: true } },
     { path: '/account', name: 'account', component: () => import('@/pages/AccountView.vue'), meta: { requiresAuth: true } },
     { path: '/login', name: 'login', component: () => import('@/pages/AuthView.vue'), props: { mode: 'login' } },

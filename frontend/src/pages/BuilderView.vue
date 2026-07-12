@@ -21,7 +21,7 @@ watch(() => route.params.id, load);
 </script>
 
 <template>
-  <AppShell>
+  <AppShell :topbar="false">
     <BuilderApp v-if="builder.loaded" />
     <div v-else-if="builder.error" class="grid flex-1 place-items-center px-6 text-center">
       <div>
@@ -29,7 +29,7 @@ watch(() => route.params.id, load);
         <p class="mt-1 text-sm text-ink-500">{{ builder.error }}</p>
         <div class="mt-4 flex justify-center gap-2">
           <UiButton variant="secondary" @click="load">Retry</UiButton>
-          <UiButton @click="router.push({ name: 'dashboard' })">Back to forms</UiButton>
+          <UiButton @click="router.push({ name: 'forms' })">Back to forms</UiButton>
         </div>
       </div>
     </div>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-// Owner dashboard: list forms, create, jump to editor / responses, share, delete.
-// Owner is the dev stub until auth (step 5); this is the "my forms" surface.
-import { computed, onMounted, ref, watch } from "vue";
+// "My forms" page: list forms, create, jump to editor / responses, share, delete.
+// Accepts ?q= (deep-link from the dashboard search) and ?view=templates.
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api, type FormSummary } from "@/api/client";
+import { relativeTime } from "@/lib/time";
 import AiGenerateForm from "@/components/AiGenerateForm.vue";
 import AppShell from "@/components/AppShell.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -13,8 +14,7 @@ import UiActionMenu, {
 } from "@/components/ui/UiActionMenu.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiFilterMenu from "@/components/ui/UiFilterMenu.vue";
-import UiSearchInput from "@/components/ui/UiSearchInput.vue";
-import UiUserMenu from "@/components/ui/UiUserMenu.vue";
+import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -29,17 +29,18 @@ const aiOpen = ref(false);
 // The sidebar switches between two content views in-place — templates render
 // inline here, not in a modal. The view lives in the URL (?view=templates) so
 // other screens (e.g. the builder's nav menu) can deep-link straight to it.
-const activeView = computed<"dashboard" | "templates">(() =>
-  route.query.view === "templates" ? "templates" : "dashboard",
+const activeView = computed<"forms" | "templates">(() =>
+  route.query.view === "templates" ? "templates" : "forms",
 );
-function setView(view: "dashboard" | "templates"): void {
+function setView(view: "forms" | "templates"): void {
   router.replace({ query: view === "templates" ? { view } : {} });
 }
-// search is per-view; don't carry a stale query across
-watch(activeView, () => (query.value = ""));
 
-// Client-side search over the active view — the topbar search box binds here.
-const query = ref("");
+// Client-side search over the active view. The shared AppShell topbar writes
+// ?q= into the route; this page just reads it (switching views drops it).
+const query = computed(() =>
+  typeof route.query.q === "string" ? route.query.q : "",
+);
 // Status filter (Published/Draft, multi-select). Empty = show all.
 const STATUS_OPTIONS = [
   { id: "published", label: "Published" },
@@ -124,6 +125,17 @@ async function copyLink(form: FormSummary): Promise<void> {
   );
 }
 
+// "Email form" hands off to the user's own mail client via mailto: —
+// ponytail: no send-from-server until an email provider exists (§9 workflows).
+function emailForm(form: FormSummary): void {
+  const url = `${window.location.origin}/f/${form.id}`;
+  const subject = encodeURIComponent(form.title);
+  const body = encodeURIComponent(
+    `Hi,\n\nPlease fill out this form: ${url}\n\nThanks!`,
+  );
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
 // Per-card action menu. Link actions need a published form; they stay visible
 // but disabled so the affordance is discoverable before first publish.
 function actionsFor(form: FormSummary): UiActionItem[] {
@@ -137,6 +149,13 @@ function actionsFor(form: FormSummary): UiActionItem[] {
       id: "copy",
       label: "Copy link",
       icon: "copy",
+      disabled: !form.published,
+      title: needsPublish,
+    },
+    {
+      id: "email",
+      label: "Email form",
+      icon: "email",
       disabled: !form.published,
       title: needsPublish,
     },
@@ -162,6 +181,9 @@ function onAction(form: FormSummary, actionId: string): void {
     case "copy":
       copyLink(form);
       break;
+    case "email":
+      emailForm(form);
+      break;
     case "open":
       window.open(`/f/${form.id}`, "_blank", "noopener");
       break;
@@ -171,43 +193,32 @@ function onAction(form: FormSummary, actionId: string): void {
   }
 }
 
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.round(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.round(hrs / 24)}d ago`;
-}
-
 onMounted(load);
 </script>
 
 <template>
   <AppShell>
-    <!-- Topbar — the inner row shares the content's centered max-w-4xl column
-         so the search box lines up with the forms/templates below it. New form
-         + avatar ride the end of that row until xl, where the content centers
-         and a margin opens up — there they break out to the screen's far right
-         (see the actions block below). -->
-    <header class="sticky top-0 z-20 border-b border-ink-200 bg-white">
-      <div
-        class="mx-auto flex w-full max-w-4xl items-center gap-3 px-4 py-3 sm:px-6"
-      >
-        <UiSearchInput
-            v-model="query"
-            class="min-w-0 w-full max-w-4xl"
-            :aria-label="
-              activeView === 'templates' ? 'Search templates' : 'Search forms'
-            "
-            :placeholder="
-              activeView === 'templates' ? 'Search templates…' : 'Search forms…'
-            "
-          />
-          <div
-            class="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 xl:absolute xl:inset-y-0 xl:right-6 xl:ml-0"
-          >
+      <!-- Content — the shared AppShell topbar carries search; page actions
+           (AI generate, New form) live in this heading row instead. -->
+      <main class="w-full px-6 py-8">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-lg font-semibold text-ink-900">
+              {{ activeView === "templates" ? "Templates" : "My forms" }}
+            </h1>
+            <p v-if="activeView === 'templates'" class="text-sm text-ink-400">
+              Pick a starting point — edit everything after.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <template v-if="activeView === 'forms' && !loading && forms.length">
+              <span class="text-sm text-ink-400">
+                {{ filteredForms.length }} form{{
+                  filteredForms.length === 1 ? "" : "s"
+                }}
+              </span>
+              <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
+            </template>
             <button
               type="button"
               class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700 transition hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
@@ -220,35 +231,7 @@ onMounted(load);
             <UiButton :disabled="creating" @click="createForm">
               <span>{{ creating ? "Creating…" : "New form" }}</span>
             </UiButton>
-            <UiUserMenu></UiUserMenu>
           </div>
-        </div>
-      </header>
-
-      <!-- Content — centered; shares the topbar's max-w-4xl column so the search
-           box above lines up with this content's left edge. -->
-      <main class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
-        <div class="mb-5 flex items-baseline justify-between">
-          <h1 class="text-lg font-semibold text-ink-900">
-            {{ activeView === "templates" ? "Templates" : "My forms" }}
-          </h1>
-          <div
-            v-if="activeView === 'dashboard' && !loading && forms.length"
-            class="flex items-center gap-3"
-          >
-            <span class="text-sm text-ink-400">
-              {{ filteredForms.length }} form{{
-                filteredForms.length === 1 ? "" : "s"
-              }}
-            </span>
-            <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
-          </div>
-          <span
-            v-else-if="activeView === 'templates'"
-            class="text-sm text-ink-400"
-          >
-            Pick a starting point — edit everything after.
-          </span>
         </div>
 
         <p
@@ -268,8 +251,23 @@ onMounted(load);
 
         <!-- Dashboard view: the forms list -->
         <template v-else>
-          <div v-if="loading" class="py-16 text-center text-sm text-ink-400">
-            Loading your forms…
+          <!-- Skeleton mirror of the form-card list -->
+          <div v-if="loading" role="status" class="space-y-3">
+            <span class="sr-only">Loading your forms…</span>
+            <div
+              v-for="n in 5"
+              :key="n"
+              class="flex items-center gap-3 rounded-xl border border-ink-200 bg-white p-4"
+            >
+              <div class="min-w-0 flex-1 space-y-2">
+                <div class="flex items-center gap-2">
+                  <UiSkeleton class="h-4 w-48 max-w-[50%]" />
+                  <UiSkeleton class="h-5 w-16 rounded-full" />
+                </div>
+                <UiSkeleton class="h-3.5 w-64 max-w-[70%]" />
+              </div>
+              <UiSkeleton class="h-8 w-8 shrink-0 rounded-lg" />
+            </div>
           </div>
 
           <div

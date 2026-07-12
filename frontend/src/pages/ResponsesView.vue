@@ -8,6 +8,7 @@ import type { Submission } from '@schema';
 import { api, type FormStats } from '@/api/client';
 import AppShell from '@/components/AppShell.vue';
 import UiButton from '@/components/ui/UiButton.vue';
+import UiSkeleton from '@/components/ui/UiSkeleton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -79,10 +80,10 @@ onMounted(load);
 
 <template>
   <AppShell>
-    <header class="border-b border-ink-200 bg-white">
-      <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+    <main class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <div class="mb-5 flex items-center justify-between gap-3">
         <div class="min-w-0">
-          <h1 class="truncate text-base font-semibold">{{ title }}</h1>
+          <h1 class="truncate text-lg font-semibold">{{ title }}</h1>
           <p class="text-sm text-ink-400">
             {{ submissions.length }} response{{ submissions.length === 1 ? '' : 's' }}
           </p>
@@ -96,9 +97,6 @@ onMounted(load);
           </a>
         </div>
       </div>
-    </header>
-
-    <main class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <p v-if="error" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">{{ error }}</p>
 
       <!-- Basic analytics (ROADMAP Phase 1): views / submissions / completion. -->
@@ -119,7 +117,24 @@ onMounted(load);
         </div>
       </dl>
 
-      <div v-if="loading" class="py-16 text-center text-sm text-ink-400">Loading responses…</div>
+      <!-- Skeleton mirror of the stats row + table -->
+      <div v-if="loading" role="status">
+        <span class="sr-only">Loading responses…</span>
+        <div class="mb-6 grid grid-cols-3 gap-3">
+          <div
+            v-for="n in 3"
+            :key="n"
+            class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card"
+          >
+            <UiSkeleton class="h-3.5 w-20" />
+            <UiSkeleton class="mt-2 h-6 w-12" />
+          </div>
+        </div>
+        <div class="rounded-xl border border-ink-200 bg-white p-4 shadow-card">
+          <UiSkeleton class="h-4 w-full" />
+          <UiSkeleton v-for="n in 6" :key="n" class="mt-3 h-3.5 w-full" />
+        </div>
+      </div>
 
       <div
         v-else-if="submissions.length === 0"

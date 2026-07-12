@@ -11,6 +11,7 @@ import { DEFAULT_THEME } from "@/stores/builder";
 import FormRenderer from "@/components/FormRenderer.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiIcon from '@/components/ui/UiIcon.vue';
+import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
 const props = defineProps<{ query?: string; busy?: boolean }>();
 const emit = defineEmits<{ use: [templateId: string] }>();
@@ -141,9 +142,29 @@ onMounted(load);
       </button>
     </div>
 
-    <p v-if="loading" class="py-16 text-center text-sm text-ink-400">
-      Loading templates…
-    </p>
+    <!-- Skeleton mirror of the pills row + card grid -->
+    <div v-if="loading" role="status">
+      <span class="sr-only">Loading templates…</span>
+      <div class="mb-5 flex flex-wrap gap-1.5">
+        <UiSkeleton v-for="n in 5" :key="n" class="h-7 w-20 rounded-full" />
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-for="n in 6"
+          :key="n"
+          class="rounded-2xl border border-ink-200 bg-white p-5"
+        >
+          <UiSkeleton class="h-8 w-8 rounded-lg" />
+          <UiSkeleton class="mt-3 h-4 w-2/3" />
+          <UiSkeleton class="mt-2 h-3.5 w-full" />
+          <UiSkeleton class="mt-1.5 h-3.5 w-4/5" />
+          <div class="mt-4 flex gap-2">
+            <UiSkeleton class="h-8 w-20 rounded-lg" />
+            <UiSkeleton class="h-8 w-28 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
     <p
       v-else-if="error"
       class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
