@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Slim scrollbar for overflow containers (e.g. the wide responses table) —
+   the browser default bar is far too chunky. */
+.scrollbar-thin {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: theme(colors.ink.300) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: theme(colors.ink.300);
+  border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: theme(colors.ink.400);
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* Form-control primitives used by FormRenderer. These are FORM-THEMED: they
    read --fb-primary / --fb-radius, which FormRenderer sets per form. Product
    chrome (builder/dashboard) is styled with Tailwind brand/ink tokens instead. */

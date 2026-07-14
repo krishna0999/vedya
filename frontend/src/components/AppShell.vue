@@ -45,7 +45,7 @@ const active = computed<string | null>(() => {
 const sideClass = (key: string) => [
   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
   key === active.value
-    ? 'bg-brand-50 text-brand-700'
+    ? 'bg-ink-100 text-ink-900'
     : 'text-ink-600 hover:bg-ink-50 hover:text-ink-900',
 ];
 const tabClass = (key: string) => [

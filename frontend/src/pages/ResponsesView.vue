@@ -146,7 +146,7 @@ onMounted(load);
         </p>
       </div>
 
-      <div v-else class="overflow-x-auto rounded-xl border border-ink-200 bg-white shadow-card">
+      <div v-else class="scrollbar-thin overflow-x-auto rounded-xl border border-ink-200 bg-white shadow-card">
         <table class="w-full border-collapse text-sm">
           <thead>
             <tr class="border-b border-ink-200 bg-ink-50 text-left">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // "My forms" page: list forms, create, jump to editor / responses, share, delete.
 // Accepts ?q= (deep-link from the dashboard search) and ?view=templates.
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api, type FormSummary } from "@/api/client";
 import { relativeTime } from "@/lib/time";
@@ -72,6 +72,33 @@ async function load(): Promise<void> {
   }
 }
 
+// "Create form" split dropdown: blank create vs. AI generate. Same
+// outside-mousedown + Escape close idiom as UiActionMenu.
+const createOpen = ref(false);
+const createRoot = ref<HTMLElement | null>(null);
+function onCreateDocPointer(e: MouseEvent): void {
+  if (createRoot.value && !createRoot.value.contains(e.target as Node))
+    closeCreate();
+}
+function closeCreate(): void {
+  if (!createOpen.value) return;
+  createOpen.value = false;
+  document.removeEventListener("mousedown", onCreateDocPointer);
+}
+function toggleCreate(): void {
+  if (createOpen.value) return closeCreate();
+  createOpen.value = true;
+  document.addEventListener("mousedown", onCreateDocPointer);
+}
+function pickCreate(kind: "blank" | "ai"): void {
+  closeCreate();
+  if (kind === "ai") aiOpen.value = true;
+  else createForm();
+}
+onBeforeUnmount(() =>
+  document.removeEventListener("mousedown", onCreateDocPointer),
+);
+
 async function createForm(): Promise<void> {
   creating.value = true;
   try {
@@ -136,35 +163,23 @@ function emailForm(form: FormSummary): void {
   window.location.href = `mailto:?subject=${subject}&body=${body}`;
 }
 
-// Per-card action menu. Link actions need a published form; they stay visible
-// but disabled so the affordance is discoverable before first publish.
-function actionsFor(form: FormSummary): UiActionItem[] {
-  const needsPublish = form.published
-    ? undefined
-    : "Publish the form to get a link";
+// Why a form can't be shared until it's published — reused by the hover quick
+// actions and the "more" menu so the affordance is discoverable pre-publish.
+function needsPublishTitle(form: FormSummary): string | undefined {
+  return form.published ? undefined : "Publish the form to get a link";
+}
+
+// Edit / Open / Email surface as hover quick actions on the card; everything
+// else lives in the kebab "more options" menu.
+function moreActionsFor(form: FormSummary): UiActionItem[] {
   return [
-    { id: "edit", label: "Edit form", icon: "pencil" },
     { id: "responses", label: "Responses", icon: "responses" },
     {
       id: "copy",
       label: "Copy link",
       icon: "copy",
       disabled: !form.published,
-      title: needsPublish,
-    },
-    {
-      id: "email",
-      label: "Email form",
-      icon: "email",
-      disabled: !form.published,
-      title: needsPublish,
-    },
-    {
-      id: "open",
-      label: "Open form",
-      icon: "external",
-      disabled: !form.published,
-      title: needsPublish,
+      title: needsPublishTitle(form),
     },
     { id: "delete", label: "Delete form", icon: "trash", danger: true },
   ];
@@ -198,157 +213,263 @@ onMounted(load);
 
 <template>
   <AppShell>
-      <!-- Content — the shared AppShell topbar carries search; page actions
+    <!-- Content — the shared AppShell topbar carries search; page actions
            (AI generate, New form) live in this heading row instead. -->
-      <main class="w-full px-6 py-8">
-        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 class="text-lg font-semibold text-ink-900">
-              {{ activeView === "templates" ? "Templates" : "My forms" }}
-            </h1>
-            <p v-if="activeView === 'templates'" class="text-sm text-ink-400">
-              Pick a starting point — edit everything after.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 sm:gap-3">
-            <template v-if="activeView === 'forms' && !loading && forms.length">
-              <span class="text-sm text-ink-400">
-                {{ filteredForms.length }} form{{
-                  filteredForms.length === 1 ? "" : "s"
-                }}
-              </span>
-              <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
-            </template>
-            <button
-              type="button"
-              class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700 transition hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-              aria-label="Generate a form with AI"
-              title="Generate with AI"
-              @click="aiOpen = true"
+    <main class="w-full px-6 py-8">
+      <div class="mb-5 flex flex-nowrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h1 class="truncate text-lg font-semibold text-ink-900">
+            {{ activeView === "templates" ? "Templates" : "My forms" }}
+          </h1>
+          <p v-if="activeView === 'templates'" class="text-sm text-ink-400">
+            Pick a starting point — edit everything after.
+          </p>
+        </div>
+        <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+          <template v-if="activeView === 'forms' && !loading && forms.length">
+            <!-- count hidden on mobile so the row fits one line -->
+            <span class="hidden text-sm text-ink-400 sm:inline">
+              {{ filteredForms.length }} form{{
+                filteredForms.length === 1 ? "" : "s"
+              }}
+            </span>
+            <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
+          </template>
+
+          <!-- Create form split dropdown: blank vs. AI generate -->
+          <div
+            ref="createRoot"
+            class="relative"
+            @keydown.escape="closeCreate"
+          >
+            <UiButton
+              :disabled="creating"
+              aria-haspopup="menu"
+              :aria-expanded="createOpen"
+              @click="toggleCreate"
             >
-              <UiIcon name="sparkles" class="text-inherit h-5 w-5" />
-            </button>
-            <UiButton :disabled="creating" @click="createForm">
-              <span>{{ creating ? "Creating…" : "New form" }}</span>
+              <UiIcon name="plus" class="text-inherit h-4 w-4" />
+              <span>{{ creating ? "Creating…" : "Create form" }}</span>
+              <UiIcon name="chevron-down" class="text-inherit h-4 w-4" />
             </UiButton>
+
+            <transition
+              enter-active-class="transition duration-150 ease-soft"
+              enter-from-class="opacity-0 -translate-y-1"
+              leave-active-class="transition duration-100 ease-soft"
+              leave-to-class="opacity-0 -translate-y-1"
+            >
+              <div
+                v-if="createOpen"
+                role="menu"
+                class="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-xl border border-ink-200 bg-white p-1 shadow-pop"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+                  @click="pickCreate('blank')"
+                >
+                  <UiIcon name="plus" class="h-5 w-5 shrink-0 text-ink-400" />
+                  Create form
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+                  @click="pickCreate('ai')"
+                >
+                  <UiIcon
+                    name="sparkles"
+                    class="h-5 w-5 shrink-0 text-ink-400"
+                  />
+                  Create form with AI
+                </button>
+              </div>
+            </transition>
+          </div>
+        </div>
+      </div>
+
+      <p
+        v-if="error"
+        class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+      >
+        {{ error }}
+      </p>
+
+      <!-- Templates view: inline, driven by the topbar search -->
+      <TemplateGallery
+        v-if="activeView === 'templates'"
+        :query="query"
+        :busy="creatingFromTemplate"
+        @use="useTemplate"
+      />
+
+      <!-- Dashboard view: the forms list -->
+      <template v-else>
+        <!-- Skeleton mirror of the form-card grid (3 per row) -->
+        <div
+          v-if="loading"
+          role="status"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          <span class="sr-only">Loading your forms…</span>
+          <div
+            v-for="n in 6"
+            :key="n"
+            class="rounded-xl border border-ink-200 border-l-[3px] bg-white p-4"
+          >
+            <UiSkeleton class="h-4 w-32 max-w-[70%]" />
+            <UiSkeleton class="mt-2 h-5 w-20 rounded-full" />
+            <UiSkeleton class="mt-4 h-7 w-28" />
+            <UiSkeleton class="mt-4 h-3.5 w-24" />
           </div>
         </div>
 
-        <p
-          v-if="error"
-          class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+        <div
+          v-else-if="forms.length === 0"
+          class="rounded-2xl border border-dashed border-ink-300 bg-white p-12 text-center"
         >
-          {{ error }}
-        </p>
-
-        <!-- Templates view: inline, driven by the topbar search -->
-        <TemplateGallery
-          v-if="activeView === 'templates'"
-          :query="query"
-          :busy="creatingFromTemplate"
-          @use="useTemplate"
-        />
-
-        <!-- Dashboard view: the forms list -->
-        <template v-else>
-          <!-- Skeleton mirror of the form-card list -->
-          <div v-if="loading" role="status" class="space-y-3">
-            <span class="sr-only">Loading your forms…</span>
-            <div
-              v-for="n in 5"
-              :key="n"
-              class="flex items-center gap-3 rounded-xl border border-ink-200 bg-white p-4"
+          <h2 class="text-lg font-semibold text-ink-900">No forms yet</h2>
+          <p class="mx-auto mt-1 max-w-sm text-sm text-ink-500">
+            Create your first form, add a few fields, and publish to share a
+            link.
+          </p>
+          <div class="mt-5 flex items-center justify-center gap-2">
+            <UiButton :disabled="creating" @click="createForm"
+              >Create a form</UiButton
             >
-              <div class="min-w-0 flex-1 space-y-2">
-                <div class="flex items-center gap-2">
-                  <UiSkeleton class="h-4 w-48 max-w-[50%]" />
-                  <UiSkeleton class="h-5 w-16 rounded-full" />
-                </div>
-                <UiSkeleton class="h-3.5 w-64 max-w-[70%]" />
-              </div>
-              <UiSkeleton class="h-8 w-8 shrink-0 rounded-lg" />
-            </div>
+            <UiButton variant="secondary" @click="setView('templates')"
+              >Browse templates</UiButton
+            >
           </div>
+        </div>
 
-          <div
-            v-else-if="forms.length === 0"
-            class="rounded-2xl border border-dashed border-ink-300 bg-white p-12 text-center"
+        <div
+          v-else-if="filteredForms.length === 0"
+          class="py-16 text-center text-sm text-ink-400"
+        >
+          No forms match
+          {{ query.trim() ? `“${query}”` : "the selected filters" }}.
+        </div>
+
+        <ul v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <li
+            v-for="form in filteredForms"
+            :key="form.id"
+            class="group relative flex flex-col gap-3 rounded-xl border border-ink-200 bg-white p-4 shadow-card transition-all duration-200 hover:z-20 hover:-translate-y-0.5 hover:border-ink-300 hover:shadow-md focus-within:z-20"
+            :style="{
+              borderLeftWidth: '3px',
+              borderLeftColor: form.primaryColor,
+            }"
           >
-            <h2 class="text-lg font-semibold text-ink-900">No forms yet</h2>
-            <p class="mx-auto mt-1 max-w-sm text-sm text-ink-500">
-              Create your first form, add a few fields, and publish to share a
-              link.
+            <!-- Header: title + status, actions on the right -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <router-link
+                  :to="{ name: 'builder', params: { id: form.id } }"
+                  class="line-clamp-2 text-[15px] font-semibold leading-snug text-ink-900 transition-colors group-hover:text-brand-700"
+                >
+                  {{ form.title }}
+                </router-link>
+                <span
+                  v-if="form.published"
+                  class="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-sm font-medium text-green-700"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-green-500" />
+                  Published
+                </span>
+                <span
+                  v-else
+                  class="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-500"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-ink-400" />
+                  Draft
+                </span>
+              </div>
+
+              <div class="flex shrink-0 items-center gap-0.5">
+                <!-- Quick actions — fade in on hover / keyboard focus -->
+                <div
+                  class="flex items-center gap-0.5 opacity-100 transition-opacity duration-150 focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                >
+                  <button
+                    type="button"
+                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    aria-label="Edit form"
+                    title="Edit form"
+                    @click="onAction(form, 'edit')"
+                  >
+                    <UiIcon name="pencil-square" class="text-inherit h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Open form"
+                    :title="needsPublishTitle(form) ?? 'Open form'"
+                    :disabled="!form.published"
+                    @click="onAction(form, 'open')"
+                  >
+                    <UiIcon
+                      name="arrow-top-right-on-square"
+                      class="text-inherit h-5 w-5"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Email form"
+                    :title="needsPublishTitle(form) ?? 'Email form'"
+                    :disabled="!form.published"
+                    @click="onAction(form, 'email')"
+                  >
+                    <UiIcon name="envelope" class="text-inherit h-5 w-5" />
+                  </button>
+                </div>
+                <UiActionMenu
+                  class="-mr-1 shrink-0"
+                  :items="moreActionsFor(form)"
+                  :label="`More actions for ${form.title}`"
+                  @select="onAction(form, $event)"
+                />
+              </div>
+            </div>
+
+            <!-- Prominent inline metrics -->
+            <div class="flex items-center gap-5">
+              <div class="flex items-baseline gap-1.5">
+                <span
+                  class="text-2xl font-semibold tabular-nums text-ink-900"
+                  >{{ form.responseCount }}</span
+                >
+                <span class="text-sm text-ink-500"
+                  >response{{ form.responseCount === 1 ? "" : "s" }}</span
+                >
+              </div>
+              <div class="flex items-baseline gap-1.5">
+                <span
+                  class="text-2xl font-semibold tabular-nums text-ink-900"
+                  >{{ form.viewCount }}</span
+                >
+                <span class="text-sm text-ink-500"
+                  >view{{ form.viewCount === 1 ? "" : "s" }}</span
+                >
+              </div>
+            </div>
+
+            <p class="flex items-center gap-1.5 text-sm text-ink-500">
+              <UiIcon name="calendar" class="h-5 w-5" />
+              Edited {{ relativeTime(form.updatedAt) }}
+              <!-- Copy feedback lands here since the menu closes on select -->
+              <span v-if="copied === form.id" class="font-medium text-brand-700"
+                >· Link copied!</span
+              >
             </p>
-            <div class="mt-5 flex items-center justify-center gap-2">
-              <UiButton :disabled="creating" @click="createForm"
-                >Create a form</UiButton
-              >
-              <UiButton variant="secondary" @click="setView('templates')"
-                >Browse templates</UiButton
-              >
-            </div>
-          </div>
-
-          <div
-            v-else-if="filteredForms.length === 0"
-            class="py-16 text-center text-sm text-ink-400"
-          >
-            No forms match
-            {{ query.trim() ? `“${query}”` : "the selected filters" }}.
-          </div>
-
-          <ul v-else class="space-y-3">
-            <!-- All card actions live in the kebab menu, so the card stays a
-                 single compact row at every width. -->
-            <li
-              v-for="form in filteredForms"
-              :key="form.id"
-              class="flex items-center gap-3 rounded-xl border border-ink-200 bg-white p-4 shadow-card transition hover:border-ink-300"
-            >
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <router-link
-                    :to="{ name: 'builder', params: { id: form.id } }"
-                    class="truncate font-semibold text-ink-900 hover:text-brand-700"
-                  >
-                    {{ form.title }}
-                  </router-link>
-                  <span
-                    v-if="form.published"
-                    class="rounded-full bg-brand-50 px-2 py-0.5 text-sm font-medium text-brand-700"
-                    >Published</span
-                  >
-                  <span
-                    v-else
-                    class="rounded-full bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-500"
-                    >Draft</span
-                  >
-                </div>
-                <p class="mt-0.5 text-sm text-ink-400">
-                  {{ form.responseCount }} response{{
-                    form.responseCount === 1 ? "" : "s"
-                  }}
-                  · {{ form.viewCount }} view{{ form.viewCount === 1 ? "" : "s" }}
-                  · edited {{ relativeTime(form.updatedAt) }}
-                  <!-- Copy feedback lands here since the menu closes on select -->
-                  <span
-                    v-if="copied === form.id"
-                    class="font-medium text-brand-700"
-                    >· Link copied!</span
-                  >
-                </p>
-              </div>
-
-              <UiActionMenu
-                class="shrink-0"
-                :items="actionsFor(form)"
-                :label="`Actions for ${form.title}`"
-                @select="onAction(form, $event)"
-              />
-            </li>
-          </ul>
-        </template>
-      </main>
+          </li>
+        </ul>
+      </template>
+    </main>
 
     <!-- AI generate modal — opened from the navbar sparkles button. Hosts the
          same <AiGenerateForm>, which redirects to the builder on success. -->
@@ -373,7 +494,9 @@ onMounted(load);
               >
                 <UiIcon name="sparkles" class="text-inherit h-5 w-5" />
               </span>
-              <h2 class="font-semibold text-ink-900">Generate a form with AI</h2>
+              <h2 class="font-semibold text-ink-900">
+                Generate a form with AI
+              </h2>
             </div>
             <button
               type="button"

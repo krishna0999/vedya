@@ -12,6 +12,7 @@ export interface FormSummary {
   published: boolean;
   responseCount: number;
   viewCount: number;
+  primaryColor: string; // form theme accent, used for the card left border
 }
 
 // Basic analytics: headline numbers for one form (conversion derived client-side).

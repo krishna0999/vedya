@@ -21,6 +21,7 @@ export interface FormSummary {
   published: boolean;
   responseCount: number;
   viewCount: number;
+  primaryColor: string; // form theme accent, surfaced for the cards list
 }
 
 // Basic analytics (ROADMAP Phase 1): the three headline numbers. Conversion is
@@ -81,10 +82,11 @@ export async function createForm(ownerId: string, title?: string): Promise<FormD
 export async function listForms(ownerId: string): Promise<FormSummary[]> {
   const { rows } = await pool.query<{
     id: string; title: string; updated_at: Date; published: boolean;
-    response_count: string; view_count: string;
+    response_count: string; view_count: string; primary_color: string | null;
   }>(
     `SELECT f.id, f.title, f.updated_at,
             f.published_version_id IS NOT NULL AS published,
+            f.current_draft->'theme'->>'primaryColor' AS primary_color,
             (SELECT count(*) FROM submissions s WHERE s.form_id = f.id) AS response_count,
             (SELECT count(*) FROM form_views v WHERE v.form_id = f.id) AS view_count
        FROM forms f
@@ -99,6 +101,7 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
     published: r.published,
     responseCount: Number(r.response_count),
     viewCount: Number(r.view_count),
+    primaryColor: r.primary_color ?? DEFAULT_THEME.primaryColor,
   }));
 }
 

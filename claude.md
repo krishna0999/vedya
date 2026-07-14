@@ -257,6 +257,11 @@ Retuning the brand = editing tokens, not hunting through components.
 full keyboard operability, and ARIA on custom controls. A custom checkbox that a
 keyboard can't toggle is not done.
 
+**Icon & muted-text defaults (apply unless a case calls for otherwise):**
+- Icons default to `h-5 w-5`. Only deviate when a specific size is required.
+- Lighter / muted text defaults to `gray-500`. Only use a different color when the
+  design specifically needs one.
+
 ---
 
 ## 8. Freemium gate (v1)
