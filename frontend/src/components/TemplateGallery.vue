@@ -83,29 +83,32 @@ function questionSummary(t: TemplateSummary): string {
   return types.slice(0, 3).join(" · ");
 }
 
-// Per-category tint for the thumbnail + badge. Hashed, so new categories get a
-// stable color without maintaining a map. Classes are literal for Tailwind.
+// Per-category chip tint. Hashed, so new categories get a stable color without
+// maintaining a map. Classes are literal for Tailwind.
 const TINTS = [
-  { thumb: "bg-brand-50", chip: "bg-brand-100 text-brand-700" },
-  { thumb: "bg-sky-50", chip: "bg-sky-100 text-sky-700" },
-  { thumb: "bg-amber-50", chip: "bg-amber-100 text-amber-800" },
-  { thumb: "bg-emerald-50", chip: "bg-emerald-100 text-emerald-700" },
-  { thumb: "bg-rose-50", chip: "bg-rose-100 text-rose-700" },
-  { thumb: "bg-violet-50", chip: "bg-violet-100 text-violet-700" },
+  "bg-brand-100 text-brand-700",
+  "bg-sky-100 text-sky-700",
+  "bg-amber-100 text-amber-800",
+  "bg-emerald-100 text-emerald-700",
+  "bg-rose-100 text-rose-700",
+  "bg-violet-100 text-violet-700",
 ];
-function tintFor(category: string): (typeof TINTS)[number] {
+function tintFor(category: string): string {
   let h = 0;
   for (const c of category) h = (h * 31 + c.charCodeAt(0)) % 997;
   return TINTS[h % TINTS.length]!;
 }
 
+// Popular reads green; anything else (Trending…) amber.
+function badgeClass(badge: "Popular" | "Trending"): string {
+  return badge === "Popular"
+    ? "bg-green-50 text-green-700"
+    : "bg-amber-50 text-amber-700";
+}
+
 // ponytail: ~15s per question, rounded up — an estimate, not analytics.
 function estMinutes(t: TemplateSummary): number {
   return Math.max(1, Math.ceil((t.fieldCount * 15) / 60));
-}
-
-function badgeLabel(badge: "Popular" | "Trending"): string {
-  return badge === "Popular" ? "⭐ Popular" : "🔥 Trending";
 }
 
 function onUse(id: string): void {
@@ -183,8 +186,7 @@ onMounted(load);
           :key="n"
           class="rounded-2xl border border-ink-200 bg-white p-5"
         >
-          <UiSkeleton class="h-24 w-full rounded-xl" />
-          <UiSkeleton class="mt-3 h-4 w-2/3" />
+          <UiSkeleton class="h-4 w-2/3" />
           <UiSkeleton class="mt-2 h-3.5 w-full" />
           <UiSkeleton class="mt-1.5 h-3.5 w-4/5" />
           <div class="mt-4 flex gap-2">
@@ -213,27 +215,23 @@ onMounted(load);
         :key="t.id"
         class="flex flex-col rounded-2xl border border-ink-200 bg-white p-5 shadow-card transition hover:border-ink-300"
       >
-        <!-- Thumbnail: category-tinted panel with the template's emoji -->
-        <div
-          class="relative grid h-24 place-items-center rounded-xl"
-          :class="tintFor(t.category).thumb"
-        >
-          <span class="text-3xl" aria-hidden="true">{{ t.icon }}</span>
+        <div class="flex items-start justify-between gap-2">
+          <h3 class="font-semibold text-ink-900">{{ t.title }}</h3>
           <span
             v-if="t.badge"
-            class="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-xs font-medium text-ink-700 shadow-sm"
+            class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+            :class="badgeClass(t.badge)"
           >
-            {{ badgeLabel(t.badge) }}
+            {{ t.badge }}
           </span>
         </div>
-        <h3 class="mt-3 font-semibold text-ink-900">{{ t.title }}</h3>
         <p class="mt-1 flex-1 text-sm text-ink-500">{{ t.description }}</p>
         <div
           class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500"
         >
           <span
             class="rounded-full px-2 py-0.5 text-xs font-medium"
-            :class="tintFor(t.category).chip"
+            :class="tintFor(t.category)"
           >
             {{ t.category }}
           </span>

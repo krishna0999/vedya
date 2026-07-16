@@ -282,6 +282,7 @@ These are *post-v1*. Listed so v1 doesn't accidentally wall them off:
 - **Logic / quiz / calculator** (likely first wedge): activate the reserved `Field.visibleIf` into a real `Condition` type; renderer evaluates conditions to show/hide/score. The renderer already ignores `visibleIf` in v1, so v1 forms stay valid.
 - **Forms that take payments:** a `payment` field type + MoR integration; `FormVersion` gains pricing config.
 - **Forms that do something:** post-submission actions (webhooks, email, approvals) keyed off a submission-created event. Keep submission writes in a place where emitting an event later is trivial.
+- **Template marketplace:** grow the static catalog (`backend/src/data/templates.ts`) into an ecosystem — richer metadata (tags, cover image, difficulty, industries), real usage counts instead of the curated `badge`/`stat` labels, favorites, "save my form as a template", then community/company publishing. The seam is already right: a template is just `Field[]` + metadata, the same JSON the builder emits, so user-published templates need no schema work. Don't start before there's traffic — a marketplace needs a market, and community publishing drags in moderation and an org/teams ownership model. Cheapest first step when the time comes: count instantiations on the from-template endpoint and feed `stat` from data.
 
 When you build a wedge, it rides on the *same* engine — that's the whole reason general-core comes first.
 
