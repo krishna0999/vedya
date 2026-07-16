@@ -13,6 +13,7 @@ import UiActionMenu, {
   type UiActionItem,
 } from "@/components/ui/UiActionMenu.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiConfirmDialog from "@/components/ui/UiConfirmDialog.vue";
 import UiFilterMenu from "@/components/ui/UiFilterMenu.vue";
 import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
@@ -126,13 +127,12 @@ async function useTemplate(templateId: string): Promise<void> {
   }
 }
 
-async function remove(form: FormSummary): Promise<void> {
-  if (
-    !confirm(
-      `Delete “${form.title}” and all its responses? This cannot be undone.`,
-    )
-  )
-    return;
+const pendingDelete = ref<FormSummary | null>(null);
+
+async function confirmDelete(): Promise<void> {
+  const form = pendingDelete.value;
+  if (!form) return;
+  pendingDelete.value = null;
   try {
     await api.deleteForm(form.id);
     forms.value = forms.value.filter((f) => f.id !== form.id);
@@ -203,7 +203,7 @@ function onAction(form: FormSummary, actionId: string): void {
       window.open(`/f/${form.id}`, "_blank", "noopener");
       break;
     case "delete":
-      remove(form);
+      pendingDelete.value = form;
       break;
   }
 }
@@ -221,14 +221,14 @@ onMounted(load);
           <h1 class="truncate text-lg font-semibold text-ink-900">
             {{ activeView === "templates" ? "Templates" : "My forms" }}
           </h1>
-          <p v-if="activeView === 'templates'" class="text-sm text-ink-400">
+          <p v-if="activeView === 'templates'" class="text-sm text-ink-500">
             Pick a starting point — edit everything after.
           </p>
         </div>
         <div class="flex shrink-0 items-center gap-2 sm:gap-3">
           <template v-if="activeView === 'forms' && !loading && forms.length">
             <!-- count hidden on mobile so the row fits one line -->
-            <span class="hidden text-sm text-ink-400 sm:inline">
+            <span class="hidden text-sm text-ink-500 sm:inline">
               {{ filteredForms.length }} form{{
                 filteredForms.length === 1 ? "" : "s"
               }}
@@ -237,11 +237,7 @@ onMounted(load);
           </template>
 
           <!-- Create form split dropdown: blank vs. AI generate -->
-          <div
-            ref="createRoot"
-            class="relative"
-            @keydown.escape="closeCreate"
-          >
+          <div ref="createRoot" class="relative" @keydown.escape="closeCreate">
             <UiButton
               :disabled="creating"
               aria-haspopup="menu"
@@ -270,7 +266,7 @@ onMounted(load);
                   class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
                   @click="pickCreate('blank')"
                 >
-                  <UiIcon name="plus" class="h-5 w-5 shrink-0 text-ink-400" />
+                  <UiIcon name="plus" class="h-5 w-5 shrink-0 text-ink-500" />
                   Create form
                 </button>
                 <button
@@ -281,7 +277,7 @@ onMounted(load);
                 >
                   <UiIcon
                     name="sparkles"
-                    class="h-5 w-5 shrink-0 text-ink-400"
+                    class="h-5 w-5 shrink-0 text-ink-500"
                   />
                   Create form with AI
                 </button>
@@ -348,7 +344,7 @@ onMounted(load);
 
         <div
           v-else-if="filteredForms.length === 0"
-          class="py-16 text-center text-sm text-ink-400"
+          class="py-16 text-center text-sm text-ink-500"
         >
           No forms match
           {{ query.trim() ? `“${query}”` : "the selected filters" }}.
@@ -500,7 +496,7 @@ onMounted(load);
             </div>
             <button
               type="button"
-              class="shrink-0 rounded-lg p-2 text-ink-400 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              class="shrink-0 rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
               aria-label="Close"
               @click="aiOpen = false"
             >
@@ -517,5 +513,13 @@ onMounted(load);
         </div>
       </div>
     </Teleport>
+
+    <UiConfirmDialog
+      :open="pendingDelete !== null"
+      title="Delete form"
+      :message="`Deleting “${pendingDelete?.title}” also deletes all its responses. This action is permanent and can't be reversed — are you sure you want to continue?`"
+      @confirm="confirmDelete"
+      @cancel="pendingDelete = null"
+    />
   </AppShell>
 </template>

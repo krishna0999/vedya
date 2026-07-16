@@ -7,13 +7,15 @@ import { api, ApiError } from "@/api/client";
 import { useAuthStore } from "@/stores/auth";
 import AppShell from "@/components/AppShell.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiConfirmDialog from "@/components/ui/UiConfirmDialog.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
 
 // Two initials — from the name if set, else the email local part.
 const initials = computed(() => {
-  const source = auth.user?.name?.trim() || (auth.user?.email ?? "").split("@")[0] || "";
+  const source =
+    auth.user?.name?.trim() || (auth.user?.email ?? "").split("@")[0] || "";
   const parts = source.split(/[\s._+-]+/).filter(Boolean);
   const s =
     parts.length >= 2
@@ -25,16 +27,23 @@ const initials = computed(() => {
 const deleting = ref(false);
 const error = ref<string | null>(null);
 
+// Type-to-confirm gate inside the delete dialog — same safeguard the old
+// prompt() gave us, the confirm button stays disabled until the email matches.
+const confirmOpen = ref(false);
+const typedEmail = ref("");
+const emailMatches = computed(
+  () =>
+    typedEmail.value.trim().toLowerCase() ===
+    (auth.user?.email ?? "").toLowerCase(),
+);
+function openConfirm(): void {
+  typedEmail.value = "";
+  confirmOpen.value = true;
+}
+
 async function deleteAccount(): Promise<void> {
-  const email = auth.user?.email ?? "";
-  const typed = prompt(
-    `This permanently deletes your account, all your forms, and every response.\n\nType your email (${email}) to confirm:`,
-  );
-  if (typed === null) return;
-  if (typed.trim().toLowerCase() !== email.toLowerCase()) {
-    error.value = "Email didn't match — account not deleted.";
-    return;
-  }
+  if (!emailMatches.value) return;
+  confirmOpen.value = false;
   deleting.value = true;
   error.value = null;
   try {
@@ -66,8 +75,18 @@ async function deleteAccount(): Promise<void> {
             {{ initials }}
           </span>
           <div class="min-w-0">
-            <p v-if="auth.user?.name" class="truncate font-semibold text-ink-900">{{ auth.user.name }}</p>
-            <p class="truncate text-ink-500" :class="auth.user?.name ? 'text-sm' : 'font-semibold text-ink-900'">
+            <p
+              v-if="auth.user?.name"
+              class="truncate font-semibold text-ink-900"
+            >
+              {{ auth.user.name }}
+            </p>
+            <p
+              class="truncate text-ink-500"
+              :class="
+                auth.user?.name ? 'text-sm' : 'font-semibold text-ink-900'
+              "
+            >
               {{ auth.user?.email }}
             </p>
             <span
@@ -86,13 +105,22 @@ async function deleteAccount(): Promise<void> {
       >
         <h2 class="font-semibold text-ink-900">Plan</h2>
         <p class="mt-1 text-sm text-ink-500">
-          You're on the <span class="capitalize">{{ auth.user?.plan ?? "free" }}</span> plan.
+          You're on the
+          <span class="capitalize">{{ auth.user?.plan ?? "free" }}</span> plan.
           See what you've used this month on the
-          <router-link :to="{ name: 'dashboard' }" class="font-medium text-brand-700 hover:underline">dashboard</router-link>.
+          <router-link
+            :to="{ name: 'dashboard' }"
+            class="font-medium text-brand-700 hover:underline"
+            >dashboard</router-link
+          >.
         </p>
         <!-- ponytail: upgrade CTA is copy-only until billing (MoR) lands. -->
-        <p v-if="(auth.user?.plan ?? 'free') === 'free'" class="mt-2 text-sm text-ink-500">
-          Upgrading removes the "Made with" badge and lifts response limits — coming soon.
+        <p
+          v-if="(auth.user?.plan ?? 'free') === 'free'"
+          class="mt-2 text-sm text-ink-500"
+        >
+          Upgrading removes the "Made with" badge and lifts response limits —
+          coming soon.
         </p>
       </section>
 
@@ -113,10 +141,40 @@ async function deleteAccount(): Promise<void> {
         >
           {{ error }}
         </p>
-        <UiButton variant="danger" class="mt-4" :disabled="deleting" @click="deleteAccount">
+        <UiButton
+          variant="danger"
+          class="mt-4"
+          :disabled="deleting"
+          @click="openConfirm"
+        >
           {{ deleting ? "Deleting…" : "Delete account" }}
         </UiButton>
       </section>
+
+      <UiConfirmDialog
+        :open="confirmOpen"
+        title="Delete account"
+        message="This permanently deletes your account, all your forms, and every response. This action can't be reversed."
+        confirm-label="Delete account"
+        :confirm-disabled="!emailMatches"
+        @confirm="deleteAccount"
+        @cancel="confirmOpen = false"
+      >
+        <label
+          class="mt-4 block text-sm font-medium text-ink-700"
+          for="confirm-email"
+        >
+          Type your email ({{ auth.user?.email }}) to confirm
+        </label>
+        <input
+          id="confirm-email"
+          v-model="typedEmail"
+          type="email"
+          autocomplete="off"
+          class="mt-1.5 w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+          :placeholder="auth.user?.email"
+        />
+      </UiConfirmDialog>
     </main>
   </AppShell>
 </template>

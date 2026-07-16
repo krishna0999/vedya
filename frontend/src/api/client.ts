@@ -60,6 +60,8 @@ export interface TemplateSummary {
   category: string;
   description: string;
   icon: string;
+  badge?: "Popular" | "Trending";
+  stat?: string;
   fieldCount: number;
   fields: Field[];
 }

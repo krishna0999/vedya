@@ -5,11 +5,7 @@
 // Topbar (search/bell/avatar) is AppShell's — shared across all pages.
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import {
-  api,
-  type AccountUsage,
-  type FormSummary,
-} from "@/api/client";
+import { api, type AccountUsage, type FormSummary } from "@/api/client";
 import { relativeTime } from "@/lib/time";
 import { useAuthStore } from "@/stores/auth";
 import AppShell from "@/components/AppShell.vue";
@@ -84,10 +80,26 @@ const completionRate = computed(() => {
 const stats = computed(() => {
   const u = usage.value;
   return [
-    { label: "Forms", value: u ? String(u.forms) : "—", hint: u ? `${u.published} published` : "" },
-    { label: "Responses", value: u ? u.submissions.toLocaleString() : "—", hint: "all time" },
-    { label: "Views", value: u ? u.views.toLocaleString() : "—", hint: "all time" },
-    { label: "Completion rate", value: completionRate.value, hint: "responses ÷ views" },
+    {
+      label: "Forms",
+      value: u ? String(u.forms) : "—",
+      hint: u ? `${u.published} published` : "",
+    },
+    {
+      label: "Responses",
+      value: u ? u.submissions.toLocaleString() : "—",
+      hint: "all time",
+    },
+    {
+      label: "Views",
+      value: u ? u.views.toLocaleString() : "—",
+      hint: "all time",
+    },
+    {
+      label: "Completion rate",
+      value: completionRate.value,
+      hint: "responses ÷ views",
+    },
   ];
 });
 
@@ -155,7 +167,10 @@ function y(v: number): number {
 }
 const linePath = computed(() =>
   days.value
-    .map((d, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(d.submissions).toFixed(1)}`)
+    .map(
+      (d, i) =>
+        `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(d.submissions).toFixed(1)}`,
+    )
     .join(""),
 );
 const areaPath = computed(() =>
@@ -179,7 +194,9 @@ function onMove(e: MouseEvent): void {
   const svg = e.currentTarget as SVGSVGElement;
   const frac = (e.clientX - svg.getBoundingClientRect().left) / svg.clientWidth;
   const n = Math.max(1, days.value.length - 1);
-  const i = Math.round(((frac * W - PAD.left) / (W - PAD.left - PAD.right)) * n);
+  const i = Math.round(
+    ((frac * W - PAD.left) / (W - PAD.left - PAD.right)) * n,
+  );
   hover.value = Math.min(Math.max(i, 0), days.value.length - 1);
 }
 </script>
@@ -212,7 +229,9 @@ function onMove(e: MouseEvent): void {
           </UiButton>
           <UiButton
             variant="secondary"
-            @click="router.push({ name: 'forms', query: { view: 'templates' } })"
+            @click="
+              router.push({ name: 'forms', query: { view: 'templates' } })
+            "
           >
             Browse templates
           </UiButton>
@@ -226,7 +245,7 @@ function onMove(e: MouseEvent): void {
           :key="s.label"
           class="rounded-lg border border-ink-200 bg-white px-4 py-3"
         >
-          <dt class="text-sm font-medium text-ink-400">{{ s.label }}</dt>
+          <dt class="text-sm font-medium text-ink-500">{{ s.label }}</dt>
           <UiSkeleton v-if="loading" class="mt-1.5 h-7 w-16" />
           <dd
             v-else
@@ -236,7 +255,7 @@ function onMove(e: MouseEvent): void {
             {{ s.value }}
           </dd>
           <UiSkeleton v-if="loading" class="mt-1.5 h-3.5 w-20" />
-          <p v-else class="text-sm text-ink-400">{{ s.hint }}</p>
+          <p v-else class="text-sm text-ink-500">{{ s.hint }}</p>
         </div>
       </dl>
 
@@ -265,7 +284,10 @@ function onMove(e: MouseEvent): void {
         <!-- 2-up rows: Recent forms | Recent responses, then Trend | Activity -->
         <div class="mt-6 grid gap-4 md:grid-cols-2">
           <!-- Recent forms -->
-          <section class="rounded-lg border border-ink-200 bg-white p-5" aria-label="Recent forms">
+          <section
+            class="rounded-lg border border-ink-200 bg-white p-5"
+            aria-label="Recent forms"
+          >
             <div class="flex items-baseline justify-between">
               <h2 class="font-semibold text-ink-900">Recent forms</h2>
               <router-link
@@ -275,7 +297,7 @@ function onMove(e: MouseEvent): void {
                 View all
               </router-link>
             </div>
-            <p v-if="!recentForms.length" class="mt-3 text-sm text-ink-400">
+            <p v-if="!recentForms.length" class="mt-3 text-sm text-ink-500">
               No forms yet — create one to get started.
             </p>
             <ul v-else class="mt-3 divide-y divide-ink-100">
@@ -285,17 +307,25 @@ function onMove(e: MouseEvent): void {
                   class="group flex items-center gap-3 py-2.5"
                 >
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium text-ink-900 group-hover:text-brand-700">
+                    <p
+                      class="truncate text-sm font-medium text-ink-900 group-hover:text-brand-700"
+                    >
                       {{ f.title }}
                     </p>
-                    <p class="text-sm text-ink-400">
-                      {{ f.responseCount }} response{{ f.responseCount === 1 ? "" : "s" }}
+                    <p class="text-sm text-ink-500">
+                      {{ f.responseCount }} response{{
+                        f.responseCount === 1 ? "" : "s"
+                      }}
                       · edited {{ relativeTime(f.updatedAt) }}
                     </p>
                   </div>
                   <span
                     class="shrink-0 rounded-full px-2 py-0.5 text-sm font-medium"
-                    :class="f.published ? 'bg-brand-50 text-brand-700' : 'bg-ink-100 text-ink-500'"
+                    :class="
+                      f.published
+                        ? 'bg-brand-50 text-brand-700'
+                        : 'bg-ink-100 text-ink-500'
+                    "
                   >
                     {{ f.published ? "Published" : "Draft" }}
                   </span>
@@ -305,9 +335,12 @@ function onMove(e: MouseEvent): void {
           </section>
 
           <!-- Recent responses -->
-          <section class="rounded-lg border border-ink-200 bg-white p-5" aria-label="Recent responses">
+          <section
+            class="rounded-lg border border-ink-200 bg-white p-5"
+            aria-label="Recent responses"
+          >
             <h2 class="font-semibold text-ink-900">Recent responses</h2>
-            <p v-if="!recentResponses.length" class="mt-3 text-sm text-ink-400">
+            <p v-if="!recentResponses.length" class="mt-3 text-sm text-ink-500">
               No responses yet — share a published form to start collecting.
             </p>
             <ul v-else class="mt-3 divide-y divide-ink-100">
@@ -320,13 +353,20 @@ function onMove(e: MouseEvent): void {
                     class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700"
                     aria-hidden="true"
                   >
-                    <UiIcon name="paper-airplane" class="text-inherit h-4 w-4" />
+                    <UiIcon
+                      name="paper-airplane"
+                      class="text-inherit h-4 w-4"
+                    />
                   </span>
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium text-ink-900 group-hover:text-brand-700">
+                    <p
+                      class="truncate text-sm font-medium text-ink-900 group-hover:text-brand-700"
+                    >
                       {{ r.formTitle }}
                     </p>
-                    <p class="text-sm text-ink-400">{{ relativeTime(r.submittedAt) }}</p>
+                    <p class="text-sm text-ink-500">
+                      {{ relativeTime(r.submittedAt) }}
+                    </p>
                   </div>
                 </router-link>
               </li>
@@ -339,7 +379,7 @@ function onMove(e: MouseEvent): void {
             aria-label="Responses over the last 30 days"
           >
             <h2 class="font-semibold text-ink-900">Response trend</h2>
-            <p class="text-sm text-ink-400">Responses, last 30 days</p>
+            <p class="text-sm text-ink-500">Responses, last 30 days</p>
             <div class="relative mt-4">
               <svg
                 :viewBox="`0 0 ${W} ${H}`"
@@ -350,8 +390,21 @@ function onMove(e: MouseEvent): void {
                 @mouseleave="hover = null"
               >
                 <g v-for="t in yTicks" :key="t">
-                  <line :x1="PAD.left" :x2="W - PAD.right" :y1="y(t)" :y2="y(t)" stroke="#eceaf1" stroke-width="1" />
-                  <text :x="PAD.left - 8" :y="y(t) + 3" text-anchor="end" class="fill-ink-400" style="font-size: 10px; font-variant-numeric: tabular-nums">
+                  <line
+                    :x1="PAD.left"
+                    :x2="W - PAD.right"
+                    :y1="y(t)"
+                    :y2="y(t)"
+                    stroke="#eceaf1"
+                    stroke-width="1"
+                  />
+                  <text
+                    :x="PAD.left - 8"
+                    :y="y(t) + 3"
+                    text-anchor="end"
+                    class="fill-ink-400"
+                    style="font-size: 10px; font-variant-numeric: tabular-nums"
+                  >
                     {{ t.toLocaleString() }}
                   </text>
                 </g>
@@ -376,8 +429,22 @@ function onMove(e: MouseEvent): void {
                   stroke-linejoin="round"
                 />
                 <template v-if="hover !== null && days[hover]">
-                  <line :x1="x(hover)" :x2="x(hover)" :y1="PAD.top" :y2="H - PAD.bottom" stroke="#b8b4c2" stroke-width="1" />
-                  <circle :cx="x(hover)" :cy="y(days[hover]!.submissions)" r="4" :fill="LINE" stroke="#ffffff" stroke-width="2" />
+                  <line
+                    :x1="x(hover)"
+                    :x2="x(hover)"
+                    :y1="PAD.top"
+                    :y2="H - PAD.bottom"
+                    stroke="#b8b4c2"
+                    stroke-width="1"
+                  />
+                  <circle
+                    :cx="x(hover)"
+                    :cy="y(days[hover]!.submissions)"
+                    r="4"
+                    :fill="LINE"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                  />
                 </template>
               </svg>
               <div
@@ -390,31 +457,43 @@ function onMove(e: MouseEvent): void {
                 </p>
                 <p class="whitespace-nowrap text-sm text-ink-600">
                   Responses:
-                  <span style="font-variant-numeric: tabular-nums">{{ days[hover]!.submissions }}</span>
+                  <span style="font-variant-numeric: tabular-nums">{{
+                    days[hover]!.submissions
+                  }}</span>
                 </p>
               </div>
             </div>
           </section>
 
           <!-- Activity feed -->
-          <section class="rounded-lg border border-ink-200 bg-white p-5" aria-label="Recent activity">
+          <section
+            class="rounded-lg border border-ink-200 bg-white p-5"
+            aria-label="Recent activity"
+          >
             <h2 class="font-semibold text-ink-900">Activity</h2>
-            <p v-if="!activity.length" class="mt-3 text-sm text-ink-400">
+            <p v-if="!activity.length" class="mt-3 text-sm text-ink-500">
               Nothing yet — activity shows up as you build and collect.
             </p>
             <ul v-else class="mt-3 divide-y divide-ink-100">
               <li v-for="ev in activity" :key="ev.key">
-                <router-link :to="ev.to" class="group flex items-center gap-3 py-2.5">
+                <router-link
+                  :to="ev.to"
+                  class="group flex items-center gap-3 py-2.5"
+                >
                   <span
                     class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-ink-100 text-ink-500"
                     aria-hidden="true"
                   >
                     <UiIcon :name="ev.icon" class="text-inherit h-4 w-4" />
                   </span>
-                  <p class="min-w-0 flex-1 truncate text-sm text-ink-700 group-hover:text-brand-700">
+                  <p
+                    class="min-w-0 flex-1 truncate text-sm text-ink-700 group-hover:text-brand-700"
+                  >
                     {{ ev.text }}
                   </p>
-                  <span class="shrink-0 text-sm text-ink-400">{{ relativeTime(ev.at) }}</span>
+                  <span class="shrink-0 text-sm text-ink-500">{{
+                    relativeTime(ev.at)
+                  }}</span>
                 </router-link>
               </li>
             </ul>

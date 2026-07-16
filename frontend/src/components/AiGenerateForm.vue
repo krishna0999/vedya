@@ -50,7 +50,7 @@ async function generate(): Promise<void> {
       ref="textarea"
       v-model="prompt"
       rows="5"
-      class="w-full resize-none rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:opacity-60"
+      class="w-full resize-none rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:opacity-60"
       :placeholder="EXAMPLE"
       :disabled="generating"
       aria-label="Describe the form you want"
@@ -66,7 +66,7 @@ async function generate(): Promise<void> {
     </p>
 
     <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
-      <p class="text-sm text-ink-400">
+      <p class="text-sm text-ink-500">
         You'll be able to edit everything before publishing.
       </p>
       <UiButton

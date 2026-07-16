@@ -3,12 +3,12 @@
 // FormVersion and feeds it to <FormRenderer>. The server re-validates on submit
 // (authoritative); this page just relays the answers and shows the outcome.
 // Form theme is scoped inside FormRenderer — no product brand leaks into it.
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import type { FormVersion } from '@schema';
-import { api, ApiError } from '@/api/client';
-import FormRenderer from '@/components/FormRenderer.vue';
-import UiSkeleton from '@/components/ui/UiSkeleton.vue';
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import type { FormVersion } from "@schema";
+import { api, ApiError } from "@/api/client";
+import FormRenderer from "@/components/FormRenderer.vue";
+import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
 const route = useRoute();
 const formId = route.params.formId as string;
@@ -33,8 +33,10 @@ async function load(): Promise<void> {
   } catch (err) {
     loadError.value =
       err instanceof ApiError && err.status === 404
-        ? 'This form isn’t available. It may be unpublished or the link is wrong.'
-        : err instanceof Error ? err.message : 'Failed to load form.';
+        ? "This form isn’t available. It may be unpublished or the link is wrong."
+        : err instanceof Error
+          ? err.message
+          : "Failed to load form.";
   } finally {
     loading.value = false;
   }
@@ -62,8 +64,10 @@ async function onSubmit(answers: Record<string, unknown>): Promise<void> {
   } catch (err) {
     submitError.value =
       err instanceof ApiError && err.status === 429
-        ? 'Too many submissions. Please wait a moment and try again.'
-        : err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+        ? "Too many submissions. Please wait a moment and try again."
+        : err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.";
   } finally {
     submitting.value = false;
   }
@@ -76,7 +80,11 @@ onMounted(load);
   <div class="min-h-screen bg-ink-50 px-4 py-10">
     <div class="mx-auto max-w-xl">
       <!-- Skeleton mirror of the form card: title + a few label/input pairs -->
-      <div v-if="loading" role="status" class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8">
+      <div
+        v-if="loading"
+        role="status"
+        class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8"
+      >
         <span class="sr-only">Loading…</span>
         <UiSkeleton class="h-6 w-2/3" />
         <div v-for="n in 3" :key="n" class="mt-7 space-y-2">
@@ -86,14 +94,26 @@ onMounted(load);
         <UiSkeleton class="mt-8 h-10 w-28 rounded-lg" />
       </div>
 
-      <div v-else-if="loadError" class="rounded-2xl border border-ink-200 bg-white p-10 text-center">
+      <div
+        v-else-if="loadError"
+        class="rounded-2xl border border-ink-200 bg-white p-10 text-center"
+      >
         <h1 class="text-lg font-semibold text-ink-900">Form unavailable</h1>
         <p class="mt-1 text-sm text-ink-500">{{ loadError }}</p>
       </div>
 
-      <div v-else-if="done" class="rounded-2xl border border-ink-200 bg-white p-10 text-center shadow-card">
-        <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-2xl text-brand-600">✓</div>
-        <h1 class="text-lg font-semibold text-ink-900">Thanks — your response was recorded.</h1>
+      <div
+        v-else-if="done"
+        class="rounded-2xl border border-ink-200 bg-white p-10 text-center shadow-card"
+      >
+        <div
+          class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-2xl text-brand-600"
+        >
+          ✓
+        </div>
+        <h1 class="text-lg font-semibold text-ink-900">
+          Thanks — your response was recorded.
+        </h1>
         <p class="mt-1 text-sm text-ink-500">You can close this tab now.</p>
         <!-- Growth loop, free-tier forms only: paid removes our branding (§8),
              so the CTA rides the same flag as the "Made with" badge. -->
@@ -104,18 +124,31 @@ onMounted(load);
           >
             Create your own form
           </router-link>
-          <p class="mt-2 text-sm text-ink-400">Free with Vedya — no card needed.</p>
+          <p class="mt-2 text-sm text-ink-500">
+            Free with Vedya — no card needed.
+          </p>
         </template>
       </div>
 
       <div v-else-if="version">
-        <div class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8">
-          <p v-if="submitError" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+        <div
+          class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8"
+        >
+          <p
+            v-if="submitError"
+            class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+          >
             {{ submitError }}
           </p>
-          <FormRenderer :version="version" :submitting="submitting" @submit="onSubmit" />
+          <FormRenderer
+            :version="version"
+            :submitting="submitting"
+            @submit="onSubmit"
+          />
         </div>
-        <p v-if="branding" class="mt-6 text-center text-sm text-ink-400">Made with Vedya</p>
+        <p v-if="branding" class="mt-6 text-center text-sm text-ink-500">
+          Made with Vedya
+        </p>
       </div>
     </div>
   </div>

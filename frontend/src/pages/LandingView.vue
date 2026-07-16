@@ -6,8 +6,8 @@
 import { ref } from "vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiLogo from "@/components/ui/UiLogo.vue";
-import UiIcon from '@/components/ui/UiIcon.vue';
-import type { IconName } from '@/lib/icons';
+import UiIcon from "@/components/ui/UiIcon.vue";
+import type { IconName } from "@/lib/icons";
 
 const features: { title: string; body: string; icon: IconName }[] = [
   {
@@ -296,7 +296,11 @@ function toggleFaq(i: number): void {
               @click="toggleFaq(i)"
             >
               <span class="text-sm font-medium text-ink-900">{{ faq.q }}</span>
-              <UiIcon name="chevron-down" class="h-5 w-5 shrink-0 text-ink-400 transition-transform duration-200" :class="openFaq === i && 'rotate-180'" />
+              <UiIcon
+                name="chevron-down"
+                class="h-5 w-5 shrink-0 text-ink-500 transition-transform duration-200"
+                :class="openFaq === i && 'rotate-180'"
+              />
             </button>
             <p
               v-if="openFaq === i"
@@ -329,7 +333,7 @@ function toggleFaq(i: number): void {
     </section>
 
     <footer
-      class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-ink-400"
+      class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-ink-500"
     >
       © Vedya. Built with the thinnest credible engine.
     </footer>

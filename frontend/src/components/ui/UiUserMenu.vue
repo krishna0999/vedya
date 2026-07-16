@@ -2,10 +2,10 @@
 // Profile avatar + dropdown. Shows the signed-in user's initials; clicking opens
 // a small menu with their email, plan, and a log-out action. Self-contained:
 // reads the auth store and handles logout + redirect so any chrome can drop it in.
-import { computed, onBeforeUnmount, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
-import UiIcon from '@/components/ui/UiIcon.vue';
+import { computed, onBeforeUnmount, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -15,10 +15,14 @@ const root = ref<HTMLElement | null>(null);
 
 // Up to two initials — from the name if set, else the email local part.
 const initials = computed(() => {
-  const source = auth.user?.name?.trim() || (auth.user?.email ?? '').split('@')[0] || '';
+  const source =
+    auth.user?.name?.trim() || (auth.user?.email ?? "").split("@")[0] || "";
   const parts = source.split(/[\s._+-]+/).filter(Boolean);
-  const s = parts.length >= 2 ? (parts[0]![0] ?? '') + (parts[1]![0] ?? '') : source.slice(0, 2);
-  return (s || '?').toUpperCase();
+  const s =
+    parts.length >= 2
+      ? (parts[0]![0] ?? "") + (parts[1]![0] ?? "")
+      : source.slice(0, 2);
+  return (s || "?").toUpperCase();
 });
 
 function onDocPointer(e: MouseEvent): void {
@@ -26,12 +30,12 @@ function onDocPointer(e: MouseEvent): void {
 }
 function openMenu(): void {
   open.value = true;
-  document.addEventListener('mousedown', onDocPointer);
+  document.addEventListener("mousedown", onDocPointer);
 }
 function close(): void {
   if (!open.value) return;
   open.value = false;
-  document.removeEventListener('mousedown', onDocPointer);
+  document.removeEventListener("mousedown", onDocPointer);
 }
 function toggle(): void {
   open.value ? close() : openMenu();
@@ -39,10 +43,10 @@ function toggle(): void {
 async function logout(): Promise<void> {
   close();
   await auth.logout();
-  router.replace({ name: 'login' });
+  router.replace({ name: "login" });
 }
 
-onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
+onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
 </script>
 
 <template>
@@ -70,9 +74,23 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
         class="absolute right-0 z-30 mt-2 w-60 overflow-hidden rounded-xl border border-ink-200 bg-white p-1 shadow-pop"
       >
         <div class="px-3 py-2">
-          <p v-if="auth.user?.name" class="truncate text-sm font-medium text-ink-900">{{ auth.user.name }}</p>
-          <p class="truncate text-sm" :class="auth.user?.name ? 'text-ink-400' : 'font-medium text-ink-900'">{{ auth.user?.email }}</p>
-          <p class="mt-0.5 text-sm capitalize text-ink-400">{{ auth.user?.plan ?? 'free' }} plan</p>
+          <p
+            v-if="auth.user?.name"
+            class="truncate text-sm font-medium text-ink-900"
+          >
+            {{ auth.user.name }}
+          </p>
+          <p
+            class="truncate text-sm"
+            :class="
+              auth.user?.name ? 'text-ink-500' : 'font-medium text-ink-900'
+            "
+          >
+            {{ auth.user?.email }}
+          </p>
+          <p class="mt-0.5 text-sm capitalize text-ink-500">
+            {{ auth.user?.plan ?? "free" }} plan
+          </p>
         </div>
         <div class="my-1 h-px bg-ink-100"></div>
         <router-link
@@ -81,7 +99,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
           class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="close"
         >
-          <UiIcon name="user-circle" class="h-5 w-5 text-ink-400" />
+          <UiIcon name="user-circle" class="h-5 w-5 text-ink-500" />
           Account
         </router-link>
         <router-link
@@ -90,7 +108,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
           class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="close"
         >
-          <UiIcon name="cog-6-tooth" class="h-5 w-5 text-ink-400" />
+          <UiIcon name="cog-6-tooth" class="h-5 w-5 text-ink-500" />
           Settings
         </router-link>
         <div class="my-1 h-px bg-ink-100"></div>
@@ -100,7 +118,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocPointer));
           class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="logout"
         >
-          <UiIcon name="arrow-left-start-on-rectangle" class="h-5 w-5 text-ink-400" />
+          <UiIcon
+            name="arrow-left-start-on-rectangle"
+            class="h-5 w-5 text-ink-500"
+          />
           Log out
         </button>
       </div>

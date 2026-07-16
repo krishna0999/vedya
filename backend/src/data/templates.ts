@@ -15,6 +15,9 @@ export interface FormTemplate {
   category: string;
   description: string;
   icon: string; // emoji shown on the gallery card
+  // Curated gallery merchandising — set by hand, not measured.
+  badge?: 'Popular' | 'Trending';
+  stat?: string; // e.g. 'Used 12k+ times'
   fields: Field[];
   theme?: Partial<Theme>;
 }
@@ -39,6 +42,8 @@ export const TEMPLATES: FormTemplate[] = [
     category: 'Customer Support',
     description: 'A simple way for visitors to reach you.',
     icon: '✉️',
+    badge: 'Popular',
+    stat: 'Used 12k+ times',
     fields: [
       f('name', 'short_text', 'Your name', { required: true, placeholder: 'Jane Doe' }),
       f('email', 'email', 'Email address', { required: true, placeholder: 'you@example.com' }),
@@ -52,6 +57,7 @@ export const TEMPLATES: FormTemplate[] = [
     category: 'Events',
     description: 'Collect headcount and dietary needs for your event.',
     icon: '🎉',
+    stat: 'Used 6k+ times',
     fields: [
       f('name', 'short_text', 'Full name', { required: true }),
       f('email', 'email', 'Email', { required: true }),
@@ -98,6 +104,7 @@ export const TEMPLATES: FormTemplate[] = [
     category: 'HR',
     description: 'Take applications for an open role.',
     icon: '💼',
+    badge: 'Trending',
     fields: [
       f('name', 'short_text', 'Full name', { required: true }),
       f('email', 'email', 'Email', { required: true }),
@@ -124,6 +131,8 @@ export const TEMPLATES: FormTemplate[] = [
     category: 'Marketing',
     description: 'Grow your mailing list with a clean signup form.',
     icon: '📬',
+    badge: 'Popular',
+    stat: 'Used 9k+ times',
     fields: [
       f('email', 'email', 'Email address', { required: true, placeholder: 'you@example.com' }),
       f('name', 'short_text', 'First name'),

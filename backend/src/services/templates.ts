@@ -17,6 +17,8 @@ export interface TemplateSummary {
   category: string;
   description: string;
   icon: string;
+  badge?: 'Popular' | 'Trending';
+  stat?: string;
   fieldCount: number;
   fields: Field[];
 }
@@ -30,6 +32,8 @@ export function listTemplates(): { categories: string[]; templates: TemplateSumm
       category: t.category,
       description: t.description,
       icon: t.icon,
+      ...(t.badge && { badge: t.badge }),
+      ...(t.stat && { stat: t.stat }),
       // section_break fields are presentational; keep them in the preview but
       // don't count them as questions.
       fieldCount: t.fields.filter((fld) => fld.type !== 'section_break').length,

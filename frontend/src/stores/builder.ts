@@ -43,6 +43,9 @@ export const useBuilderStore = defineStore('builder', {
     selectedId: null as string | null,
     loaded: false, // true once a real form is loaded from the API
     saveStatus: 'idle' as SaveStatus,
+    // Edits since the last publish ("Save form" in the builder). Autosave keeps
+    // the draft persisted regardless; this only tracks the published snapshot.
+    dirty: false,
     publishStatus: 'idle' as PublishStatus,
     lastPublished: null as FormVersion | null,
     error: null as string | null,
@@ -74,6 +77,7 @@ export const useBuilderStore = defineStore('builder', {
         this.draft = await api.getForm(id);
         this.selectedId = null;
         this.saveStatus = 'saved';
+        this.dirty = false;
         this.loaded = true;
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to load form.';
@@ -119,6 +123,7 @@ export const useBuilderStore = defineStore('builder', {
         await this.persistNow();
         this.lastPublished = await api.publishForm(this.draft.id);
         this.publishStatus = 'published';
+        this.dirty = false;
       } catch (err) {
         this.publishStatus = 'error';
         this.error = err instanceof Error ? err.message : 'Failed to publish.';
@@ -127,6 +132,7 @@ export const useBuilderStore = defineStore('builder', {
 
     touch() {
       this.draft.updatedAt = new Date().toISOString();
+      this.dirty = true;
       this.scheduleSave();
     },
     setTitle(title: string) {

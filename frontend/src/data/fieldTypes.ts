@@ -1,6 +1,7 @@
 // Field-type catalog for the builder: palette display + default-field factory.
 // The renderer/validator are driven by the schema; this is builder-only metadata.
 import type { DatePreset, Field, FieldType } from '@schema';
+import type { IconName } from '@/lib/icons';
 
 // Predefined date presets a creator can add to a date field in the builder.
 export const DATE_PRESET_CATALOG: DatePreset[] = [
@@ -16,22 +17,22 @@ export interface FieldTypeMeta {
   type: FieldType;
   label: string; // palette label
   hasOptions: boolean; // select-family
-  group: 'text' | 'choice' | 'date' | 'other';
+  icon: IconName; // palette card glyph
 }
 
 export const FIELD_TYPES: FieldTypeMeta[] = [
-  { type: 'short_text', label: 'Short text', hasOptions: false, group: 'text' },
-  { type: 'long_text', label: 'Long text', hasOptions: false, group: 'text' },
-  { type: 'email', label: 'Email', hasOptions: false, group: 'text' },
-  { type: 'phone', label: 'Phone', hasOptions: false, group: 'text' },
-  { type: 'number', label: 'Number', hasOptions: false, group: 'text' },
-  { type: 'single_select', label: 'Single choice', hasOptions: true, group: 'choice' },
-  { type: 'multi_select', label: 'Multiple choice', hasOptions: true, group: 'choice' },
-  { type: 'dropdown', label: 'Dropdown', hasOptions: true, group: 'choice' },
-  { type: 'multi_dropdown', label: 'Multi-select dropdown', hasOptions: true, group: 'choice' },
-  { type: 'date', label: 'Date', hasOptions: false, group: 'date' },
-  { type: 'rating', label: 'Rating', hasOptions: false, group: 'other' },
-  { type: 'section_break', label: 'Section break', hasOptions: false, group: 'other' },
+  { type: 'short_text', label: 'Short text', hasOptions: false, icon: 'text-t' },
+  { type: 'long_text', label: 'Long text', hasOptions: false, icon: 'bars-3-bottom-left' },
+  { type: 'email', label: 'Email', hasOptions: false, icon: 'envelope' },
+  { type: 'phone', label: 'Phone', hasOptions: false, icon: 'phone' },
+  { type: 'number', label: 'Number', hasOptions: false, icon: 'hashtag' },
+  { type: 'single_select', label: 'Single choice', hasOptions: true, icon: 'circle-dot' },
+  { type: 'multi_select', label: 'Multiple choice', hasOptions: true, icon: 'checkbox' },
+  { type: 'dropdown', label: 'Dropdown', hasOptions: true, icon: 'select-box' },
+  { type: 'multi_dropdown', label: 'Multi-select dropdown', hasOptions: true, icon: 'list-bullet' },
+  { type: 'date', label: 'Date', hasOptions: false, icon: 'calendar' },
+  { type: 'rating', label: 'Rating', hasOptions: false, icon: 'star-outline' },
+  { type: 'section_break', label: 'Section break', hasOptions: false, icon: 'minus' },
 ];
 
 const META_BY_TYPE = new Map(FIELD_TYPES.map((m) => [m.type, m]));

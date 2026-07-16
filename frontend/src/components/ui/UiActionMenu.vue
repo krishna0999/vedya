@@ -113,7 +113,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             v-if="item.icon"
             :name="ICONS[item.icon]"
             class="h-5 w-5 shrink-0"
-            :class="item.danger ? 'text-danger' : 'text-ink-400'"
+            :class="item.danger ? 'text-danger' : 'text-ink-500'"
           />
           {{ item.label }}
         </button>

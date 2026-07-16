@@ -10,7 +10,7 @@ import {
   type CountryCode,
 } from "libphonenumber-js";
 import { COUNTRIES, flagEmoji, type Country } from "@/data/countries";
-import UiIcon from '@/components/ui/UiIcon.vue';
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 const props = defineProps<{
   id?: string;
@@ -46,7 +46,6 @@ function digitsOf(s: string): string {
     national.value = v;
   }
 })();
-
 
 function emitValue(): void {
   const d = digitsOf(national.value);
@@ -154,7 +153,11 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         @keydown="onKeydown"
       >
         <span class="text-lg leading-none">{{ flagEmoji(country.iso2) }}</span>
-        <UiIcon name="chevron-down" class="h-5 w-5 text-ink-400 transition-transform duration-150" :class="open && 'rotate-180'" />
+        <UiIcon
+          name="chevron-down"
+          class="h-5 w-5 text-ink-500 transition-transform duration-150"
+          :class="open && 'rotate-180'"
+        />
       </button>
 
       <div class="flex flex-1 items-center gap-1.5 px-3">
@@ -165,7 +168,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
           inputmode="tel"
           :value="national"
           :placeholder="placeholder ?? '123 456 789'"
-          class="w-full bg-transparent py-2.5 text-ink-900 outline-none placeholder:text-ink-400"
+          class="w-full bg-transparent py-2.5 text-ink-900 outline-none placeholder:text-ink-500"
           @input="onNational"
         />
       </div>
@@ -182,13 +185,16 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         class="absolute z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop"
       >
         <div class="flex items-center gap-2 border-b border-ink-100 px-3">
-          <UiIcon name="magnifying-glass" class="h-5 w-5 shrink-0 text-ink-400" />
+          <UiIcon
+            name="magnifying-glass"
+            class="h-5 w-5 shrink-0 text-ink-500"
+          />
           <input
             ref="searchEl"
             v-model="query"
             type="text"
             placeholder="Search for countries"
-            class="w-full bg-transparent py-2.5 text-ink-900 outline-none placeholder:text-ink-400"
+            class="w-full bg-transparent py-2.5 text-ink-900 outline-none placeholder:text-ink-500"
             @keydown="onKeydown"
           />
         </div>
@@ -207,11 +213,15 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             <span class="min-w-0 flex-1 truncate"
               >{{ c.name }} ({{ c.dial }})</span
             >
-            <UiIcon v-if="c.iso2 === country.iso2" name="check" class="h-5 w-5 shrink-0 text-brand-600" />
+            <UiIcon
+              v-if="c.iso2 === country.iso2"
+              name="check"
+              class="h-5 w-5 shrink-0 text-brand-600"
+            />
           </li>
           <li
             v-if="filtered.length === 0"
-            class="px-3 py-3 text-sm text-ink-400"
+            class="px-3 py-3 text-sm text-ink-500"
           >
             No matches
           </li>

@@ -10,7 +10,7 @@ import { metaFor } from "@/data/fieldTypes";
 import { DEFAULT_THEME } from "@/stores/builder";
 import FormRenderer from "@/components/FormRenderer.vue";
 import UiButton from "@/components/ui/UiButton.vue";
-import UiIcon from '@/components/ui/UiIcon.vue';
+import UiIcon from "@/components/ui/UiIcon.vue";
 import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
 const props = defineProps<{ query?: string; busy?: boolean }>();
@@ -65,7 +65,8 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onPreviewKey));
 const filtered = computed(() => {
   const q = (props.query ?? "").trim().toLowerCase();
   return templates.value.filter((t) => {
-    if (activeCategory.value && t.category !== activeCategory.value) return false;
+    if (activeCategory.value && t.category !== activeCategory.value)
+      return false;
     if (!q) return true;
     return (
       t.title.toLowerCase().includes(q) ||
@@ -76,8 +77,35 @@ const filtered = computed(() => {
 });
 
 function questionSummary(t: TemplateSummary): string {
-  const types = [...new Set(t.fields.map((f) => metaFor(f.type)?.label ?? f.type))];
+  const types = [
+    ...new Set(t.fields.map((f) => metaFor(f.type)?.label ?? f.type)),
+  ];
   return types.slice(0, 3).join(" · ");
+}
+
+// Per-category tint for the thumbnail + badge. Hashed, so new categories get a
+// stable color without maintaining a map. Classes are literal for Tailwind.
+const TINTS = [
+  { thumb: "bg-brand-50", chip: "bg-brand-100 text-brand-700" },
+  { thumb: "bg-sky-50", chip: "bg-sky-100 text-sky-700" },
+  { thumb: "bg-amber-50", chip: "bg-amber-100 text-amber-800" },
+  { thumb: "bg-emerald-50", chip: "bg-emerald-100 text-emerald-700" },
+  { thumb: "bg-rose-50", chip: "bg-rose-100 text-rose-700" },
+  { thumb: "bg-violet-50", chip: "bg-violet-100 text-violet-700" },
+];
+function tintFor(category: string): (typeof TINTS)[number] {
+  let h = 0;
+  for (const c of category) h = (h * 31 + c.charCodeAt(0)) % 997;
+  return TINTS[h % TINTS.length]!;
+}
+
+// ponytail: ~15s per question, rounded up — an estimate, not analytics.
+function estMinutes(t: TemplateSummary): number {
+  return Math.max(1, Math.ceil((t.fieldCount * 15) / 60));
+}
+
+function badgeLabel(badge: "Popular" | "Trending"): string {
+  return badge === "Popular" ? "⭐ Popular" : "🔥 Trending";
 }
 
 function onUse(id: string): void {
@@ -101,7 +129,8 @@ async function load(): Promise<void> {
     templates.value = catalog.templates;
     categories.value = catalog.categories;
   } catch (err) {
-    error.value = err instanceof Error ? err.message : "Failed to load templates.";
+    error.value =
+      err instanceof Error ? err.message : "Failed to load templates.";
   } finally {
     loading.value = false;
   }
@@ -154,7 +183,7 @@ onMounted(load);
           :key="n"
           class="rounded-2xl border border-ink-200 bg-white p-5"
         >
-          <UiSkeleton class="h-8 w-8 rounded-lg" />
+          <UiSkeleton class="h-24 w-full rounded-xl" />
           <UiSkeleton class="mt-3 h-4 w-2/3" />
           <UiSkeleton class="mt-2 h-3.5 w-full" />
           <UiSkeleton class="mt-1.5 h-3.5 w-4/5" />
@@ -173,7 +202,7 @@ onMounted(load);
     </p>
     <p
       v-else-if="filtered.length === 0"
-      class="py-16 text-center text-sm text-ink-400"
+      class="py-16 text-center text-sm text-ink-500"
     >
       No templates match your search.
     </p>
@@ -184,19 +213,41 @@ onMounted(load);
         :key="t.id"
         class="flex flex-col rounded-2xl border border-ink-200 bg-white p-5 shadow-card transition hover:border-ink-300"
       >
-        <div class="text-2xl" aria-hidden="true">{{ t.icon }}</div>
-        <h3 class="mt-2 font-semibold text-ink-900">{{ t.title }}</h3>
-        <p class="mt-1 flex-1 text-sm text-ink-500">{{ t.description }}</p>
-        <p class="mt-3 text-sm font-medium uppercase tracking-wide text-ink-400">
-          {{ t.category }} · {{ t.fieldCount }} question{{ t.fieldCount === 1 ? "" : "s" }}
-        </p>
-        <p class="mt-1 truncate text-sm text-ink-400">{{ questionSummary(t) }}</p>
-        <div class="mt-4 flex items-center gap-2">
-          <UiButton
-            variant="secondary"
-            size="sm"
-            @click="openPreview(t.id)"
+        <!-- Thumbnail: category-tinted panel with the template's emoji -->
+        <div
+          class="relative grid h-24 place-items-center rounded-xl"
+          :class="tintFor(t.category).thumb"
+        >
+          <span class="text-3xl" aria-hidden="true">{{ t.icon }}</span>
+          <span
+            v-if="t.badge"
+            class="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-xs font-medium text-ink-700 shadow-sm"
           >
+            {{ badgeLabel(t.badge) }}
+          </span>
+        </div>
+        <h3 class="mt-3 font-semibold text-ink-900">{{ t.title }}</h3>
+        <p class="mt-1 flex-1 text-sm text-ink-500">{{ t.description }}</p>
+        <div
+          class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500"
+        >
+          <span
+            class="rounded-full px-2 py-0.5 text-xs font-medium"
+            :class="tintFor(t.category).chip"
+          >
+            {{ t.category }}
+          </span>
+          <span>
+            {{ t.fieldCount }} question{{ t.fieldCount === 1 ? "" : "s" }} · ⏱
+            ~{{ estMinutes(t) }} min
+          </span>
+        </div>
+        <p class="mt-1.5 truncate text-sm text-ink-500">
+          {{ questionSummary(t) }}
+        </p>
+        <p v-if="t.stat" class="mt-1 text-sm text-ink-500">{{ t.stat }}</p>
+        <div class="mt-4 flex items-center gap-2">
+          <UiButton variant="secondary" size="sm" @click="openPreview(t.id)">
             Preview
           </UiButton>
           <UiButton size="sm" :disabled="busy" @click="onUse(t.id)">
@@ -237,13 +288,17 @@ onMounted(load);
           class="flex items-start justify-between gap-3 border-b border-ink-200 px-5 py-4"
         >
           <div class="min-w-0">
-            <div class="text-2xl" aria-hidden="true">{{ previewTemplate.icon }}</div>
+            <div class="text-2xl" aria-hidden="true">
+              {{ previewTemplate.icon }}
+            </div>
             <h2 class="mt-1 truncate font-semibold text-ink-900">
               {{ previewTemplate.title }}
             </h2>
-            <p class="text-sm text-ink-500">{{ previewTemplate.description }}</p>
+            <p class="text-sm text-ink-500">
+              {{ previewTemplate.description }}
+            </p>
             <p
-              class="mt-1 text-sm font-medium uppercase tracking-wide text-ink-400"
+              class="mt-1 text-sm font-medium uppercase tracking-wide text-ink-500"
             >
               {{ previewTemplate.category }} ·
               {{ previewTemplate.fieldCount }} question{{
@@ -253,7 +308,7 @@ onMounted(load);
           </div>
           <button
             type="button"
-            class="shrink-0 rounded-lg p-2 text-ink-400 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            class="shrink-0 rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
             aria-label="Close preview"
             @click="closePreview"
           >
@@ -281,7 +336,11 @@ onMounted(load);
         >
           <UiButton variant="ghost" @click="closePreview">Close</UiButton>
           <UiButton :disabled="busy" @click="onUse(previewTemplate.id)">
-            {{ pendingId === previewTemplate.id ? "Creating…" : "Use this template" }}
+            {{
+              pendingId === previewTemplate.id
+                ? "Creating…"
+                : "Use this template"
+            }}
           </UiButton>
         </footer>
       </aside>

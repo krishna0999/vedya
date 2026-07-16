@@ -21,7 +21,7 @@ const classes = computed(() => {
     primary: 'bg-brand-600 text-white shadow-sm hover:bg-brand-700',
     secondary: 'bg-white text-ink-800 border border-ink-200 hover:border-ink-300 hover:bg-ink-50',
     ghost: 'text-ink-600 hover:bg-ink-100 hover:text-ink-800',
-    danger: 'bg-white text-danger border border-red-200 hover:bg-red-50',
+    danger: 'bg-danger text-white shadow-sm hover:bg-red-700',
   };
   return [base, sizes[props.size], variants[props.variant]];
 });
