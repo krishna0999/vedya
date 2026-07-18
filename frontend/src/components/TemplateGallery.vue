@@ -6,9 +6,9 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { FormVersion } from "@schema";
 import { api, type TemplateSummary } from "@/api/client";
-import { metaFor } from "@/data/fieldTypes";
 import { DEFAULT_THEME } from "@/stores/builder";
 import FormRenderer from "@/components/FormRenderer.vue";
+import TemplateCard from "@/components/TemplateCard.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiSkeleton from "@/components/ui/UiSkeleton.vue";
@@ -75,41 +75,6 @@ const filtered = computed(() => {
     );
   });
 });
-
-function questionSummary(t: TemplateSummary): string {
-  const types = [
-    ...new Set(t.fields.map((f) => metaFor(f.type)?.label ?? f.type)),
-  ];
-  return types.slice(0, 3).join(" · ");
-}
-
-// Per-category chip tint. Hashed, so new categories get a stable color without
-// maintaining a map. Classes are literal for Tailwind.
-const TINTS = [
-  "bg-brand-100 text-brand-700",
-  "bg-sky-100 text-sky-700",
-  "bg-amber-100 text-amber-800",
-  "bg-emerald-100 text-emerald-700",
-  "bg-rose-100 text-rose-700",
-  "bg-violet-100 text-violet-700",
-];
-function tintFor(category: string): string {
-  let h = 0;
-  for (const c of category) h = (h * 31 + c.charCodeAt(0)) % 997;
-  return TINTS[h % TINTS.length]!;
-}
-
-// Popular reads green; anything else (Trending…) amber.
-function badgeClass(badge: "Popular" | "Trending"): string {
-  return badge === "Popular"
-    ? "bg-green-50 text-green-700"
-    : "bg-amber-50 text-amber-700";
-}
-
-// ponytail: ~15s per question, rounded up — an estimate, not analytics.
-function estMinutes(t: TemplateSummary): number {
-  return Math.max(1, Math.ceil((t.fieldCount * 15) / 60));
-}
 
 function onUse(id: string): void {
   pendingId.value = id;
@@ -210,49 +175,15 @@ onMounted(load);
     </p>
 
     <div v-else class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <div
+      <TemplateCard
         v-for="t in filtered"
         :key="t.id"
-        class="flex flex-col rounded-2xl border border-ink-200 bg-white p-5 shadow-card transition hover:border-ink-300"
-      >
-        <div class="flex items-start justify-between gap-2">
-          <h3 class="font-semibold text-ink-900">{{ t.title }}</h3>
-          <span
-            v-if="t.badge"
-            class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-            :class="badgeClass(t.badge)"
-          >
-            {{ t.badge }}
-          </span>
-        </div>
-        <p class="mt-1 flex-1 text-sm text-ink-500">{{ t.description }}</p>
-        <div
-          class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500"
-        >
-          <span
-            class="rounded-full px-2 py-0.5 text-xs font-medium"
-            :class="tintFor(t.category)"
-          >
-            {{ t.category }}
-          </span>
-          <span>
-            {{ t.fieldCount }} question{{ t.fieldCount === 1 ? "" : "s" }} · ⏱
-            ~{{ estMinutes(t) }} min
-          </span>
-        </div>
-        <p class="mt-1.5 truncate text-sm text-ink-500">
-          {{ questionSummary(t) }}
-        </p>
-        <p v-if="t.stat" class="mt-1 text-sm text-ink-500">{{ t.stat }}</p>
-        <div class="mt-4 flex items-center gap-2">
-          <UiButton variant="secondary" size="sm" @click="openPreview(t.id)">
-            Preview
-          </UiButton>
-          <UiButton size="sm" :disabled="busy" @click="onUse(t.id)">
-            {{ pendingId === t.id ? "Creating…" : "Use template" }}
-          </UiButton>
-        </div>
-      </div>
+        :template="t"
+        :busy="busy"
+        :pending="pendingId === t.id"
+        @preview="openPreview(t.id)"
+        @use="onUse(t.id)"
+      />
     </div>
 
     <!-- Preview slideover: review a template's fields before using it -->
