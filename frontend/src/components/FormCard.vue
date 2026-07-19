@@ -1,11 +1,15 @@
 <script setup lang="ts">
-// One card in the "My forms" grid. Presentation only — every action is
-// emitted up to the page, which owns navigation, clipboard, and deletion.
+// One card in the "My forms" grid, styled as a small sheet of paper: title,
+// a grayscale mini preview of the form's first questions, then quiet metrics.
+// Presentation only — every action is emitted up to the page, which owns
+// navigation, clipboard, and deletion.
 import type { FormSummary } from "@/api/client";
 import { relativeTime } from "@/lib/time";
+import FormCardPreview from "@/components/FormCardPreview.vue";
 import UiActionMenu, {
   type UiActionItem,
 } from "@/components/ui/UiActionMenu.vue";
+import UiBadge from "@/components/ui/UiBadge.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 
 const props = defineProps<{
@@ -37,40 +41,22 @@ const moreActions = (): UiActionItem[] => [
 </script>
 
 <template>
+  <!-- Fixed-height tile. On hover it scales up from its own center (transforms
+       don't reflow, so it pops OVER its neighbors on every side instead of
+       pushing them) and lifts above the grid via z-index. -->
   <li
-    class="group relative flex flex-col gap-3 rounded-xl border border-ink-200 bg-white p-4 shadow-card transition-all duration-200 hover:z-20 hover:-translate-y-0.5 hover:border-ink-300 hover:shadow-md focus-within:z-20"
-    :style="{
-      borderLeftWidth: '3px',
-      borderLeftColor: form.primaryColor,
-    }"
+    class="group relative flex h-80 flex-col overflow-hidden rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.04] hover:border-ink-300 hover:shadow-pop"
   >
-    <!-- Header: title + status, actions on the right -->
-    <div class="flex items-start justify-between gap-2">
-      <div class="min-w-0">
-        <router-link
-          :to="{ name: 'builder', params: { id: form.id } }"
-          class="line-clamp-2 text-[15px] font-semibold leading-snug text-ink-900 transition-colors group-hover:text-brand-700"
-        >
-          {{ form.title }}
-        </router-link>
-        <span
-          v-if="form.published"
-          class="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-sm font-medium text-green-700"
-        >
-          <span class="h-1.5 w-1.5 rounded-full bg-green-500" />
-          Published
-        </span>
-        <span
-          v-else
-          class="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-500"
-        >
-          <span class="h-1.5 w-1.5 rounded-full bg-ink-400" />
-          Draft
-        </span>
-      </div>
+    <!-- Header: title left, actions right (fade in on hover / focus) -->
+    <div class="flex shrink-0 items-start justify-between gap-2">
+      <router-link
+        :to="{ name: 'builder', params: { id: form.id } }"
+        class="line-clamp-2 min-w-0 text-lg font-bold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-brand-700"
+      >
+        {{ form.title }}
+      </router-link>
 
-      <div class="flex shrink-0 items-center gap-0.5">
-        <!-- Quick actions — fade in on hover / keyboard focus -->
+      <div class="-mr-1.5 -mt-1.5 flex shrink-0 items-center gap-0.5">
         <div
           class="flex items-center gap-0.5 opacity-100 transition-opacity duration-150 focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
         >
@@ -108,7 +94,7 @@ const moreActions = (): UiActionItem[] => [
           </button>
         </div>
         <UiActionMenu
-          class="-mr-1 shrink-0"
+          class="shrink-0"
           :items="moreActions()"
           :label="`More actions for ${form.title}`"
           @select="emit('action', $event)"
@@ -116,33 +102,45 @@ const moreActions = (): UiActionItem[] => [
       </div>
     </div>
 
-    <!-- Prominent inline metrics -->
-    <div class="flex items-center gap-5">
-      <div class="flex items-baseline gap-1.5">
-        <span class="text-2xl font-semibold tabular-nums text-ink-900">{{
+    <!-- The paper: this form's first questions. flex-1 + min-h-0 lets it absorb
+         the slack and clip gracefully, so the metrics below are never clipped. -->
+    <FormCardPreview
+      :fields="form.previewFields"
+      class="mt-6 min-h-0 flex-1 overflow-hidden"
+    />
+
+    <!-- Quiet metrics — pinned to the bottom so every tile lines up -->
+    <div
+      class="flex shrink-0 items-baseline gap-4 border-t border-ink-100 pt-6 text-sm text-ink-900"
+    >
+      <span>
+        <span class="font-semibold tabular-nums text-ink-800">{{
           form.responseCount
         }}</span>
-        <span class="text-sm text-ink-500"
-          >response{{ form.responseCount === 1 ? "" : "s" }}</span
-        >
-      </div>
-      <div class="flex items-baseline gap-1.5">
-        <span class="text-2xl font-semibold tabular-nums text-ink-900">{{
+        response{{ form.responseCount === 1 ? "" : "s" }}
+      </span>
+      <span>
+        <span class="font-semibold tabular-nums text-ink-800">{{
           form.viewCount
         }}</span>
-        <span class="text-sm text-ink-500"
-          >view{{ form.viewCount === 1 ? "" : "s" }}</span
-        >
-      </div>
+        view{{ form.viewCount === 1 ? "" : "s" }}
+      </span>
     </div>
 
-    <p class="flex items-center gap-1.5 text-sm text-ink-500">
-      <UiIcon name="calendar" class="h-5 w-5" />
-      Edited {{ relativeTime(form.updatedAt) }}
+    <!-- Meta: type + status badges, then last edit. -->
+    <div class="mt-6 flex shrink-0 flex-wrap items-center gap-2 text-sm text-ink-500">
+      <UiBadge v-if="form.category" variant="brand">
+        {{ form.category }}
+      </UiBadge>
+      <UiBadge :variant="form.published ? 'green' : 'gray'" dot>
+        {{ form.published ? "Published" : "Draft" }}
+      </UiBadge>
+      <span class="text-ink-300">·</span>
+      <span>Edited {{ relativeTime(form.updatedAt) }}</span>
       <!-- Copy feedback lands here since the menu closes on select -->
       <span v-if="copied" class="font-medium text-brand-700"
         >· Link copied!</span
       >
-    </p>
+    </div>
   </li>
 </template>

@@ -283,18 +283,20 @@ onMounted(load);
         <div
           v-if="loading"
           role="status"
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
           <span class="sr-only">Loading your forms…</span>
           <div
             v-for="n in 6"
             :key="n"
-            class="rounded-xl border border-ink-200 border-l-[3px] bg-white p-4"
+            class="flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5"
           >
             <UiSkeleton class="h-4 w-32 max-w-[70%]" />
-            <UiSkeleton class="mt-2 h-5 w-20 rounded-full" />
-            <UiSkeleton class="mt-4 h-7 w-28" />
-            <UiSkeleton class="mt-4 h-3.5 w-24" />
+            <UiSkeleton class="mt-5 h-3 w-20" />
+            <UiSkeleton class="mt-2 h-3 w-3/5" />
+            <UiSkeleton class="mt-4 h-3 w-24" />
+            <UiSkeleton class="mt-2 h-3 w-3/5" />
+            <UiSkeleton class="mt-auto h-3.5 w-40" />
           </div>
         </div>
 
@@ -325,7 +327,10 @@ onMounted(load);
           {{ query.trim() ? `“${query}”` : "the selected filters" }}.
         </div>
 
-        <ul v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul
+          v-else
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
           <FormCard
             v-for="form in filteredForms"
             :key="form.id"

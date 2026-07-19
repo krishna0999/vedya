@@ -17,11 +17,12 @@ const json = (v: unknown) => JSON.stringify(v);
 export interface FormSummary {
   id: string;
   title: string;
+  category?: string; // owner-set form type, shown as a badge on the card
   updatedAt: string;
   published: boolean;
   responseCount: number;
   viewCount: number;
-  primaryColor: string; // form theme accent, surfaced for the cards list
+  previewFields: Field[]; // first few questions, for the card's mini paper preview
 }
 
 // Basic analytics (ROADMAP Phase 1): the three headline numbers. Conversion is
@@ -33,6 +34,7 @@ export interface FormStats {
 
 export interface DraftPatch {
   title?: string;
+  category?: string;
   fields?: Field[];
   theme?: Theme;
 }
@@ -55,6 +57,7 @@ async function loadOwnedDraft(ownerId: string, formId: string): Promise<FormDraf
 // so they can never drift on how a draft is persisted.
 export interface NewFormSeed {
   title?: string;
+  category?: string;
   fields?: Field[];
   theme?: Theme;
 }
@@ -64,6 +67,7 @@ export async function createFormWith(ownerId: string, seed: NewFormSeed = {}): P
     id: randomUUID(),
     ownerId,
     title: seed.title?.trim() || 'Untitled form',
+    ...(seed.category && { category: seed.category }),
     fields: seed.fields ?? [],
     theme: seed.theme ?? { ...DEFAULT_THEME },
     updatedAt: new Date().toISOString(),
@@ -81,12 +85,14 @@ export async function createForm(ownerId: string, title?: string): Promise<FormD
 
 export async function listForms(ownerId: string): Promise<FormSummary[]> {
   const { rows } = await pool.query<{
-    id: string; title: string; updated_at: Date; published: boolean;
-    response_count: string; view_count: string; primary_color: string | null;
+    id: string; title: string; category: string | null; updated_at: Date; published: boolean;
+    response_count: string; view_count: string;
+    fields: Field[] | null;
   }>(
     `SELECT f.id, f.title, f.updated_at,
+            f.current_draft->>'category' AS category,
             f.published_version_id IS NOT NULL AS published,
-            f.current_draft->'theme'->>'primaryColor' AS primary_color,
+            f.current_draft->'fields' AS fields,
             (SELECT count(*) FROM submissions s WHERE s.form_id = f.id) AS response_count,
             (SELECT count(*) FROM form_views v WHERE v.form_id = f.id) AS view_count
        FROM forms f
@@ -97,11 +103,15 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
   return rows.map((r) => ({
     id: r.id,
     title: r.title,
+    ...(r.category && { category: r.category }),
     updatedAt: r.updated_at.toISOString(),
     published: r.published,
     responseCount: Number(r.response_count),
     viewCount: Number(r.view_count),
-    primaryColor: r.primary_color ?? DEFAULT_THEME.primaryColor,
+    // Only what the card preview draws — questions, not layout breaks.
+    previewFields: (r.fields ?? [])
+      .filter((f) => f.type !== 'section_break')
+      .slice(0, 3),
   }));
 }
 
@@ -114,6 +124,7 @@ export async function updateForm(ownerId: string, formId: string, patch: DraftPa
   const next: FormDraft = {
     ...current,
     title: patch.title ?? current.title,
+    category: patch.category ?? current.category,
     fields: patch.fields ?? current.fields,
     theme: patch.theme ?? current.theme,
     updatedAt: new Date().toISOString(),

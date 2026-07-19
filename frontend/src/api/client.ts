@@ -8,11 +8,12 @@ const BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080/api";
 export interface FormSummary {
   id: string;
   title: string;
+  category?: string; // owner-set form type, shown as a badge on the card
   updatedAt: string;
   published: boolean;
   responseCount: number;
   viewCount: number;
-  primaryColor: string; // form theme accent, used for the card left border
+  previewFields: Field[]; // first few questions, for the card's mini paper preview
 }
 
 // Basic analytics: headline numbers for one form (conversion derived client-side).
@@ -42,6 +43,7 @@ export interface AccountUsage {
 
 export interface DraftPatch {
   title?: string;
+  category?: string;
   fields?: Field[];
   theme?: Theme;
 }

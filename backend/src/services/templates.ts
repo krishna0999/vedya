@@ -61,6 +61,7 @@ export async function createFormFromTemplate(ownerId: string, templateId: string
   const theme: Theme = { ...DEFAULT_THEME, ...template.theme };
   return createFormWith(ownerId, {
     title: template.title,
+    category: template.category,
     fields: cloneFieldsWithFreshIds(template.fields),
     theme,
   });

@@ -2,9 +2,16 @@
 // Right pane when no field is selected: form title + form theme (the end-user's
 // per-form styling, distinct from our product chrome).
 import { useBuilderStore } from '@/stores/builder';
+import { FORM_CATEGORIES } from '@/data/categories';
 import BuilderSelect from './BuilderSelect.vue';
 
 const builder = useBuilderStore();
+
+// Leading "" clears the type back to none.
+const CATEGORY_OPTIONS = [
+  { label: 'No type', value: '' },
+  ...FORM_CATEGORIES.map((c) => ({ label: c, value: c })),
+];
 
 const FONTS = [
   { label: 'Inter', value: 'Inter, system-ui, sans-serif' },
@@ -21,6 +28,15 @@ const FONTS = [
     <div>
       <label class="ui-label">Title</label>
       <input class="ui-input" :value="builder.draft.title" @input="builder.setTitle(($event.target as HTMLInputElement).value)" />
+    </div>
+
+    <div>
+      <label class="ui-label">Type</label>
+      <BuilderSelect
+        :model-value="builder.draft.category ?? ''"
+        :options="CATEGORY_OPTIONS"
+        @update:model-value="builder.setCategory($event)"
+      />
     </div>
 
     <div class="border-t border-ink-100 pt-3">

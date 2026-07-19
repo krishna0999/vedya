@@ -1,9 +1,13 @@
 <script setup lang="ts">
-// One card in the template gallery grid. Presentation only — preview/use are
-// emitted up to the gallery, which owns the slideover and creation flow.
+// One card in the template gallery grid, styled as a small sheet of paper:
+// the template's actual first questions rendered in grayscale, metadata kept
+// quiet, the accent reserved for the primary action. Presentation only —
+// preview/use are emitted up to the gallery.
 import type { TemplateSummary } from "@/api/client";
-import { metaFor } from "@/data/fieldTypes";
+import FormCardPreview from "@/components/FormCardPreview.vue";
+import UiBadge from "@/components/ui/UiBadge.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 const props = defineProps<{
   template: TemplateSummary;
@@ -14,36 +18,6 @@ const props = defineProps<{
 }>();
 defineEmits<{ preview: []; use: [] }>();
 
-function questionSummary(): string {
-  const types = [
-    ...new Set(props.template.fields.map((f) => metaFor(f.type)?.label ?? f.type)),
-  ];
-  return types.slice(0, 3).join(" · ");
-}
-
-// Per-category chip tint. Hashed, so new categories get a stable color without
-// maintaining a map. Classes are literal for Tailwind.
-const TINTS = [
-  "bg-brand-100 text-brand-700",
-  "bg-sky-100 text-sky-700",
-  "bg-amber-100 text-amber-800",
-  "bg-emerald-100 text-emerald-700",
-  "bg-rose-100 text-rose-700",
-  "bg-violet-100 text-violet-700",
-];
-function tintFor(category: string): string {
-  let h = 0;
-  for (const c of category) h = (h * 31 + c.charCodeAt(0)) % 997;
-  return TINTS[h % TINTS.length]!;
-}
-
-// Popular reads green; anything else (Trending…) amber.
-function badgeClass(badge: "Popular" | "Trending"): string {
-  return badge === "Popular"
-    ? "bg-green-50 text-green-700"
-    : "bg-amber-50 text-amber-700";
-}
-
 // ponytail: ~15s per question, rounded up — an estimate, not analytics.
 function estMinutes(): number {
   return Math.max(1, Math.ceil((props.template.fieldCount * 15) / 60));
@@ -51,43 +25,50 @@ function estMinutes(): number {
 </script>
 
 <template>
+  <!-- Fixed-height tile. On hover it scales up from its own center (transforms
+       don't reflow, so it pops OVER its neighbors on every side instead of
+       pushing them) and lifts above the grid via z-index. -->
   <div
-    class="flex flex-col rounded-2xl border border-ink-200 bg-white p-5 shadow-card transition hover:border-ink-300"
+    class="group relative flex h-80 flex-col overflow-hidden rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.04] hover:border-ink-300 hover:shadow-pop"
   >
-    <div class="flex items-start justify-between gap-2">
-      <h3 class="font-semibold text-ink-900">{{ template.title }}</h3>
-      <span
-        v-if="template.badge"
-        class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-        :class="badgeClass(template.badge)"
+    <div class="flex shrink-0 items-start justify-between gap-2">
+      <h3
+        class="line-clamp-2 min-w-0 text-[15px] font-semibold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-brand-700"
       >
+        {{ template.title }}
+      </h3>
+      <UiBadge v-if="template.badge" variant="brand" class="shrink-0">
         {{ template.badge }}
-      </span>
+      </UiBadge>
     </div>
-    <p class="mt-1 flex-1 text-sm text-ink-500">{{ template.description }}</p>
+    <p class="mt-1 line-clamp-2 shrink-0 text-sm text-ink-500">
+      {{ template.description }}
+    </p>
+
+    <!-- The paper: this template's first questions. flex-1 + min-h-0 lets it
+         absorb the slack and clip gracefully, so the footer is never clipped. -->
+    <FormCardPreview
+      :fields="template.fields"
+      class="mt-4 min-h-0 flex-1 overflow-hidden"
+    />
+
     <div
-      class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500"
+      class="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-ink-100 pt-3 text-sm text-ink-500"
     >
-      <span
-        class="rounded-full px-2 py-0.5 text-xs font-medium"
-        :class="tintFor(template.category)"
-      >
-        {{ template.category }}
-      </span>
+      <UiBadge variant="gray">{{ template.category }}</UiBadge>
       <span>
         {{ template.fieldCount }} question{{
           template.fieldCount === 1 ? "" : "s"
         }}
-        · ⏱ ~{{ estMinutes() }} min
       </span>
+      <span class="inline-flex items-center gap-1">
+        <UiIcon name="clock" class="h-4 w-4 text-ink-400" />
+        ~{{ estMinutes() }} min
+      </span>
+      <span v-if="template.stat">· {{ template.stat }}</span>
     </div>
-    <p class="mt-1.5 truncate text-sm text-ink-500">
-      {{ questionSummary() }}
-    </p>
-    <p v-if="template.stat" class="mt-1 text-sm text-ink-500">
-      {{ template.stat }}
-    </p>
-    <div class="mt-4 flex items-center gap-2">
+
+    <div class="mt-3 flex shrink-0 items-center gap-2">
       <UiButton variant="secondary" size="sm" @click="$emit('preview')">
         Preview
       </UiButton>

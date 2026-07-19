@@ -145,16 +145,19 @@ onMounted(load);
       <div class="mb-5 flex flex-wrap gap-1.5">
         <UiSkeleton v-for="n in 5" :key="n" class="h-7 w-20 rounded-full" />
       </div>
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <div
           v-for="n in 6"
           :key="n"
-          class="rounded-2xl border border-ink-200 bg-white p-5"
+          class="flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5"
         >
           <UiSkeleton class="h-4 w-2/3" />
           <UiSkeleton class="mt-2 h-3.5 w-full" />
           <UiSkeleton class="mt-1.5 h-3.5 w-4/5" />
-          <div class="mt-4 flex gap-2">
+          <UiSkeleton class="mt-4 h-3 w-24" />
+          <UiSkeleton class="mt-2 h-3 w-3/5" />
+          <UiSkeleton class="mt-auto h-3.5 w-40" />
+          <div class="mt-3 flex gap-2">
             <UiSkeleton class="h-8 w-20 rounded-lg" />
             <UiSkeleton class="h-8 w-28 rounded-lg" />
           </div>
@@ -174,7 +177,10 @@ onMounted(load);
       No templates match your search.
     </p>
 
-    <div v-else class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      v-else
+      class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    >
       <TemplateCard
         v-for="t in filtered"
         :key="t.id"

@@ -66,6 +66,7 @@ export interface FormDraft {              // editable working copy
   id: string;
   ownerId: string;
   title: string;
+  category?: string;               // owner-set form type (e.g. 'Survey'); optional
   fields: Field[];
   theme: Theme;
   updatedAt: string;

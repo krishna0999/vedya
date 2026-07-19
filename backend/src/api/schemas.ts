@@ -73,6 +73,7 @@ export const GenerateFormSchema = z.object({
 export const DraftPatchSchema = z
   .object({
     title: z.string().optional(),
+    category: z.string().max(60).optional(),
     fields: z.array(FieldSchema).optional(),
     theme: ThemeSchema.optional(),
   })

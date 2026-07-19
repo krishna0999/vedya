@@ -104,6 +104,7 @@ export const useBuilderStore = defineStore('builder', {
       try {
         await api.updateForm(this.draft.id, {
           title: this.draft.title,
+          category: this.draft.category,
           fields: this.draft.fields,
           theme: this.draft.theme,
         });
@@ -137,6 +138,11 @@ export const useBuilderStore = defineStore('builder', {
     },
     setTitle(title: string) {
       this.draft.title = title;
+      this.touch();
+    },
+    setCategory(category: string) {
+      // Empty string clears the type back to none.
+      this.draft.category = category || undefined;
       this.touch();
     },
     setTheme(patch: Partial<Theme>) {
