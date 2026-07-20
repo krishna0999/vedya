@@ -20,6 +20,7 @@ export interface TemplateSummary {
   badge?: 'Popular' | 'Trending';
   stat?: string;
   fieldCount: number;
+  primaryColor: string; // theme accent (defaults to brand) used to tint the card
   fields: Field[];
 }
 
@@ -37,6 +38,7 @@ export function listTemplates(): { categories: string[]; templates: TemplateSumm
       // section_break fields are presentational; keep them in the preview but
       // don't count them as questions.
       fieldCount: t.fields.filter((fld) => fld.type !== 'section_break').length,
+      primaryColor: t.theme?.primaryColor ?? DEFAULT_THEME.primaryColor,
       fields: t.fields,
     })),
   };

@@ -44,14 +44,19 @@ const moreActions = (): UiActionItem[] => [
   <!-- Fixed-height tile. On hover it scales up from its own center (transforms
        don't reflow, so it pops OVER its neighbors on every side instead of
        pushing them) and lifts above the grid via z-index. -->
+  <!-- overflow-visible (no clip) so the preview can float BELOW the card on
+       hover to peek at more questions than the tile's height would fit. -->
   <li
-    class="group relative flex h-80 flex-col overflow-hidden rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.04] hover:border-ink-300 hover:shadow-pop"
+    class="group relative flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-ink-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
+    :style="{ '--card-accent': form.primaryColor }"
   >
     <!-- Header: title left, actions right (fade in on hover / focus) -->
     <div class="flex shrink-0 items-start justify-between gap-2">
+      <!-- min-h reserves two lines so every card's preview starts at the same y,
+           whether the title wraps to one line or two. -->
       <router-link
         :to="{ name: 'builder', params: { id: form.id } }"
-        class="line-clamp-2 min-w-0 text-lg font-bold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-brand-700"
+        class="line-clamp-2 min-h-[3.25rem] min-w-0 text-lg font-bold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-[color:var(--card-accent)]"
       >
         {{ form.title }}
       </router-link>
@@ -102,28 +107,47 @@ const moreActions = (): UiActionItem[] => [
       </div>
     </div>
 
-    <!-- The paper: this form's first questions. flex-1 + min-h-0 lets it absorb
-         the slack and clip gracefully, so the metrics below are never clipped. -->
-    <FormCardPreview
-      :fields="form.previewFields"
-      class="mt-6 min-h-0 flex-1 overflow-hidden"
-    />
+    <!-- The paper: this form's questions. The preview absolutely fills this
+         reserved slot, then on hover grows past it (max-height) into a floating
+         panel that peeks at more questions — no grid reflow. An empty form has
+         nothing to peek, so it doesn't expand. -->
+    <div class="relative mt-6 min-h-0 flex-1">
+      <FormCardPreview
+        :fields="form.previewFields"
+        :accent="form.primaryColor"
+        :peek="form.fieldCount > 0"
+        class="absolute inset-x-0 top-0 z-10 max-h-full min-h-full"
+        :class="
+          form.fieldCount > 0
+            ? 'group-hover:z-20 group-hover:max-h-[28rem] group-hover:shadow-xl'
+            : ''
+        "
+      />
+    </div>
 
     <!-- Quiet metrics — pinned to the bottom so every tile lines up -->
     <div
-      class="flex shrink-0 items-baseline gap-4 border-t border-ink-100 pt-6 text-sm text-ink-900"
+      class="flex shrink-0 flex-wrap items-center gap-2 border-t border-ink-100 pt-6 text-sm text-ink-600"
     >
       <span>
         <span class="font-semibold tabular-nums text-ink-800">{{
           form.responseCount
         }}</span>
-        response{{ form.responseCount === 1 ? "" : "s" }}
+        Response{{ form.responseCount === 1 ? "" : "s" }}
       </span>
+      <span class="text-ink-300">•</span>
       <span>
         <span class="font-semibold tabular-nums text-ink-800">{{
           form.viewCount
         }}</span>
-        view{{ form.viewCount === 1 ? "" : "s" }}
+        View{{ form.viewCount === 1 ? "" : "s" }}
+      </span>
+      <span class="text-ink-300">•</span>
+      <span>
+        <span class="font-semibold tabular-nums text-ink-800">{{
+          form.fieldCount
+        }}</span>
+        Question{{ form.fieldCount === 1 ? "" : "s" }}
       </span>
     </div>
 

@@ -22,7 +22,9 @@ export interface FormSummary {
   published: boolean;
   responseCount: number;
   viewCount: number;
-  previewFields: Field[]; // first few questions, for the card's mini paper preview
+  fieldCount: number; // total questions (excludes section breaks)
+  primaryColor: string; // form theme accent, used to tint the card
+  previewFields: Field[]; // questions for the card's mini paper preview
 }
 
 // Basic analytics (ROADMAP Phase 1): the three headline numbers. Conversion is
@@ -88,11 +90,13 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
     id: string; title: string; category: string | null; updated_at: Date; published: boolean;
     response_count: string; view_count: string;
     fields: Field[] | null;
+    primary_color: string | null;
   }>(
     `SELECT f.id, f.title, f.updated_at,
             f.current_draft->>'category' AS category,
             f.published_version_id IS NOT NULL AS published,
             f.current_draft->'fields' AS fields,
+            f.current_draft->'theme'->>'primaryColor' AS primary_color,
             (SELECT count(*) FROM submissions s WHERE s.form_id = f.id) AS response_count,
             (SELECT count(*) FROM form_views v WHERE v.form_id = f.id) AS view_count
        FROM forms f
@@ -100,19 +104,23 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
       ORDER BY f.updated_at DESC`,
     [ownerId],
   );
-  return rows.map((r) => ({
-    id: r.id,
-    title: r.title,
-    ...(r.category && { category: r.category }),
-    updatedAt: r.updated_at.toISOString(),
-    published: r.published,
-    responseCount: Number(r.response_count),
-    viewCount: Number(r.view_count),
-    // Only what the card preview draws — questions, not layout breaks.
-    previewFields: (r.fields ?? [])
-      .filter((f) => f.type !== 'section_break')
-      .slice(0, 3),
-  }));
+  return rows.map((r) => {
+    // Questions only, not layout breaks. The card picks its 2 defining questions
+    // from these, so send the whole set — a distinctive field can be anywhere.
+    const questions = (r.fields ?? []).filter((f) => f.type !== 'section_break');
+    return {
+      id: r.id,
+      title: r.title,
+      ...(r.category && { category: r.category }),
+      updatedAt: r.updated_at.toISOString(),
+      published: r.published,
+      responseCount: Number(r.response_count),
+      viewCount: Number(r.view_count),
+      fieldCount: questions.length,
+      primaryColor: r.primary_color ?? DEFAULT_THEME.primaryColor,
+      previewFields: questions,
+    };
+  });
 }
 
 export async function getForm(ownerId: string, formId: string): Promise<FormDraft> {

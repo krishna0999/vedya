@@ -12,6 +12,7 @@ import TemplateGallery from "@/components/TemplateGallery.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiConfirmDialog from "@/components/ui/UiConfirmDialog.vue";
 import UiFilterMenu from "@/components/ui/UiFilterMenu.vue";
+import UiSortMenu from "@/components/ui/UiSortMenu.vue";
 import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
 const router = useRouter();
@@ -56,6 +57,29 @@ const filteredForms = computed(() => {
       return false;
     return true;
   });
+});
+
+// Sort control. Default "updated" matches the API's own order (updated desc),
+// so it's a no-op reorder; the others sort a copy so we never mutate the source.
+const SORT_OPTIONS = [
+  { id: "updated", label: "Last edited" },
+  { id: "title", label: "Title (A–Z)" },
+  { id: "responses", label: "Most responses" },
+  { id: "views", label: "Most views" },
+];
+const sortBy = ref("updated");
+const sortedForms = computed(() => {
+  const list = [...filteredForms.value];
+  switch (sortBy.value) {
+    case "title":
+      return list.sort((a, b) => a.title.localeCompare(b.title));
+    case "responses":
+      return list.sort((a, b) => b.responseCount - a.responseCount);
+    case "views":
+      return list.sort((a, b) => b.viewCount - a.viewCount);
+    default:
+      return list;
+  }
 });
 
 async function load(): Promise<void> {
@@ -209,6 +233,7 @@ onMounted(load);
               }}
             </span>
             <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
+            <UiSortMenu v-model="sortBy" :options="SORT_OPTIONS" />
           </template>
 
           <!-- Create form split dropdown: blank vs. AI generate -->
@@ -332,7 +357,7 @@ onMounted(load);
           class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
           <FormCard
-            v-for="form in filteredForms"
+            v-for="form in sortedForms"
             :key="form.id"
             :form="form"
             :copied="copied === form.id"

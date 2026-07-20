@@ -12,7 +12,7 @@ const contactUsFields: Field[] = [
 ];
 
 describe('FormCardPreview', () => {
-  it('renders the first two question labels as a teaser', () => {
+  it('falls back to document order when no field is distinctive', () => {
     const w = mount(FormCardPreview, { props: { fields: contactUsFields } });
     expect(w.text()).toContain('Your name');
     expect(w.text()).toContain('Email address');
@@ -20,8 +20,22 @@ describe('FormCardPreview', () => {
     expect(w.text()).not.toContain('Subject');
   });
 
-  it('shows the empty state when there are no fields', () => {
+  it('surfaces the questions that define the form, not just the first two', () => {
+    // A feedback form: generic name/email first, then the rating that gives it
+    // its character. The rating should win a preview slot over the email.
+    const feedback: Field[] = [
+      { id: 'name', type: 'short_text', label: 'Your name', required: false },
+      { id: 'email', type: 'email', label: 'Email address', required: false },
+      { id: 'stars', type: 'rating', label: 'How was your experience?', required: true },
+    ];
+    const w = mount(FormCardPreview, { props: { fields: feedback } });
+    expect(w.text()).toContain('Your name'); // first defining-less field kept
+    expect(w.text()).toContain('How was your experience?'); // distinctive, surfaced
+    expect(w.text()).not.toContain('Email address');
+  });
+
+  it('shows the empty-state call to action when there are no fields', () => {
     const w = mount(FormCardPreview, { props: { fields: [] } });
-    expect(w.text()).toContain('No questions yet');
+    expect(w.text()).toContain('Add your first question');
   });
 });

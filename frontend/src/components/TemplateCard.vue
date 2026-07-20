@@ -29,11 +29,14 @@ function estMinutes(): number {
        don't reflow, so it pops OVER its neighbors on every side instead of
        pushing them) and lifts above the grid via z-index. -->
   <div
-    class="group relative flex h-80 flex-col overflow-hidden rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.04] hover:border-ink-300 hover:shadow-pop"
+    class="group relative flex h-80 flex-col overflow-hidden rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-ink-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
+    :style="{ '--card-accent': template.primaryColor }"
   >
+    <!-- min-h on title + description reserves two lines each, so every card's
+         preview starts at the same y regardless of how much text wraps. -->
     <div class="flex shrink-0 items-start justify-between gap-2">
       <h3
-        class="line-clamp-2 min-w-0 text-[15px] font-semibold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-brand-700"
+        class="line-clamp-2 min-h-[2.5rem] min-w-0 text-[15px] font-semibold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-brand-700"
       >
         {{ template.title }}
       </h3>
@@ -41,7 +44,7 @@ function estMinutes(): number {
         {{ template.badge }}
       </UiBadge>
     </div>
-    <p class="mt-1 line-clamp-2 shrink-0 text-sm text-ink-500">
+    <p class="mt-1 line-clamp-2 min-h-[2.5rem] shrink-0 text-sm text-ink-500">
       {{ template.description }}
     </p>
 
@@ -49,6 +52,7 @@ function estMinutes(): number {
          absorb the slack and clip gracefully, so the footer is never clipped. -->
     <FormCardPreview
       :fields="template.fields"
+      :accent="template.primaryColor"
       class="mt-4 min-h-0 flex-1 overflow-hidden"
     />
 

@@ -11,6 +11,7 @@ import FormRenderer from "@/components/FormRenderer.vue";
 import TemplateCard from "@/components/TemplateCard.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
+import UiSortMenu from "@/components/ui/UiSortMenu.vue";
 import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
 const props = defineProps<{ query?: string; busy?: boolean }>();
@@ -76,6 +77,29 @@ const filtered = computed(() => {
   });
 });
 
+// Sort control. "Recommended" keeps the catalog's curated order (a no-op copy);
+// the others sort a copy so the source order is preserved.
+const SORT_OPTIONS = [
+  { id: "recommended", label: "Recommended" },
+  { id: "title", label: "Title (A–Z)" },
+  { id: "most", label: "Most questions" },
+  { id: "fewest", label: "Fewest questions" },
+];
+const sortBy = ref("recommended");
+const sorted = computed(() => {
+  const list = [...filtered.value];
+  switch (sortBy.value) {
+    case "title":
+      return list.sort((a, b) => a.title.localeCompare(b.title));
+    case "most":
+      return list.sort((a, b) => b.fieldCount - a.fieldCount);
+    case "fewest":
+      return list.sort((a, b) => a.fieldCount - b.fieldCount);
+    default:
+      return list;
+  }
+});
+
 function onUse(id: string): void {
   pendingId.value = id;
   emit("use", id);
@@ -109,34 +133,40 @@ onMounted(load);
 
 <template>
   <div>
-    <!-- Category filter -->
-    <div v-if="!loading && !error" class="mb-5 flex flex-wrap gap-1.5">
-      <button
-        type="button"
-        :class="[
-          'rounded-full px-3 py-1 text-sm font-medium transition',
-          activeCategory === null
-            ? 'bg-brand-600 text-white'
-            : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
-        ]"
-        @click="activeCategory = null"
-      >
-        All
-      </button>
-      <button
-        v-for="cat in categories"
-        :key="cat"
-        type="button"
-        :class="[
-          'rounded-full px-3 py-1 text-sm font-medium transition',
-          activeCategory === cat
-            ? 'bg-brand-600 text-white'
-            : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
-        ]"
-        @click="activeCategory = cat"
-      >
-        {{ cat }}
-      </button>
+    <!-- Category filter (left) + sort (right) -->
+    <div
+      v-if="!loading && !error"
+      class="mb-5 flex items-start justify-between gap-3"
+    >
+      <div class="flex flex-wrap gap-1.5">
+        <button
+          type="button"
+          :class="[
+            'rounded-full px-3 py-1 text-sm font-medium transition',
+            activeCategory === null
+              ? 'bg-brand-600 text-white'
+              : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
+          ]"
+          @click="activeCategory = null"
+        >
+          All
+        </button>
+        <button
+          v-for="cat in categories"
+          :key="cat"
+          type="button"
+          :class="[
+            'rounded-full px-3 py-1 text-sm font-medium transition',
+            activeCategory === cat
+              ? 'bg-brand-600 text-white'
+              : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
+          ]"
+          @click="activeCategory = cat"
+        >
+          {{ cat }}
+        </button>
+      </div>
+      <UiSortMenu v-model="sortBy" :options="SORT_OPTIONS" class="shrink-0" />
     </div>
 
     <!-- Skeleton mirror of the pills row + card grid -->
@@ -182,7 +212,7 @@ onMounted(load);
       class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
       <TemplateCard
-        v-for="t in filtered"
+        v-for="t in sorted"
         :key="t.id"
         :template="t"
         :busy="busy"

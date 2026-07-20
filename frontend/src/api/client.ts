@@ -13,7 +13,9 @@ export interface FormSummary {
   published: boolean;
   responseCount: number;
   viewCount: number;
-  previewFields: Field[]; // first few questions, for the card's mini paper preview
+  fieldCount: number; // total questions (excludes section breaks)
+  primaryColor: string; // form theme accent, used to tint the card
+  previewFields: Field[]; // questions for the card's mini paper preview
 }
 
 // Basic analytics: headline numbers for one form (conversion derived client-side).
@@ -65,6 +67,7 @@ export interface TemplateSummary {
   badge?: "Popular" | "Trending";
   stat?: string;
   fieldCount: number;
+  primaryColor: string; // theme accent (defaults to brand) used to tint the card
   fields: Field[];
 }
 
