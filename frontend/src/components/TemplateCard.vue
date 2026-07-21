@@ -8,6 +8,7 @@ import FormCardPreview from "@/components/FormCardPreview.vue";
 import UiBadge from "@/components/ui/UiBadge.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
 
 const props = defineProps<{
   template: TemplateSummary;
@@ -15,8 +16,11 @@ const props = defineProps<{
   busy?: boolean;
   /** THIS card was the one clicked — shows the inline "Creating…" state. */
   pending?: boolean;
+  /** Pinned cards float to the top of the gallery. */
+  pinned?: boolean;
 }>();
-defineEmits<{ preview: []; use: [] }>();
+// `move` is the keyboard path to the drag-reorder the card body supports.
+defineEmits<{ preview: []; use: []; pin: []; move: [delta: number] }>();
 
 // ponytail: ~15s per question, rounded up — an estimate, not analytics.
 function estMinutes(): number {
@@ -28,8 +32,11 @@ function estMinutes(): number {
   <!-- Fixed-height tile. On hover it scales up from its own center (transforms
        don't reflow, so it pops OVER its neighbors on every side instead of
        pushing them) and lifts above the grid via z-index. -->
+  <!-- No overflow clip: tooltips on the header actions render above the tile.
+       The preview is the only child that paints to the edge and it clips
+       itself. -->
   <div
-    class="group relative flex h-80 flex-col overflow-hidden rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-ink-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
+    class="group relative flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-ink-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
     :style="{ '--card-accent': template.primaryColor }"
   >
     <!-- min-h on title + description reserves two lines each, so every card's
@@ -40,9 +47,57 @@ function estMinutes(): number {
       >
         {{ template.title }}
       </h3>
-      <UiBadge v-if="template.badge" variant="brand" class="shrink-0">
-        {{ template.badge }}
-      </UiBadge>
+      <div class="-mr-1.5 -mt-1 flex shrink-0 items-center gap-0.5">
+        <!-- Reorder fallback for keyboard/touch; the card body also drags. -->
+        <UiTooltip
+          v-for="d in [-1, 1]"
+          :key="d"
+          :text="d < 0 ? 'Move left' : 'Move right'"
+          align="end"
+        >
+          <button
+            type="button"
+            class="grid h-7 w-7 place-items-center rounded-md text-ink-400 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+            :aria-label="d < 0 ? 'Move template left' : 'Move template right'"
+            @click="$emit('move', d)"
+          >
+            <UiIcon
+              :name="d < 0 ? 'chevron-left' : 'chevron-right'"
+              class="text-inherit h-4 w-4"
+            />
+          </button>
+        </UiTooltip>
+        <!-- A pinned card keeps its star visible; otherwise it fades in. -->
+        <UiTooltip
+          :text="pinned ? 'Unpin template' : 'Pin to the top'"
+          align="end"
+        >
+          <button
+            type="button"
+            class="grid h-7 w-7 place-items-center rounded-md transition hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            :class="
+              pinned
+                ? 'text-amber-500 hover:text-amber-600'
+                : 'text-ink-400 hover:text-ink-700 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100'
+            "
+            :aria-pressed="!!pinned"
+            :aria-label="pinned ? 'Unpin template' : 'Pin template'"
+            @click="$emit('pin')"
+          >
+            <UiIcon
+              :name="pinned ? 'star' : 'star-outline'"
+              :type="pinned ? 'solid' : 'outline'"
+              class="text-inherit h-4 w-4"
+            />
+          </button>
+        </UiTooltip>
+        <!-- Last in the row so it anchors the right edge: the actions before it
+             still take up space while invisible, and a badge placed ahead of
+             them would sit stranded in that gap. -->
+        <UiBadge v-if="template.badge" variant="brand" class="ml-1">
+          {{ template.badge }}
+        </UiBadge>
+      </div>
     </div>
     <p class="mt-1 line-clamp-2 min-h-[2.5rem] shrink-0 text-sm text-ink-500">
       {{ template.description }}
@@ -73,12 +128,16 @@ function estMinutes(): number {
     </div>
 
     <div class="mt-3 flex shrink-0 items-center gap-2">
-      <UiButton variant="secondary" size="sm" @click="$emit('preview')">
-        Preview
-      </UiButton>
-      <UiButton size="sm" :disabled="busy" @click="$emit('use')">
-        {{ pending ? "Creating…" : "Use template" }}
-      </UiButton>
+      <UiTooltip text="See it as a respondent would" align="start">
+        <UiButton variant="secondary" size="sm" @click="$emit('preview')">
+          Preview
+        </UiButton>
+      </UiTooltip>
+      <UiTooltip text="Create an editable form from this template" align="start">
+        <UiButton size="sm" :disabled="busy" @click="$emit('use')">
+          {{ pending ? "Creating…" : "Use template" }}
+        </UiButton>
+      </UiTooltip>
     </div>
   </div>
 </template>

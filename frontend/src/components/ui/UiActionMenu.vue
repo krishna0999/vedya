@@ -5,6 +5,7 @@
 // idiom as UiUserMenu (outside-mousedown + Escape close, soft transition).
 import { onBeforeUnmount, ref } from "vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
 import type { IconName } from "@/lib/icons";
 
 export interface UiActionItem {
@@ -22,7 +23,9 @@ export type UiActionIcon =
   | "copy"
   | "email"
   | "external"
-  | "trash";
+  | "trash"
+  | "move-left"
+  | "move-right";
 
 // Map each menu action to a shared icon-registry name (see @/lib/icons).
 const ICONS: Record<UiActionIcon, IconName> = {
@@ -32,6 +35,8 @@ const ICONS: Record<UiActionIcon, IconName> = {
   email: "envelope",
   external: "arrow-top-right-on-square",
   trash: "trash",
+  "move-left": "chevron-left",
+  "move-right": "chevron-right",
 };
 
 withDefaults(defineProps<{ items: UiActionItem[]; label?: string }>(), {
@@ -68,20 +73,24 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
 
 <template>
   <div ref="root" class="relative" @keydown.escape="close">
-    <button
-      type="button"
-      class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-      aria-haspopup="menu"
-      :aria-expanded="open"
-      :aria-label="label"
-      @click="toggle"
-    >
-      <UiIcon
-        name="ellipsis-horizontal"
-        type="solid"
-        class="text-inherit h-5 w-5"
-      />
-    </button>
+    <!-- Hidden while the menu is open — a bubble hanging over an open menu is
+         just noise. -->
+    <UiTooltip text="More actions" align="end" :disabled="open">
+      <button
+        type="button"
+        class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+        aria-haspopup="menu"
+        :aria-expanded="open"
+        :aria-label="label"
+        @click="toggle"
+      >
+        <UiIcon
+          name="ellipsis-horizontal"
+          type="solid"
+          class="text-inherit h-5 w-5"
+        />
+      </button>
+    </UiTooltip>
 
     <transition
       enter-active-class="transition duration-150 ease-soft"

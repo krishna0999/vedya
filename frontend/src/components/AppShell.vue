@@ -3,11 +3,13 @@
 // below md, and ONE shared topbar (search / notifications / avatar) so the
 // navbar never changes between pages. Screens with their own chrome (builder)
 // opt out via :topbar="false". Active state derives from the route.
-import { computed, onBeforeUnmount, ref, watch } from "vue";
-import { useRoute, useRouter, type RouteLocationRaw } from "vue-router";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useRoute, type RouteLocationRaw } from "vue-router";
 import UiLogo from "@/components/ui/UiLogo.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
-import UiSearchInput from "@/components/ui/UiSearchInput.vue";
+import UiToaster from "@/components/ui/UiToaster.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
+import SearchModal from "@/components/SearchModal.vue";
 import UiUserMenu from "@/components/ui/UiUserMenu.vue";
 import type { IconName } from "@/lib/icons";
 
@@ -54,7 +56,6 @@ const PERSONAL: NavItem[] = [
 const ALL = [...WORKSPACE, ...PERSONAL];
 
 const route = useRoute();
-const router = useRouter();
 const active = computed<string | null>(() => {
   if (route.name === "forms") {
     return route.query.view === "templates" ? "templates" : "forms";
@@ -73,34 +74,24 @@ const tabClass = (key: string) => [
   key === active.value ? "text-brand-700" : "text-ink-500",
 ];
 
-// --- topbar search --------------------------------------------------------
-// URL-driven: on /forms it live-updates ?q (the page filters from the route);
-// anywhere else, Enter jumps to /forms pre-filtered.
-const q = ref(typeof route.query.q === "string" ? route.query.q : "");
-watch(
-  () => route.query.q,
-  (v) => (q.value = typeof v === "string" ? v : ""),
-);
-const searchPlaceholder = computed(() =>
-  route.name === "forms" && route.query.view === "templates"
-    ? "Search templates…"
-    : "Search forms…",
-);
-function onSearchInput(): void {
-  if (route.name === "forms") {
-    router.replace({
-      query: { ...route.query, q: q.value.trim() || undefined },
-    });
+// --- global search --------------------------------------------------------
+// The topbar carries an icon, not a field: search opens a command-palette
+// modal that spans forms AND templates. ponytail: the old inline box wrote
+// ?q= as you typed, which only ever filtered the page you happened to be on.
+const searchOpen = ref(false);
+
+const isMac =
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad/.test(navigator.platform);
+const searchHint = computed(() => (isMac ? "⌘K" : "Ctrl K"));
+function onGlobalKey(e: KeyboardEvent): void {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+    e.preventDefault();
+    searchOpen.value = true;
   }
 }
-function onSearchEnter(): void {
-  if (route.name !== "forms") {
-    router.push({
-      name: "forms",
-      query: q.value.trim() ? { q: q.value.trim() } : {},
-    });
-  }
-}
+onMounted(() => document.addEventListener("keydown", onGlobalKey));
+onBeforeUnmount(() => document.removeEventListener("keydown", onGlobalKey));
 
 // Notifications: no backend feed yet — the bell opens an empty state.
 const bellOpen = ref(false);
@@ -167,15 +158,18 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         v-if="topbar"
         class="sticky top-0 z-20 flex items-center gap-3 border-b border-ink-200 bg-white px-4 py-3 sm:px-6"
       >
-        <UiSearchInput
-          v-model="q"
-          class="min-w-0 w-full max-w-md"
-          aria-label="Search forms"
-          :placeholder="searchPlaceholder"
-          @update:model-value="onSearchInput"
-          @keydown.enter="onSearchEnter"
-        />
         <div class="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <UiTooltip :text="`Search — ${searchHint}`" placement="bottom">
+            <button
+              type="button"
+              class="grid h-9 w-9 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              aria-label="Search forms and templates"
+              aria-haspopup="dialog"
+              @click="searchOpen = true"
+            >
+              <UiIcon name="magnifying-glass" class="text-inherit h-6 w-6" />
+            </button>
+          </UiTooltip>
           <div
             ref="bellRoot"
             class="relative"
@@ -189,7 +183,11 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
               :aria-expanded="bellOpen"
               @click="toggleBell"
             >
-              <UiIcon name="bell" class="text-inherit h-5 w-5" />
+              <UiIcon
+                name="bell"
+                class="text-inherit h-6 w-6"
+                :class="bellOpen ? 'bell-ring' : ''"
+              />
             </button>
             <div
               v-if="bellOpen"
@@ -221,5 +219,36 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         {{ item.label }}
       </router-link>
     </nav>
+
+    <SearchModal v-model:open="searchOpen" />
+    <UiToaster />
   </div>
 </template>
+
+<style scoped>
+/* A short ring when the bell is opened — motion as acknowledgement, not decoration. */
+.bell-ring {
+  transform-origin: top center;
+  animation: bell-ring 600ms ease-in-out;
+}
+@keyframes bell-ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(12deg);
+  }
+  45% {
+    transform: rotate(-9deg);
+  }
+  70% {
+    transform: rotate(5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bell-ring {
+    animation: none;
+  }
+}
+</style>

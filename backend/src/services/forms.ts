@@ -341,7 +341,7 @@ export interface AccountUsage {
   submissions: number;
   monthSubmissions: number;
   monthAiGenerations: number;
-  timeline: UsageDay[]; // last 30 days, gaps filled with zeros
+  timeline: UsageDay[]; // last 90 days, gaps filled with zeros (the dashboard slices 7/30/90)
 }
 
 export async function getAccountUsage(ownerId: string, plan: string): Promise<AccountUsage> {
@@ -364,14 +364,14 @@ export async function getAccountUsage(ownerId: string, plan: string): Promise<Ac
     `SELECT to_char(d.day, 'YYYY-MM-DD') AS day,
             coalesce(v.c, 0) AS views,
             coalesce(s.c, 0) AS submissions
-       FROM generate_series(current_date - 29, current_date, interval '1 day') AS d(day)
+       FROM generate_series(current_date - 89, current_date, interval '1 day') AS d(day)
        LEFT JOIN (SELECT v.viewed_at::date AS day, count(*) AS c
                     FROM form_views v JOIN forms f ON f.id = v.form_id
-                   WHERE f.owner_id = $1 AND v.viewed_at >= current_date - 29
+                   WHERE f.owner_id = $1 AND v.viewed_at >= current_date - 89
                    GROUP BY 1) v ON v.day = d.day::date
        LEFT JOIN (SELECT s.submitted_at::date AS day, count(*) AS c
                     FROM submissions s JOIN forms f ON f.id = s.form_id
-                   WHERE f.owner_id = $1 AND s.submitted_at >= current_date - 29
+                   WHERE f.owner_id = $1 AND s.submitted_at >= current_date - 89
                    GROUP BY 1) s ON s.day = d.day::date
       ORDER BY 1`,
     [ownerId],

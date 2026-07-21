@@ -240,7 +240,7 @@ function toggleFaq(i: number): void {
       </section>
 
       <!-- FEATURES -->
-      <section class="grid gap-4 pb-20 sm:grid-cols-3">
+      <section class="grid grid-cols-1 gap-4 pb-20 sm:grid-cols-3">
         <div
           v-for="f in features"
           :key="f.title"

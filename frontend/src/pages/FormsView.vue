@@ -4,7 +4,9 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api, type FormSummary } from "@/api/client";
-import AiGenerateForm from "@/components/AiGenerateForm.vue";
+import { useBoard } from "@/lib/board";
+import { fuzzyMatchAny } from "@/lib/fuzzy";
+import AiGenerateModal from "@/components/AiGenerateModal.vue";
 import AppShell from "@/components/AppShell.vue";
 import FormCard from "@/components/FormCard.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -49,7 +51,7 @@ const statusFilter = ref<string[]>([]);
 const filteredForms = computed(() => {
   const q = query.value.trim().toLowerCase();
   return forms.value.filter((f) => {
-    if (q && !f.title.toLowerCase().includes(q)) return false;
+    if (q && !fuzzyMatchAny([f.title, f.category ?? ""], q)) return false;
     if (
       statusFilter.value.length &&
       !statusFilter.value.includes(f.published ? "published" : "draft")
@@ -61,26 +63,41 @@ const filteredForms = computed(() => {
 
 // Sort control. Default "updated" matches the API's own order (updated desc),
 // so it's a no-op reorder; the others sort a copy so we never mutate the source.
+// "My order" replays the user's own drag arrangement.
 const SORT_OPTIONS = [
   { id: "updated", label: "Last edited" },
+  { id: "manual", label: "My order" },
   { id: "title", label: "Title (A–Z)" },
   { id: "responses", label: "Most responses" },
   { id: "views", label: "Most views" },
 ];
 const sortBy = ref("updated");
+// Pinned forms float to the top of whichever sort is active.
+const board = useBoard("forms");
+// Pulled out so the template unwraps it (nested refs aren't auto-unwrapped).
+const dragId = board.dragId;
 const sortedForms = computed(() => {
   const list = [...filteredForms.value];
   switch (sortBy.value) {
     case "title":
-      return list.sort((a, b) => a.title.localeCompare(b.title));
+      list.sort((a, b) => a.title.localeCompare(b.title));
+      break;
     case "responses":
-      return list.sort((a, b) => b.responseCount - a.responseCount);
+      list.sort((a, b) => b.responseCount - a.responseCount);
+      break;
     case "views":
-      return list.sort((a, b) => b.viewCount - a.viewCount);
-    default:
-      return list;
+      list.sort((a, b) => b.viewCount - a.viewCount);
+      break;
   }
+  return board.arrange(list, sortBy.value === "manual");
 });
+
+// Reordering is an explicit arrangement, so it switches the view to "My order"
+// — otherwise the drop would appear to do nothing under another sort.
+function reorder(fn: () => void): void {
+  fn();
+  sortBy.value = "manual";
+}
 
 async function load(): Promise<void> {
   loading.value = true;
@@ -200,6 +217,15 @@ function onAction(form: FormSummary, actionId: string): void {
       break;
     case "open":
       window.open(`/f/${form.id}`, "_blank", "noopener");
+      break;
+    case "pin":
+      board.togglePin(form.id);
+      break;
+    case "move-back":
+      reorder(() => board.move(form.id, -1, sortedForms.value));
+      break;
+    case "move-forward":
+      reorder(() => board.move(form.id, 1, sortedForms.value));
       break;
     case "delete":
       pendingDelete.value = form;
@@ -361,58 +387,20 @@ onMounted(load);
             :key="form.id"
             :form="form"
             :copied="copied === form.id"
+            :pinned="board.isPinned(form.id)"
+            :class="dragId === form.id ? 'opacity-50' : ''"
+            draggable="true"
+            @dragstart="board.onDragStart(form.id)"
+            @dragover.prevent
+            @drop="reorder(() => board.onDrop(form.id, sortedForms))"
+            @dragend="board.onDragEnd"
             @action="onAction(form, $event)"
           />
         </ul>
       </template>
     </main>
 
-    <!-- AI generate modal — opened from the navbar sparkles button. Hosts the
-         same <AiGenerateForm>, which redirects to the builder on success. -->
-    <Teleport to="body">
-      <div
-        v-if="aiOpen"
-        class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-900/40 p-4 pt-[10vh]"
-        @click.self="aiOpen = false"
-        @keydown.esc="aiOpen = false"
-      >
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Generate a form with AI"
-          class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl sm:p-8"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex items-center gap-2">
-              <span
-                class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700"
-                aria-hidden="true"
-              >
-                <UiIcon name="sparkles" class="text-inherit h-5 w-5" />
-              </span>
-              <h2 class="font-semibold text-ink-900">
-                Generate a form with AI
-              </h2>
-            </div>
-            <button
-              type="button"
-              class="shrink-0 rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-              aria-label="Close"
-              @click="aiOpen = false"
-            >
-              <UiIcon name="x-mark" class="text-inherit h-5 w-5" />
-            </button>
-          </div>
-
-          <p class="mt-1 text-sm text-ink-500">
-            Describe what you need — fields, choices, validation — and get an
-            editable draft in seconds.
-          </p>
-
-          <AiGenerateForm autofocus class="mt-3" />
-        </div>
-      </div>
-    </Teleport>
+    <AiGenerateModal v-model:open="aiOpen" />
 
     <UiConfirmDialog
       :open="pendingDelete !== null"

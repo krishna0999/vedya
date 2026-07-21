@@ -6,6 +6,8 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { FormVersion } from "@schema";
 import { api, type TemplateSummary } from "@/api/client";
+import { useBoard } from "@/lib/board";
+import { fuzzyMatchAny } from "@/lib/fuzzy";
 import { DEFAULT_THEME } from "@/stores/builder";
 import FormRenderer from "@/components/FormRenderer.vue";
 import TemplateCard from "@/components/TemplateCard.vue";
@@ -69,36 +71,47 @@ const filtered = computed(() => {
     if (activeCategory.value && t.category !== activeCategory.value)
       return false;
     if (!q) return true;
-    return (
-      t.title.toLowerCase().includes(q) ||
-      t.description.toLowerCase().includes(q) ||
-      t.category.toLowerCase().includes(q)
-    );
+    return fuzzyMatchAny([t.title, t.description, t.category], q);
   });
 });
 
 // Sort control. "Recommended" keeps the catalog's curated order (a no-op copy);
-// the others sort a copy so the source order is preserved.
+// the others sort a copy so the source order is preserved. "My order" replays
+// the user's own drag arrangement.
 const SORT_OPTIONS = [
   { id: "recommended", label: "Recommended" },
+  { id: "manual", label: "My order" },
   { id: "title", label: "Title (A–Z)" },
   { id: "most", label: "Most questions" },
   { id: "fewest", label: "Fewest questions" },
 ];
 const sortBy = ref("recommended");
+// Pinned templates float to the top of whichever sort is active.
+const board = useBoard("templates");
+// Pulled out so the template unwraps it (nested refs aren't auto-unwrapped).
+const dragId = board.dragId;
 const sorted = computed(() => {
   const list = [...filtered.value];
   switch (sortBy.value) {
     case "title":
-      return list.sort((a, b) => a.title.localeCompare(b.title));
+      list.sort((a, b) => a.title.localeCompare(b.title));
+      break;
     case "most":
-      return list.sort((a, b) => b.fieldCount - a.fieldCount);
+      list.sort((a, b) => b.fieldCount - a.fieldCount);
+      break;
     case "fewest":
-      return list.sort((a, b) => a.fieldCount - b.fieldCount);
-    default:
-      return list;
+      list.sort((a, b) => a.fieldCount - b.fieldCount);
+      break;
   }
+  return board.arrange(list, sortBy.value === "manual");
 });
+
+// Reordering is an explicit arrangement, so it switches the view to "My order"
+// — otherwise the drop would appear to do nothing under another sort.
+function reorder(fn: () => void): void {
+  fn();
+  sortBy.value = "manual";
+}
 
 function onUse(id: string): void {
   pendingId.value = id;
@@ -175,7 +188,7 @@ onMounted(load);
       <div class="mb-5 flex flex-wrap gap-1.5">
         <UiSkeleton v-for="n in 5" :key="n" class="h-7 w-20 rounded-full" />
       </div>
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <div
           v-for="n in 6"
           :key="n"
@@ -209,7 +222,7 @@ onMounted(load);
 
     <div
       v-else
-      class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
       <TemplateCard
         v-for="t in sorted"
@@ -217,8 +230,17 @@ onMounted(load);
         :template="t"
         :busy="busy"
         :pending="pendingId === t.id"
+        :pinned="board.isPinned(t.id)"
+        :class="dragId === t.id ? 'opacity-50' : ''"
+        draggable="true"
+        @dragstart="board.onDragStart(t.id)"
+        @dragover.prevent
+        @drop="reorder(() => board.onDrop(t.id, sorted))"
+        @dragend="board.onDragEnd"
         @preview="openPreview(t.id)"
         @use="onUse(t.id)"
+        @pin="board.togglePin(t.id)"
+        @move="reorder(() => board.move(t.id, $event, sorted))"
       />
     </div>
 

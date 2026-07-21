@@ -11,11 +11,14 @@ import UiActionMenu, {
 } from "@/components/ui/UiActionMenu.vue";
 import UiBadge from "@/components/ui/UiBadge.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
 
 const props = defineProps<{
   form: FormSummary;
   /** True right after the share link was copied — shows inline feedback. */
   copied?: boolean;
+  /** Pinned cards float to the top of the grid. */
+  pinned?: boolean;
 }>();
 const emit = defineEmits<{ action: [actionId: string] }>();
 
@@ -26,9 +29,12 @@ function needsPublishTitle(): string | undefined {
 }
 
 // Edit / Open / Email surface as hover quick actions on the card; everything
-// else lives in the kebab "more options" menu.
+// else lives in the kebab "more options" menu. Move left/right is the keyboard
+// (and discoverable) path to the drag-reorder the card body supports.
 const moreActions = (): UiActionItem[] => [
   { id: "responses", label: "Responses", icon: "responses" },
+  { id: "move-back", label: "Move left", icon: "move-left" },
+  { id: "move-forward", label: "Move right", icon: "move-right" },
   {
     id: "copy",
     label: "Copy link",
@@ -54,8 +60,10 @@ const moreActions = (): UiActionItem[] => [
     <div class="flex shrink-0 items-start justify-between gap-2">
       <!-- min-h reserves two lines so every card's preview starts at the same y,
            whether the title wraps to one line or two. -->
+      <!-- draggable=false so grabbing the title drags the card, not the link -->
       <router-link
         :to="{ name: 'builder', params: { id: form.id } }"
+        draggable="false"
         class="line-clamp-2 min-h-[3.25rem] min-w-0 text-lg font-bold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-[color:var(--card-accent)]"
       >
         {{ form.title }}
@@ -65,39 +73,68 @@ const moreActions = (): UiActionItem[] => [
         <div
           class="flex items-center gap-0.5 opacity-100 transition-opacity duration-150 focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
         >
+          <UiTooltip text="Edit form" align="end">
+            <button
+              type="button"
+              class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              aria-label="Edit form"
+              @click="emit('action', 'edit')"
+            >
+              <UiIcon name="pencil-square" class="text-inherit h-5 w-5" />
+            </button>
+          </UiTooltip>
+          <UiTooltip :text="needsPublishTitle() ?? 'Open form'" align="end">
+            <button
+              type="button"
+              class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Open form"
+              :disabled="!form.published"
+              @click="emit('action', 'open')"
+            >
+              <UiIcon
+                name="arrow-top-right-on-square"
+                class="text-inherit h-5 w-5"
+              />
+            </button>
+          </UiTooltip>
+          <UiTooltip :text="needsPublishTitle() ?? 'Email form'" align="end">
+            <button
+              type="button"
+              class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Email form"
+              :disabled="!form.published"
+              @click="emit('action', 'email')"
+            >
+              <UiIcon name="envelope" class="text-inherit h-5 w-5" />
+            </button>
+          </UiTooltip>
+        </div>
+        <!-- Sits next to the kebab on purpose: a pinned star is the only thing
+             still visible at rest, so it must not float in the gap the hidden
+             quick actions leave behind. -->
+        <UiTooltip
+          :text="pinned ? 'Unpin form' : 'Pin to the top'"
+          align="end"
+        >
           <button
             type="button"
-            class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-            aria-label="Edit form"
-            title="Edit form"
-            @click="emit('action', 'edit')"
-          >
-            <UiIcon name="pencil-square" class="text-inherit h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Open form"
-            :title="needsPublishTitle() ?? 'Open form'"
-            :disabled="!form.published"
-            @click="emit('action', 'open')"
+            class="grid h-8 w-8 place-items-center rounded-lg transition hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            :class="[
+              pinned
+                ? 'text-amber-500 hover:text-amber-600'
+                : 'text-ink-500 hover:text-ink-800 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100',
+            ]"
+            :aria-pressed="!!pinned"
+            :aria-label="pinned ? 'Unpin form' : 'Pin form'"
+            @click="emit('action', 'pin')"
           >
             <UiIcon
-              name="arrow-top-right-on-square"
+              :name="pinned ? 'star' : 'star-outline'"
+              :type="pinned ? 'solid' : 'outline'"
               class="text-inherit h-5 w-5"
             />
           </button>
-          <button
-            type="button"
-            class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Email form"
-            :title="needsPublishTitle() ?? 'Email form'"
-            :disabled="!form.published"
-            @click="emit('action', 'email')"
-          >
-            <UiIcon name="envelope" class="text-inherit h-5 w-5" />
-          </button>
-        </div>
+        </UiTooltip>
         <UiActionMenu
           class="shrink-0"
           :items="moreActions()"
@@ -156,7 +193,8 @@ const moreActions = (): UiActionItem[] => [
       <UiBadge v-if="form.category" variant="brand">
         {{ form.category }}
       </UiBadge>
-      <UiBadge :variant="form.published ? 'green' : 'gray'" dot>
+      <!-- Semantic status colours: green = published, amber = draft -->
+      <UiBadge :variant="form.published ? 'green' : 'amber'" dot>
         {{ form.published ? "Published" : "Draft" }}
       </UiBadge>
       <span class="text-ink-300">·</span>
