@@ -117,8 +117,10 @@ function openTemplate(template: TemplateSummary): void {
           role="dialog"
           aria-modal="true"
           aria-label="Search forms and templates"
-          class="flex h-full w-full flex-col overflow-hidden bg-white shadow-pop transition-[max-width,height] duration-200 ease-soft sm:h-20 sm:max-w-md sm:rounded-2xl"
-          :class="expanded ? 'sm:h-[560px] sm:max-w-3xl' : ''"
+          class="flex h-full w-full flex-col overflow-hidden bg-white shadow-pop transition-[max-width,height] duration-500 ease-soft sm:rounded-2xl"
+          :class="
+            expanded ? 'sm:h-[560px] sm:max-w-3xl' : 'sm:h-20 sm:max-w-md'
+          "
         >
           <!-- Search row: bottom rule only, so the input reads as a line -->
           <div class="flex h-20 shrink-0 items-center gap-3 px-4 sm:px-5">
