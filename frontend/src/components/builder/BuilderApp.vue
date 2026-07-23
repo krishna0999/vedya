@@ -119,6 +119,15 @@ function confirmLeave(): void {
         class="flex items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-2.5"
       >
         <div class="flex min-w-0 items-center gap-1.5 sm:gap-2">
+          <router-link
+            :to="{ name: 'forms' }"
+            class="hidden shrink-0 text-sm text-ink-500 transition-colors hover:text-ink-800 sm:inline"
+            >Forms</router-link
+          >
+          <UiIcon
+            name="chevron-right"
+            class="hidden h-3.5 w-3.5 shrink-0 text-ink-300 sm:inline"
+          />
           <span class="truncate text-sm font-semibold text-ink-900">{{
             builder.draft.title
           }}</span>
@@ -127,11 +136,23 @@ function confirmLeave(): void {
           >
           <span
             v-if="saveLabel"
-            class="hidden shrink-0 text-sm sm:inline"
+            class="hidden shrink-0 items-center gap-1 text-sm sm:inline-flex"
             :class="
               builder.saveStatus === 'error' ? 'text-danger' : 'text-ink-500'
             "
-            >· {{ saveLabel }}</span
+          >
+            <span aria-hidden="true">·</span>
+            <Transition
+              enter-active-class="transition duration-200 ease-soft"
+              enter-from-class="scale-50 opacity-0"
+            >
+              <UiIcon
+                v-if="builder.saveStatus === 'saved'"
+                name="check"
+                class="h-4 w-4 text-success"
+              />
+            </Transition>
+            {{ saveLabel }}</span
           >
         </div>
 
@@ -247,7 +268,14 @@ function confirmLeave(): void {
       {{ builder.error ?? "Publish failed." }}
     </p>
 
-    <!-- EDIT -->
+    <!-- EDIT / PREVIEW crossfade -->
+    <Transition
+      mode="out-in"
+      enter-active-class="transition-opacity duration-150 ease-soft"
+      enter-from-class="opacity-0"
+      leave-active-class="transition-opacity duration-100 ease-soft"
+      leave-to-class="opacity-0"
+    >
     <div v-if="mode === 'edit'" class="flex min-h-0 flex-1 flex-col">
       <!-- Mobile toolbar: entry points for the palette/settings sheets. -->
       <div
@@ -323,6 +351,7 @@ function confirmLeave(): void {
         </section>
       </div>
     </div>
+    </Transition>
 
     <!-- Mobile bottom sheets (lg:hidden) — the palette/config columns collapse
          into these below lg so the canvas keeps the full width. -->

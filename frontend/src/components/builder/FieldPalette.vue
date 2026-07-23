@@ -3,7 +3,7 @@
 // to the draft.
 import { computed, ref } from "vue";
 import type { FieldType } from "@schema";
-import { FIELD_TYPES } from "@/data/fieldTypes";
+import { FIELD_CATEGORIES, FIELD_TYPES } from "@/data/fieldTypes";
 import { useBuilderStore } from "@/stores/builder";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiSearchInput from "@/components/ui/UiSearchInput.vue";
@@ -19,6 +19,14 @@ const filtered = computed(() => {
   if (!q) return FIELD_TYPES;
   return FIELD_TYPES.filter((t) => t.label.toLowerCase().includes(q));
 });
+
+// Grouped for display; a category disappears entirely when search empties it.
+const groups = computed(() =>
+  FIELD_CATEGORIES.map((category) => ({
+    category,
+    types: filtered.value.filter((t) => t.category === category),
+  })).filter((g) => g.types.length > 0),
+);
 
 function add(type: FieldType): void {
   builder.addField(type);
@@ -39,17 +47,24 @@ function add(type: FieldType): void {
       aria-label="Search fields"
     />
 
-    <div class="mt-3 grid grid-cols-2 gap-2">
-      <button
-        v-for="t in filtered"
-        :key="t.type"
-        type="button"
-        class="flex flex-col items-center justify-center gap-2.5 rounded-xl bg-ink-50 px-2 py-5 text-center text-sm font-medium text-ink-700 transition-colors duration-150 hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-        @click="add(t.type)"
+    <div v-for="g in groups" :key="g.category" class="mt-4 first:mt-3">
+      <h3
+        class="mb-1.5 text-xs font-medium uppercase tracking-wide text-ink-500"
       >
-        <UiIcon :name="t.icon" class="text-inherit h-5 w-5" />
-        {{ t.label }}
-      </button>
+        {{ g.category }}
+      </h3>
+      <div class="grid grid-cols-2 gap-2">
+        <button
+          v-for="t in g.types"
+          :key="t.type"
+          type="button"
+          class="flex flex-col items-center justify-center gap-2.5 rounded-xl bg-ink-50 px-2 py-5 text-center text-sm font-medium text-ink-700 transition-colors duration-150 hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+          @click="add(t.type)"
+        >
+          <UiIcon :name="t.icon" class="text-inherit h-5 w-5" />
+          {{ t.label }}
+        </button>
+      </div>
     </div>
 
     <p

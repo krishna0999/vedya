@@ -149,9 +149,11 @@ export const useBuilderStore = defineStore('builder', {
       this.draft.theme = { ...this.draft.theme, ...patch };
       this.touch();
     },
-    addField(type: FieldType) {
+    // Append by default; `at` inserts at a position (the between-fields "+").
+    addField(type: FieldType, at?: number) {
       const field = makeField(type);
-      this.draft.fields.push(field);
+      if (at === undefined) this.draft.fields.push(field);
+      else this.draft.fields.splice(at, 0, field);
       this.selectedId = field.id;
       this.touch();
     },

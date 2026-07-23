@@ -13,27 +13,32 @@ export const DATE_PRESET_CATALOG: DatePreset[] = [
   { label: 'In a month', offsetDays: 30 },
 ];
 
+export type FieldCategory = 'Basic' | 'Choice' | 'Advanced';
+
 export interface FieldTypeMeta {
   type: FieldType;
   label: string; // palette label
   hasOptions: boolean; // select-family
   icon: IconName; // palette card glyph
+  category: FieldCategory; // palette grouping
 }
 
 export const FIELD_TYPES: FieldTypeMeta[] = [
-  { type: 'short_text', label: 'Short text', hasOptions: false, icon: 'text-t' },
-  { type: 'long_text', label: 'Long text', hasOptions: false, icon: 'bars-3-bottom-left' },
-  { type: 'email', label: 'Email', hasOptions: false, icon: 'envelope' },
-  { type: 'phone', label: 'Phone', hasOptions: false, icon: 'phone' },
-  { type: 'number', label: 'Number', hasOptions: false, icon: 'hashtag' },
-  { type: 'single_select', label: 'Single choice', hasOptions: true, icon: 'circle-dot' },
-  { type: 'multi_select', label: 'Multiple choice', hasOptions: true, icon: 'checkbox' },
-  { type: 'dropdown', label: 'Dropdown', hasOptions: true, icon: 'select-box' },
-  { type: 'multi_dropdown', label: 'Multi-select dropdown', hasOptions: true, icon: 'list-bullet' },
-  { type: 'date', label: 'Date', hasOptions: false, icon: 'calendar' },
-  { type: 'rating', label: 'Rating', hasOptions: false, icon: 'star-outline' },
-  { type: 'section_break', label: 'Section break', hasOptions: false, icon: 'minus' },
+  { type: 'short_text', label: 'Short text', hasOptions: false, icon: 'text-t', category: 'Basic' },
+  { type: 'long_text', label: 'Long text', hasOptions: false, icon: 'bars-3-bottom-left', category: 'Basic' },
+  { type: 'email', label: 'Email', hasOptions: false, icon: 'envelope', category: 'Basic' },
+  { type: 'phone', label: 'Phone', hasOptions: false, icon: 'phone', category: 'Basic' },
+  { type: 'number', label: 'Number', hasOptions: false, icon: 'hashtag', category: 'Basic' },
+  { type: 'single_select', label: 'Single choice', hasOptions: true, icon: 'circle-dot', category: 'Choice' },
+  { type: 'multi_select', label: 'Multiple choice', hasOptions: true, icon: 'checkbox', category: 'Choice' },
+  { type: 'dropdown', label: 'Dropdown', hasOptions: true, icon: 'select-box', category: 'Choice' },
+  { type: 'multi_dropdown', label: 'Multi-select dropdown', hasOptions: true, icon: 'list-bullet', category: 'Choice' },
+  { type: 'date', label: 'Date', hasOptions: false, icon: 'calendar', category: 'Advanced' },
+  { type: 'rating', label: 'Rating', hasOptions: false, icon: 'star-outline', category: 'Advanced' },
+  { type: 'section_break', label: 'Section break', hasOptions: false, icon: 'minus', category: 'Advanced' },
 ];
+
+export const FIELD_CATEGORIES: FieldCategory[] = ['Basic', 'Choice', 'Advanced'];
 
 const META_BY_TYPE = new Map(FIELD_TYPES.map((m) => [m.type, m]));
 
