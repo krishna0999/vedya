@@ -7,6 +7,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { FormVersion } from "@schema";
 import { api, type TemplateSummary } from "@/api/client";
 import { useBoard } from "@/lib/board";
+import { categoryStyle } from "@/lib/categories";
 import { fuzzyMatchAny } from "@/lib/fuzzy";
 import { DEFAULT_THEME } from "@/stores/builder";
 import FormRenderer from "@/components/FormRenderer.vue";
@@ -49,6 +50,11 @@ const previewVersion = computed<FormVersion | null>(() =>
       }
     : null,
 );
+// ponytail: ~15s per question, rounded up — same estimate the card shows.
+const previewEstMinutes = computed(() =>
+  Math.max(1, Math.ceil(((previewTemplate.value?.fieldCount ?? 0) * 15) / 60)),
+);
+
 function openPreview(id: string): void {
   previewId.value = id;
 }
@@ -146,18 +152,27 @@ onMounted(load);
 
 <template>
   <div>
-    <!-- Category filter (left) + sort (right) -->
-    <div
-      v-if="!loading && !error"
-      class="mb-5 flex items-start justify-between gap-3"
-    >
+    <!-- Category filter (left) + sort (right). Each pill carries its category's
+         glyph and, when active, its own accent — so the filter and the cards
+         below it agree on what a category looks like. -->
+    <div v-if="!loading && !error" class="mb-5">
+      <div class="mb-2.5 flex items-center justify-between gap-3">
+        <p class="text-sm text-ink-500">
+          <span class="font-medium text-ink-800">{{ templates.length }}</span>
+          templates across
+          <span class="font-medium text-ink-800">{{ categories.length }}</span>
+          categories
+        </p>
+        <UiSortMenu v-model="sortBy" :options="SORT_OPTIONS" class="shrink-0" />
+      </div>
+
       <div class="flex flex-wrap gap-1.5">
         <button
           type="button"
           :class="[
             'rounded-full px-3 py-1 text-sm font-medium transition',
             activeCategory === null
-              ? 'bg-brand-600 text-white'
+              ? 'bg-ink-800 text-white'
               : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
           ]"
           @click="activeCategory = null"
@@ -168,18 +183,23 @@ onMounted(load);
           v-for="cat in categories"
           :key="cat"
           type="button"
-          :class="[
-            'rounded-full px-3 py-1 text-sm font-medium transition',
+          class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition"
+          :class="
             activeCategory === cat
-              ? 'bg-brand-600 text-white'
-              : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
-          ]"
+              ? 'text-white'
+              : 'bg-ink-100 text-ink-600 hover:bg-ink-200'
+          "
+          :style="
+            activeCategory === cat
+              ? { background: categoryStyle(cat).accent }
+              : undefined
+          "
           @click="activeCategory = cat"
         >
+          <span aria-hidden="true">{{ categoryStyle(cat).icon }}</span>
           {{ cat }}
         </button>
       </div>
-      <UiSortMenu v-model="sortBy" :options="SORT_OPTIONS" class="shrink-0" />
     </div>
 
     <!-- Skeleton mirror of the pills row + card grid -->
@@ -192,15 +212,15 @@ onMounted(load);
         <div
           v-for="n in 6"
           :key="n"
-          class="flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5"
+          class="flex h-[22rem] flex-col rounded-xl border border-t-4 border-line-200 bg-white px-5 py-4"
         >
-          <UiSkeleton class="h-4 w-2/3" />
+          <UiSkeleton class="h-9 w-9 rounded-xl" />
+          <UiSkeleton class="mt-2.5 h-4 w-2/3" />
           <UiSkeleton class="mt-2 h-3.5 w-full" />
           <UiSkeleton class="mt-1.5 h-3.5 w-4/5" />
-          <UiSkeleton class="mt-4 h-3 w-24" />
-          <UiSkeleton class="mt-2 h-3 w-3/5" />
-          <UiSkeleton class="mt-auto h-3.5 w-40" />
-          <div class="mt-3 flex gap-2">
+          <UiSkeleton class="mt-2.5 h-[6.125rem] w-full rounded-lg" />
+          <UiSkeleton class="mt-2.5 h-3.5 w-40" />
+          <div class="mt-2.5 flex gap-2">
             <UiSkeleton class="h-8 w-20 rounded-lg" />
             <UiSkeleton class="h-8 w-28 rounded-lg" />
           </div>
@@ -268,30 +288,56 @@ onMounted(load);
         role="dialog"
         aria-modal="true"
         :aria-label="`Preview: ${previewTemplate.title}`"
-        class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-xl"
+        class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-t-4 bg-white shadow-xl"
+        :style="{ borderTopColor: categoryStyle(previewTemplate.category).accent }"
       >
-        <!-- Header -->
+        <!-- Header: the same identity the card shows — icon chip in the
+             category accent, then the facts we actually have. No rating or
+             download count: nothing measures those yet, and inventing them
+             would be fabricated social proof on our own product. -->
         <header
           class="flex items-start justify-between gap-3 border-b border-line-200 px-5 py-4"
+          :style="{
+            '--drawer-accent': categoryStyle(previewTemplate.category).accent,
+          }"
         >
-          <div class="min-w-0">
-            <div class="text-2xl" aria-hidden="true">
-              {{ previewTemplate.icon }}
-            </div>
-            <h2 class="mt-1 truncate font-semibold text-ink-900">
-              {{ previewTemplate.title }}
-            </h2>
-            <p class="text-sm text-ink-500">
-              {{ previewTemplate.description }}
-            </p>
-            <p
-              class="mt-1 text-sm font-medium uppercase tracking-wide text-ink-500"
+          <div class="flex min-w-0 gap-3">
+            <span
+              class="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl leading-none"
+              style="
+                background: color-mix(in srgb, var(--drawer-accent) 12%, white);
+              "
+              aria-hidden="true"
+              >{{ previewTemplate.icon }}</span
             >
-              {{ previewTemplate.category }} ·
-              {{ previewTemplate.fieldCount }} question{{
-                previewTemplate.fieldCount === 1 ? "" : "s"
-              }}
-            </p>
+            <div class="min-w-0">
+              <h2 class="truncate font-semibold text-ink-900">
+                {{ previewTemplate.title }}
+              </h2>
+              <p class="text-sm text-ink-500">
+                {{ previewTemplate.description }}
+              </p>
+              <p
+                class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500"
+              >
+                <span class="font-medium text-[color:var(--drawer-accent)]">
+                  {{ categoryStyle(previewTemplate.category).icon }}
+                  {{ previewTemplate.category }}
+                </span>
+                <span class="text-ink-300">·</span>
+                <span>
+                  {{ previewTemplate.fieldCount }} question{{
+                    previewTemplate.fieldCount === 1 ? "" : "s"
+                  }}
+                </span>
+                <span class="inline-flex items-center gap-1">
+                  <UiIcon name="clock" class="h-4 w-4 text-ink-400" />
+                  ~{{ previewEstMinutes }} min to fill
+                </span>
+                <span class="text-ink-300">·</span>
+                <span>By Vedya</span>
+              </p>
+            </div>
           </div>
           <button
             type="button"
@@ -317,11 +363,17 @@ onMounted(load);
           </div>
         </div>
 
-        <!-- Footer -->
+        <!-- Footer: Back on the left (it's where you came from), the commit
+             action on the right. No "Preview in new tab" / "Duplicate" — a
+             template has no public URL to open, and "use" already is the
+             duplicate. -->
         <footer
-          class="flex items-center justify-end gap-2 border-t border-line-200 px-5 py-3"
+          class="flex items-center justify-between gap-2 border-t border-line-200 px-5 py-3"
         >
-          <UiButton variant="ghost" @click="closePreview">Close</UiButton>
+          <UiButton variant="ghost" @click="closePreview">
+            <UiIcon name="chevron-left" class="text-inherit h-4 w-4" />
+            Back
+          </UiButton>
           <UiButton :disabled="busy" @click="onUse(previewTemplate.id)">
             {{
               pendingId === previewTemplate.id

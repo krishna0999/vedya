@@ -10,6 +10,7 @@ import UiIcon from "@/components/ui/UiIcon.vue";
 import UiToaster from "@/components/ui/UiToaster.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
 import SearchModal from "@/components/SearchModal.vue";
+import NotificationBell from "@/components/NotificationBell.vue";
 import UiUserMenu from "@/components/ui/UiUserMenu.vue";
 import type { IconName } from "@/lib/icons";
 
@@ -66,8 +67,8 @@ const active = computed<string | null>(() => {
 const sideClass = (key: string) => [
   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition",
   key === active.value
-    ? "bg-ink-100 text-ink-900"
-    : "text-ink-600 hover:bg-ink-50 hover:text-ink-900",
+    ? "bg-ink-200 text-ink-900 hover:bg-ink-50"
+    : "text-ink-600 hover:bg-ink-200 hover:text-ink-900",
 ];
 const tabClass = (key: string) => [
   "flex flex-1 flex-col items-center gap-0.5 py-2 text-sm font-medium transition",
@@ -92,29 +93,13 @@ function onGlobalKey(e: KeyboardEvent): void {
 }
 onMounted(() => document.addEventListener("keydown", onGlobalKey));
 onBeforeUnmount(() => document.removeEventListener("keydown", onGlobalKey));
-
-// Notifications: no backend feed yet — the bell opens an empty state.
-const bellOpen = ref(false);
-const bellRoot = ref<HTMLElement | null>(null);
-function onDocPointer(e: MouseEvent): void {
-  if (bellRoot.value && !bellRoot.value.contains(e.target as Node)) {
-    bellOpen.value = false;
-    document.removeEventListener("mousedown", onDocPointer);
-  }
-}
-function toggleBell(): void {
-  bellOpen.value = !bellOpen.value;
-  if (bellOpen.value) document.addEventListener("mousedown", onDocPointer);
-  else document.removeEventListener("mousedown", onDocPointer);
-}
-onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
 </script>
 
 <template>
   <div class="flex h-dvh bg-ink-50 text-ink-900">
     <!-- Desktop sidebar -->
     <aside
-      class="hidden w-60 shrink-0 flex-col border-r border-line-200 bg-white md:flex"
+      class="hidden w-60 shrink-0 flex-col border-r border-line-200 bg-ink-100 md:flex"
     >
       <div class="px-5 py-4">
         <UiLogo />
@@ -170,33 +155,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
               <UiIcon name="magnifying-glass" class="text-inherit h-6 w-6" />
             </button>
           </UiTooltip>
-          <div
-            ref="bellRoot"
-            class="relative"
-            @keydown.escape="bellOpen = false"
-          >
-            <button
-              type="button"
-              class="grid h-9 w-9 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-              aria-label="Notifications"
-              aria-haspopup="true"
-              :aria-expanded="bellOpen"
-              @click="toggleBell"
-            >
-              <UiIcon
-                name="bell"
-                class="text-inherit h-6 w-6"
-                :class="bellOpen ? 'bell-ring' : ''"
-              />
-            </button>
-            <div
-              v-if="bellOpen"
-              class="absolute right-0 top-full z-30 mt-2 w-64 min-w-48 rounded-lg border border-line-200 bg-white p-4 text-center shadow-pop"
-            >
-              <p class="text-sm font-medium text-ink-900">No notifications</p>
-              <p class="mt-0.5 text-sm text-ink-500">You're all caught up.</p>
-            </div>
-          </div>
+          <NotificationBell />
           <UiUserMenu />
         </div>
       </header>
@@ -224,31 +183,3 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     <UiToaster />
   </div>
 </template>
-
-<style scoped>
-/* A short ring when the bell is opened — motion as acknowledgement, not decoration. */
-.bell-ring {
-  transform-origin: top center;
-  animation: bell-ring 600ms ease-in-out;
-}
-@keyframes bell-ring {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-  20% {
-    transform: rotate(12deg);
-  }
-  45% {
-    transform: rotate(-9deg);
-  }
-  70% {
-    transform: rotate(5deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .bell-ring {
-    animation: none;
-  }
-}
-</style>

@@ -2,6 +2,14 @@
 // These parse/validate shape only; the canonical TypeScript types still come from
 // @schema. The field-type list here mirrors schema/types.ts FieldType.
 import { z } from 'zod';
+import { FORM_TITLE_MAX, validateFormTitle } from '../schema/index';
+
+// The form name. Same shared rule the builder runs for instant feedback — the
+// client is UX, this is the trust boundary (CLAUDE.md §3).
+const FormTitleSchema = z.string().superRefine((value, ctx) => {
+  const err = validateFormTitle(value);
+  if (err) ctx.addIssue({ code: z.ZodIssueCode.custom, message: err });
+});
 
 const FieldTypeSchema = z.enum([
   'short_text', 'long_text', 'email', 'phone', 'number',
@@ -50,8 +58,11 @@ const ThemeSchema = z.object({
   borderRadius: z.number(),
 });
 
+// Create is deliberately laxer than rename: an absent or blank title is a
+// normal case here (createFormWith falls back to "Untitled form"), so only the
+// ceiling applies. Renaming to blank, by contrast, is never intended.
 export const CreateFormSchema = z.object({
-  title: z.string().optional(),
+  title: z.string().max(FORM_TITLE_MAX, `Keep the name under ${FORM_TITLE_MAX} characters.`).optional(),
 });
 
 // Instantiate a form from a catalog template. The id is a stable template slug;
@@ -72,7 +83,7 @@ export const GenerateFormSchema = z.object({
 // Autosave patch: any subset of the editable draft. Fields must all parse if present.
 export const DraftPatchSchema = z
   .object({
-    title: z.string().optional(),
+    title: FormTitleSchema.optional(),
     category: z.string().max(60).optional(),
     fields: z.array(FieldSchema).optional(),
     theme: ThemeSchema.optional(),

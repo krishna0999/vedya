@@ -3,6 +3,13 @@
 // Pure CSS: it reveals on hover/keyboard-focus of the wrapper, so there's no
 // positioning JS, no listeners, and nothing to tear down.
 //
+// Keyboard reveal is `:has(:focus-visible)`, NOT `focus-within`. A mouse click
+// focuses the button too, and `focus-within` can't tell the two apart — so
+// clicking a tooltipped button left the bubble stuck on screen (often over the
+// popover that click just opened) until focus moved elsewhere. `focus-visible`
+// is false after a pointer click and true after Tab, which is exactly the rule
+// we want; the browser already does the hard part.
+//
 // The group is NAMED (group/tip) on purpose — cards in this app are themselves
 // `group` containers, and an unnamed group-hover would pop every tooltip on the
 // card at once.
@@ -78,7 +85,7 @@ const arrowClass = computed(() =>
       v-if="!disabled"
       role="tooltip"
       aria-hidden="true"
-      class="pointer-events-none absolute z-50 whitespace-nowrap rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-pop transition-opacity delay-100 duration-150 ease-soft group-hover/tip:opacity-100 group-focus-within/tip:opacity-100"
+      class="pointer-events-none absolute z-50 whitespace-nowrap rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-pop transition-opacity delay-100 duration-150 ease-soft group-hover/tip:opacity-100 group-has-[:focus-visible]/tip:opacity-100"
       :class="bubbleClass"
     >
       {{ text }}

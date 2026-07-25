@@ -126,7 +126,7 @@ function confirmLeave(): void {
           >
           <UiIcon
             name="chevron-right"
-            class="hidden h-3.5 w-3.5 shrink-0 text-ink-300 sm:inline"
+            class="hidden h-4 w-4 shrink-0 text-ink-500 sm:inline"
           />
           <span class="truncate text-sm font-semibold text-ink-900">{{
             builder.draft.title
@@ -276,81 +276,81 @@ function confirmLeave(): void {
       leave-active-class="transition-opacity duration-100 ease-soft"
       leave-to-class="opacity-0"
     >
-    <div v-if="mode === 'edit'" class="flex min-h-0 flex-1 flex-col">
-      <!-- Mobile toolbar: entry points for the palette/settings sheets. -->
-      <div
-        class="flex items-center gap-2 border-b border-line-200 bg-white px-3 py-2 lg:hidden"
-      >
-        <UiButton
-          variant="secondary"
-          size="sm"
-          class="flex-1"
-          @click="paletteOpen = true"
-        >
-          <span class="text-base leading-none">+</span> Add field
-        </UiButton>
-        <UiButton variant="ghost" size="sm" @click="settingsOpen = true">
-          <UiIcon name="cog-6-tooth" class="text-inherit h-5 w-5" />
-          Form settings
-        </UiButton>
-      </div>
-
-      <div class="flex min-h-0 flex-1">
-        <FieldPalette
-          class="hidden w-64 shrink-0 border-r border-line-200 lg:block"
-        />
-        <main
-          class="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6"
-          @click.self="builder.select(null)"
-        >
-          <BuilderCanvas />
-        </main>
-        <aside
-          class="hidden w-80 shrink-0 overflow-y-auto border-l border-line-200 bg-white p-4 lg:block"
-        >
-          <FieldConfigPanel
-            v-if="builder.selectedField"
-            :key="builder.selectedField.id"
-            :field="builder.selectedField"
-          />
-          <FormSettingsPanel v-else />
-        </aside>
-      </div>
-    </div>
-
-    <!-- PREVIEW -->
-    <div v-else class="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:p-8">
-      <div class="mx-auto max-w-xl">
+      <div v-if="mode === 'edit'" class="flex min-h-0 flex-1 flex-col">
+        <!-- Mobile toolbar: entry points for the palette/settings sheets. -->
         <div
-          v-if="builder.draft.fields.length === 0"
-          class="rounded-2xl border border-line-200 bg-white p-10 text-center text-ink-500"
+          class="flex items-center gap-2 border-b border-line-200 bg-white px-3 py-2 lg:hidden"
         >
-          Add some fields to preview the form.
-        </div>
-        <div
-          v-else
-          class="rounded-2xl border border-line-200 bg-white p-8 shadow-card"
-        >
-          <FormRenderer
-            :version="builder.previewVersion"
-            :title="builder.draft.title"
-            @submit="onPreviewSubmit"
-          />
+          <UiButton
+            variant="secondary"
+            size="sm"
+            class="flex-1"
+            @click="paletteOpen = true"
+          >
+            <span class="text-base leading-none">+</span> Add field
+          </UiButton>
+          <UiButton variant="ghost" size="sm" @click="settingsOpen = true">
+            <UiIcon name="cog-6-tooth" class="text-inherit h-5 w-5" />
+            Form settings
+          </UiButton>
         </div>
 
-        <section v-if="previewSubmission" class="mt-6">
-          <h2
-            class="mb-2 text-sm font-semibold uppercase tracking-wider text-ink-500"
+        <div class="flex min-h-0 flex-1">
+          <FieldPalette
+            class="hidden w-72 shrink-0 border-r border-line-200 lg:block xl:w-80"
+          />
+          <main
+            class="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6"
+            @click.self="builder.select(null)"
           >
-            Validated submission (preview)
-          </h2>
-          <pre
-            class="overflow-x-auto rounded-xl bg-ink-900 p-4 text-sm leading-relaxed text-brand-200"
-            >{{ JSON.stringify(previewSubmission, null, 2) }}</pre
+            <BuilderCanvas />
+          </main>
+          <aside
+            class="scrollbar-none hidden w-80 shrink-0 overflow-y-auto border-l border-line-200 bg-white p-4 lg:block xl:w-96"
           >
-        </section>
+            <FieldConfigPanel
+              v-if="builder.selectedField"
+              :key="builder.selectedField.id"
+              :field="builder.selectedField"
+            />
+            <FormSettingsPanel v-else />
+          </aside>
+        </div>
       </div>
-    </div>
+
+      <!-- PREVIEW -->
+      <div v-else class="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:p-8">
+        <div class="mx-auto max-w-xl">
+          <div
+            v-if="builder.draft.fields.length === 0"
+            class="rounded-2xl border border-line-200 bg-white p-10 text-center text-ink-500"
+          >
+            Add some fields to preview the form.
+          </div>
+          <div
+            v-else
+            class="rounded-2xl border border-line-200 bg-white p-8 shadow-card"
+          >
+            <FormRenderer
+              :version="builder.previewVersion"
+              :title="builder.draft.title"
+              @submit="onPreviewSubmit"
+            />
+          </div>
+
+          <section v-if="previewSubmission" class="mt-6">
+            <h2
+              class="mb-2 text-sm font-semibold uppercase tracking-wider text-ink-500"
+            >
+              Validated submission (preview)
+            </h2>
+            <pre
+              class="overflow-x-auto rounded-xl bg-ink-900 p-4 text-sm leading-relaxed text-brand-200"
+              >{{ JSON.stringify(previewSubmission, null, 2) }}</pre
+            >
+          </section>
+        </div>
+      </div>
     </Transition>
 
     <!-- Mobile bottom sheets (lg:hidden) — the palette/config columns collapse
@@ -442,7 +442,9 @@ function confirmLeave(): void {
             Done
           </button>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto border-t border-line-100 p-4">
+        <div
+          class="min-h-0 flex-1 overflow-y-auto border-t border-line-100 p-4"
+        >
           <FieldConfigPanel
             :key="builder.selectedField.id"
             :field="builder.selectedField"
@@ -480,7 +482,9 @@ function confirmLeave(): void {
             Done
           </button>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto border-t border-line-100 p-4">
+        <div
+          class="min-h-0 flex-1 overflow-y-auto border-t border-line-100 p-4"
+        >
           <FormSettingsPanel />
         </div>
       </div>

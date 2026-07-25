@@ -37,15 +37,16 @@ function add(type: FieldType): void {
 <template>
   <!-- Layout-agnostic: the parent sets width/borders (sidebar on lg+, bottom
        sheet below — the sheet brings its own header, so ours hides there). -->
-  <aside class="overflow-y-auto bg-white p-4">
-    <h2 class="mb-2.5 hidden text-sm font-semibold text-ink-900 lg:block">
-      Fields
-    </h2>
-    <UiSearchInput
-      v-model="query"
-      placeholder="Search fields"
-      aria-label="Search fields"
-    />
+  <aside class="scrollbar-none overflow-y-auto bg-white p-4 pt-0">
+    <div class="mb-4 sticky top-0 z-10 bg-white py-4 border-b border-gray-200">
+      <h2 class="text-sm font-semibold text-ink-900">Fields</h2>
+      <UiSearchInput
+        v-model="query"
+        class="mt-2 w-full"
+        placeholder="Search fields"
+        aria-label="Search fields"
+      />
+    </div>
 
     <div v-for="g in groups" :key="g.category" class="mt-4 first:mt-3">
       <h3

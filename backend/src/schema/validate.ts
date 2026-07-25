@@ -144,3 +144,20 @@ export function validateAnswers(
   }
   return { valid: Object.keys(errors).length === 0, errors };
 }
+
+// --- Form metadata ---------------------------------------------------------
+// The form's own name, not an answer — but it lives here for the same reason
+// validateAnswers does: the builder needs it for instant feedback and the API
+// needs it as the trust boundary, and two copies of the rule would drift.
+
+export const FORM_TITLE_MAX = 100;
+
+/** Returns an error message for a form title, or null if it passes. */
+export function validateFormTitle(title: string): string | null {
+  const trimmed = title.trim();
+  if (trimmed === '') return 'Give your form a name.';
+  if (trimmed.length > FORM_TITLE_MAX) {
+    return `Keep the name under ${FORM_TITLE_MAX} characters.`;
+  }
+  return null;
+}

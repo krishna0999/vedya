@@ -68,7 +68,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       {{ label ?? "Filter" }}
       <span
         v-if="modelValue.length"
-        class="grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-sm font-semibold text-white"
+        class="h-5 min-w-5 flex items-center justify-center rounded-full bg-brand-600 px-1 text-sm font-semibold text-white"
       >
         {{ modelValue.length }}
       </span>

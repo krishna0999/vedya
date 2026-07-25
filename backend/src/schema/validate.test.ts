@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateAnswers } from './validate';
+import { FORM_TITLE_MAX, validateAnswers, validateFormTitle } from './validate';
 import type { Field, FormVersion } from './types';
 
 // Build a FormVersion around a set of fields with sane frozen-version metadata.
@@ -169,5 +169,21 @@ describe('whole form', () => {
     const res = validateAnswers(f, { name: 'Ada', stray: 'ignored' });
     expect(res.valid).toBe(true);
     expect(res.errors).toEqual({});
+  });
+});
+
+describe('validateFormTitle', () => {
+  it('accepts a normal name', () => {
+    expect(validateFormTitle('Customer feedback')).toBeNull();
+  });
+
+  it('rejects empty and whitespace-only names', () => {
+    expect(validateFormTitle('')).toBe('Give your form a name.');
+    expect(validateFormTitle('   ')).toBe('Give your form a name.');
+  });
+
+  it('measures length after trimming', () => {
+    expect(validateFormTitle(`  ${'a'.repeat(FORM_TITLE_MAX)}  `)).toBeNull();
+    expect(validateFormTitle('a'.repeat(FORM_TITLE_MAX + 1))).toMatch(/under/);
   });
 });

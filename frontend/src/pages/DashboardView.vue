@@ -6,6 +6,11 @@
 // Topbar (search/bell/avatar) is AppShell's — shared across all pages.
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { FORM_TITLE_MAX } from "@schema";
+import {
+  primeNotifications,
+  useNotifications,
+} from "@/lib/notifications";
 import {
   api,
   type AccountUsage,
@@ -80,6 +85,8 @@ onMounted(async () => {
       .flat()
       .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))
       .slice(0, 5);
+    // The bell needs exactly this data — hand it over rather than refetching.
+    primeNotifications(forms.value, usage.value, recentResponses.value);
     startCounters();
     if (!forms.value.length) loadSuggestions();
   } catch (err) {
@@ -353,18 +360,14 @@ const lastEdited = computed(
 
 // --- unread responses ------------------------------------------------------
 
-// ponytail: "unread" is a per-device high-water mark in localStorage, not a
-// server-side read receipt — good enough to flag what landed since you looked.
-const SEEN_KEY = "vedya.responsesSeenAt";
-const seenAt = ref<string>(localStorage.getItem(SEEN_KEY) ?? "");
+// Read state is owned by lib/notifications so this panel and the topbar bell
+// can never disagree about what's been seen. Still a per-device high-water
+// mark in localStorage, not a server-side read receipt.
+const { markAllRead: markResponsesSeen, seenAt } = useNotifications();
 const isUnread = (r: RecentResponse): boolean => r.submittedAt > seenAt.value;
 const unreadCount = computed(
   () => recentResponses.value.filter(isUnread).length,
 );
-function markResponsesSeen(): void {
-  seenAt.value = new Date().toISOString();
-  localStorage.setItem(SEEN_KEY, seenAt.value);
-}
 
 // --- health summary --------------------------------------------------------
 
@@ -472,7 +475,11 @@ async function duplicate(form: FormSummary): Promise<void> {
   creating.value = true;
   try {
     const src = await api.getForm(form.id);
-    const copy = await api.createForm(`${src.title} (copy)`);
+    // Trim the base so " (copy)" can't push the name past the title limit —
+    // the copy would be created, then fail its first autosave.
+    const copy = await api.createForm(
+      `${src.title.slice(0, FORM_TITLE_MAX - " (copy)".length)} (copy)`,
+    );
     await api.updateForm(copy.id, {
       fields: src.fields,
       theme: src.theme,

@@ -247,7 +247,7 @@ onMounted(load);
             {{ activeView === "templates" ? "Templates" : "My forms" }}
           </h1>
           <p v-if="activeView === 'templates'" class="text-sm text-ink-500">
-            Pick a starting point — edit everything after.
+            Pick a starting point — edit everything after. Nothing is locked in.
           </p>
         </div>
         <div class="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -261,6 +261,18 @@ onMounted(load);
             <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
             <UiSortMenu v-model="sortBy" :options="SORT_OPTIONS" />
           </template>
+
+          <!-- On the templates view, surface AI generation directly: "none of
+               these fit" is the most likely reason someone leaves this page. -->
+          <UiButton
+            v-if="activeView === 'templates'"
+            variant="secondary"
+            class="hidden sm:inline-flex"
+            @click="aiOpen = true"
+          >
+            <UiIcon name="sparkles" class="text-inherit h-4 w-4" />
+            Generate with AI
+          </UiButton>
 
           <!-- Create form split dropdown: blank vs. AI generate -->
           <div ref="createRoot" class="relative" @keydown.escape="closeCreate">
