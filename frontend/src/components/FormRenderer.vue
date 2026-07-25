@@ -99,7 +99,7 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
 
     <template v-for="field in version.fields" :key="field.id">
       <!-- section_break: presentational only, carries no answer -->
-      <div v-if="field.type === 'section_break'" class="mb-4 mt-8 border-t border-ink-200 pt-4">
+      <div v-if="field.type === 'section_break'" class="mb-4 mt-8 border-t border-line-200 pt-4">
         <h2 class="text-lg font-semibold text-ink-900">{{ field.label }}</h2>
         <p v-if="field.description" class="mt-0.5 text-sm text-ink-500">{{ field.description }}</p>
       </div>

@@ -227,10 +227,12 @@ We compete on trust and polish. A stranger has to feel safe typing real data int
 form we rendered; a creator has to feel the builder is a serious tool. So design is a
 first-class concern, built as a reusable system — not styled per screen.
 
-**Direction: warm & approachable, professional.** Soft surfaces, comfortably rounded
-corners, an indigo/violet brand accent, generous spacing, gentle elevation, and subtle
-motion (~150–200ms ease). Friendly, but never toy-like. Think Notion/Typeform warmth
-with the precision of a real product.
+**Direction: calm & credible, professional.** Soft surfaces, comfortably rounded
+corners, an emerald brand accent on cool slate neutrals with neutral-gray edges,
+generous spacing, gentle elevation, and subtle motion (~150–200ms ease).
+Approachable, but never toy-like — a stranger has to feel safe typing real data
+into it. Cyan is the secondary accent (data, informational emphasis); it never
+takes the primary action.
 
 **Custom components only — no raw browser controls.** Every interactive element in our
 surface is a styled `Ui*` primitive that consumes tokens. Native `<select>`, checkbox,

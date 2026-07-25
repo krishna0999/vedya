@@ -114,7 +114,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
   <div class="flex h-dvh bg-ink-50 text-ink-900">
     <!-- Desktop sidebar -->
     <aside
-      class="hidden w-60 shrink-0 flex-col border-r border-ink-200 bg-white md:flex"
+      class="hidden w-60 shrink-0 flex-col border-r border-line-200 bg-white md:flex"
     >
       <div class="px-5 py-4">
         <UiLogo />
@@ -133,7 +133,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
           </router-link>
         </div>
         <div
-          class="mt-auto flex flex-col gap-1 border-t border-ink-100 pt-2 pb-2"
+          class="mt-auto flex flex-col gap-1 border-t border-line-100 pt-2 pb-2"
         >
           <router-link
             v-for="item in PERSONAL"
@@ -156,7 +156,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <!-- Shared topbar: identical on every page, avatar pinned to the far right. -->
       <header
         v-if="topbar"
-        class="sticky top-0 z-20 flex items-center gap-3 border-b border-ink-200 bg-white px-4 py-3 sm:px-6"
+        class="sticky top-0 z-20 flex items-center gap-3 border-b border-line-200 bg-white px-4 py-3 sm:px-6"
       >
         <div class="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <UiTooltip :text="`Search — ${searchHint}`" placement="bottom">
@@ -191,7 +191,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             </button>
             <div
               v-if="bellOpen"
-              class="absolute right-0 top-full z-30 mt-2 w-64 min-w-48 rounded-lg border border-ink-200 bg-white p-4 text-center shadow-pop"
+              class="absolute right-0 top-full z-30 mt-2 w-64 min-w-48 rounded-lg border border-line-200 bg-white p-4 text-center shadow-pop"
             >
               <p class="text-sm font-medium text-ink-900">No notifications</p>
               <p class="mt-0.5 text-sm text-ink-500">You're all caught up.</p>
@@ -205,7 +205,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
 
     <!-- Mobile bottom tab bar -->
     <nav
-      class="fixed inset-x-0 bottom-0 z-30 flex border-t border-ink-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+      class="fixed inset-x-0 bottom-0 z-30 flex border-t border-line-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
       aria-label="Primary"
     >
       <router-link

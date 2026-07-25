@@ -5,7 +5,7 @@ import { dismissToast, toasts } from "@/lib/toast";
 import UiIcon from "@/components/ui/UiIcon.vue";
 
 const TONES = {
-  info: { ring: "border-ink-200", icon: "bell", tint: "text-ink-500" },
+  info: { ring: "border-line-200", icon: "bell", tint: "text-ink-500" },
   success: { ring: "border-green-200", icon: "check", tint: "text-green-600" },
   error: { ring: "border-red-200", icon: "x-mark", tint: "text-danger" },
 } as const;

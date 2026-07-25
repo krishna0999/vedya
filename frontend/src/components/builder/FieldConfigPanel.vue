@@ -133,7 +133,7 @@ function setValidation(patch: Partial<FieldValidation>): void {
       />
     </div>
 
-    <div v-if="!isSection" class="border-t border-ink-100 pt-3">
+    <div v-if="!isSection" class="border-t border-line-100 pt-3">
       <UiToggle
         :model-value="field.required"
         label="Required"
@@ -141,16 +141,16 @@ function setValidation(patch: Partial<FieldValidation>): void {
       />
     </div>
 
-    <div v-if="hasOptions" class="border-t border-ink-100 pt-3">
+    <div v-if="hasOptions" class="border-t border-line-100 pt-3">
       <OptionsEditor :field="field" />
     </div>
 
     <!-- date settings -->
-    <div v-if="isDate" class="space-y-3 border-t border-ink-100 pt-3">
+    <div v-if="isDate" class="space-y-3 border-t border-line-100 pt-3">
       <div>
         <p class="ui-label">Selection</p>
         <div
-          class="inline-flex w-full rounded-lg border border-ink-200 bg-ink-50 p-0.5 text-sm"
+          class="inline-flex w-full rounded-lg border border-line-200 bg-ink-50 p-0.5 text-sm"
         >
           <button
             type="button"
@@ -218,7 +218,7 @@ function setValidation(patch: Partial<FieldValidation>): void {
               v-for="p in availablePresets"
               :key="p.label"
               type="button"
-              class="inline-flex items-center gap-1 rounded-full border border-dashed border-ink-300 px-2.5 py-1 text-sm text-ink-600 hover:border-brand-400 hover:text-brand-700"
+              class="inline-flex items-center gap-1 rounded-full border border-dashed border-line-300 px-2.5 py-1 text-sm text-ink-600 hover:border-brand-400 hover:text-brand-700"
               @click="addPreset(p)"
             >
               <span class="text-base leading-none">+</span> {{ p.label }}
@@ -231,7 +231,7 @@ function setValidation(patch: Partial<FieldValidation>): void {
     <!-- validation -->
     <div
       v-if="isText || isNumber || isRating || isMulti"
-      class="space-y-2 border-t border-ink-100 pt-3"
+      class="space-y-2 border-t border-line-100 pt-3"
     >
       <p class="ui-label">Validation</p>
 

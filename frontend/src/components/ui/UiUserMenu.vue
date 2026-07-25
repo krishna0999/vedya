@@ -71,7 +71,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <div
         v-if="open"
         role="menu"
-        class="absolute right-0 z-30 mt-2 w-60 overflow-hidden rounded-xl border border-ink-200 bg-white p-1 shadow-pop"
+        class="absolute right-0 z-30 mt-2 w-60 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
       >
         <div class="px-3 py-2">
           <p

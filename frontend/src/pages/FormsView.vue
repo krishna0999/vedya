@@ -284,7 +284,7 @@ onMounted(load);
               <div
                 v-if="createOpen"
                 role="menu"
-                class="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-xl border border-ink-200 bg-white p-1 shadow-pop"
+                class="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
               >
                 <button
                   type="button"
@@ -340,7 +340,7 @@ onMounted(load);
           <div
             v-for="n in 6"
             :key="n"
-            class="flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5"
+            class="flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5"
           >
             <UiSkeleton class="h-4 w-32 max-w-[70%]" />
             <UiSkeleton class="mt-5 h-3 w-20" />
@@ -353,7 +353,7 @@ onMounted(load);
 
         <div
           v-else-if="forms.length === 0"
-          class="rounded-2xl border border-dashed border-ink-300 bg-white p-12 text-center"
+          class="rounded-2xl border border-dashed border-line-300 bg-white p-12 text-center"
         >
           <h2 class="text-lg font-semibold text-ink-900">No forms yet</h2>
           <p class="mx-auto mt-1 max-w-sm text-sm text-ink-500">

@@ -83,7 +83,7 @@ onMounted(load);
       <div
         v-if="loading"
         role="status"
-        class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8"
+        class="rounded-2xl border border-line-200 bg-white p-6 shadow-card sm:p-8"
       >
         <span class="sr-only">Loading…</span>
         <UiSkeleton class="h-6 w-2/3" />
@@ -96,7 +96,7 @@ onMounted(load);
 
       <div
         v-else-if="loadError"
-        class="rounded-2xl border border-ink-200 bg-white p-10 text-center"
+        class="rounded-2xl border border-line-200 bg-white p-10 text-center"
       >
         <h1 class="text-lg font-semibold text-ink-900">Form unavailable</h1>
         <p class="mt-1 text-sm text-ink-500">{{ loadError }}</p>
@@ -104,7 +104,7 @@ onMounted(load);
 
       <div
         v-else-if="done"
-        class="rounded-2xl border border-ink-200 bg-white p-10 text-center shadow-card"
+        class="rounded-2xl border border-line-200 bg-white p-10 text-center shadow-card"
       >
         <div
           class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-2xl text-brand-600"
@@ -132,7 +132,7 @@ onMounted(load);
 
       <div v-else-if="version">
         <div
-          class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card sm:p-8"
+          class="rounded-2xl border border-line-200 bg-white p-6 shadow-card sm:p-8"
         >
           <p
             v-if="submitError"

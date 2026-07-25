@@ -64,7 +64,7 @@ async function submit(): Promise<void> {
         <UiLogo size="lg" />
       </div>
 
-      <div class="rounded-2xl border border-ink-200 bg-white p-7 shadow-card">
+      <div class="rounded-2xl border border-line-200 bg-white p-7 shadow-card">
         <h1 class="text-lg font-semibold text-ink-900">{{ heading }}</h1>
         <p class="mt-0.5 text-sm text-ink-500">
           {{

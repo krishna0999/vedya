@@ -114,7 +114,7 @@ function confirmLeave(): void {
 
 <template>
   <div class="flex h-full flex-col bg-ink-50 text-ink-900">
-    <header class="border-b border-ink-200 bg-white">
+    <header class="border-b border-line-200 bg-white">
       <div
         class="flex items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-2.5"
       >
@@ -159,7 +159,7 @@ function confirmLeave(): void {
         <!-- Edit/Preview toggle rides the header on md+; below, it gets its own
              full-width row so the title and actions aren't crushed. -->
         <div
-          class="hidden shrink-0 rounded-lg border border-ink-200 bg-ink-50 p-0.5 text-sm md:inline-flex"
+          class="hidden shrink-0 rounded-lg border border-line-200 bg-ink-50 p-0.5 text-sm md:inline-flex"
         >
           <button
             type="button"
@@ -202,7 +202,7 @@ function confirmLeave(): void {
 
       <div class="px-3 pb-2 md:hidden">
         <div
-          class="flex rounded-lg border border-ink-200 bg-ink-50 p-0.5 text-sm"
+          class="flex rounded-lg border border-line-200 bg-ink-50 p-0.5 text-sm"
         >
           <button
             type="button"
@@ -235,7 +235,7 @@ function confirmLeave(): void {
         }}.</span
       >
       <code
-        class="truncate rounded bg-white px-2 py-0.5 text-sm text-ink-600 ring-1 ring-ink-200"
+        class="truncate rounded bg-white px-2 py-0.5 text-sm text-ink-600 ring-1 ring-line-200"
         >{{ publicUrl }}</code
       >
       <button
@@ -279,7 +279,7 @@ function confirmLeave(): void {
     <div v-if="mode === 'edit'" class="flex min-h-0 flex-1 flex-col">
       <!-- Mobile toolbar: entry points for the palette/settings sheets. -->
       <div
-        class="flex items-center gap-2 border-b border-ink-200 bg-white px-3 py-2 lg:hidden"
+        class="flex items-center gap-2 border-b border-line-200 bg-white px-3 py-2 lg:hidden"
       >
         <UiButton
           variant="secondary"
@@ -297,7 +297,7 @@ function confirmLeave(): void {
 
       <div class="flex min-h-0 flex-1">
         <FieldPalette
-          class="hidden w-64 shrink-0 border-r border-ink-200 lg:block"
+          class="hidden w-64 shrink-0 border-r border-line-200 lg:block"
         />
         <main
           class="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6"
@@ -306,7 +306,7 @@ function confirmLeave(): void {
           <BuilderCanvas />
         </main>
         <aside
-          class="hidden w-80 shrink-0 overflow-y-auto border-l border-ink-200 bg-white p-4 lg:block"
+          class="hidden w-80 shrink-0 overflow-y-auto border-l border-line-200 bg-white p-4 lg:block"
         >
           <FieldConfigPanel
             v-if="builder.selectedField"
@@ -323,13 +323,13 @@ function confirmLeave(): void {
       <div class="mx-auto max-w-xl">
         <div
           v-if="builder.draft.fields.length === 0"
-          class="rounded-2xl border border-ink-200 bg-white p-10 text-center text-ink-500"
+          class="rounded-2xl border border-line-200 bg-white p-10 text-center text-ink-500"
         >
           Add some fields to preview the form.
         </div>
         <div
           v-else
-          class="rounded-2xl border border-ink-200 bg-white p-8 shadow-card"
+          class="rounded-2xl border border-line-200 bg-white p-8 shadow-card"
         >
           <FormRenderer
             :version="builder.previewVersion"
@@ -402,7 +402,7 @@ function confirmLeave(): void {
           </button>
         </div>
         <FieldPalette
-          class="min-h-0 flex-1 border-t border-ink-100"
+          class="min-h-0 flex-1 border-t border-line-100"
           @add="paletteOpen = false"
         />
       </div>
@@ -442,7 +442,7 @@ function confirmLeave(): void {
             Done
           </button>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto border-t border-ink-100 p-4">
+        <div class="min-h-0 flex-1 overflow-y-auto border-t border-line-100 p-4">
           <FieldConfigPanel
             :key="builder.selectedField.id"
             :field="builder.selectedField"
@@ -480,7 +480,7 @@ function confirmLeave(): void {
             Done
           </button>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto border-t border-ink-100 p-4">
+        <div class="min-h-0 flex-1 overflow-y-auto border-t border-line-100 p-4">
           <FormSettingsPanel />
         </div>
       </div>

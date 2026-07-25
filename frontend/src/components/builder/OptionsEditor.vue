@@ -39,7 +39,7 @@ function add(): void {
       <div
         v-for="o in options()"
         :key="o.id"
-        class="rounded-lg border border-ink-200 p-2"
+        class="rounded-lg border border-line-200 p-2"
       >
         <div class="flex items-center gap-2">
           <input

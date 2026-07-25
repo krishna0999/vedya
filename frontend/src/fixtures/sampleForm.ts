@@ -7,7 +7,7 @@ export const sampleForm: FormVersion = {
   formId: 'form_demo',
   version: 1,
   publishedAt: '2026-07-04T00:00:00.000Z',
-  theme: { primaryColor: '#4f46e5', fontFamily: 'Inter, system-ui, sans-serif', borderRadius: 10 },
+  theme: { primaryColor: '#047857', fontFamily: 'Inter, system-ui, sans-serif', borderRadius: 10 },
   fields: [
     { id: 'full_name', type: 'short_text', label: 'Full name', required: true, placeholder: 'Ada Lovelace' },
     { id: 'email', type: 'email', label: 'Email', required: true, placeholder: 'you@example.com' },

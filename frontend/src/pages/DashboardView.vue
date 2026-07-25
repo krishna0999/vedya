@@ -130,12 +130,12 @@ const weekViews = computed(() => total(thisWeek.value, (d) => d.views));
 
 // --- stat cards -----------------------------------------------------------
 
-// Semantic tints: purple = forms/brand, blue = responses, indigo = views,
+// Semantic tints: brand = forms, cyan = responses, slate = views,
 // green = success/completion.
 const TINTS = {
   brand: "bg-brand-50 text-brand-600",
-  blue: "bg-blue-50 text-blue-600",
-  indigo: "bg-indigo-50 text-indigo-600",
+  cyan: "bg-secondary-50 text-secondary-600",
+  slate: "bg-ink-100 text-ink-600",
   green: "bg-green-50 text-green-600",
 } as const;
 
@@ -178,7 +178,7 @@ const stats = computed<Stat[]>(() => {
       value: u.submissions,
       hint: `${weekResponses.value} this week`,
       icon: "paper-airplane",
-      tint: "blue",
+      tint: "cyan",
       trend: trendPct(
         weekResponses.value,
         total(lastWeek.value, (d) => d.submissions),
@@ -189,7 +189,7 @@ const stats = computed<Stat[]>(() => {
       value: u.views,
       hint: `${weekViews.value} this week`,
       icon: "eye",
-      tint: "indigo",
+      tint: "slate",
       trend: trendPct(
         weekViews.value,
         total(lastWeek.value, (d) => d.views),
@@ -240,8 +240,8 @@ const ringDash = (pct: number): string =>
 // --- analytics chart ------------------------------------------------------
 
 const METRICS = [
-  { id: "submissions", label: "Responses", color: "#2563eb" },
-  { id: "views", label: "Views", color: "#4f46e5" },
+  { id: "submissions", label: "Responses", color: "#047857" },
+  { id: "views", label: "Views", color: "#0e7490" },
   { id: "completion", label: "Completion", color: "#16a34a" },
 ] as const;
 type MetricId = (typeof METRICS)[number]["id"];
@@ -419,7 +419,7 @@ const activityGroups = computed(() => {
       key: `sub-${r.id}`,
       kind: "responses" as const,
       icon: "paper-airplane" as IconName,
-      tint: "blue" as keyof typeof TINTS,
+      tint: "cyan" as keyof typeof TINTS,
       text: `New response on “${r.formTitle}”`,
       at: r.submittedAt,
       to: { name: "responses", params: { id: r.formId } },
@@ -814,7 +814,7 @@ async function useTemplate(templateId: string): Promise<void> {
           <router-link
             v-if="!loading && lastEdited"
             :to="{ name: 'builder', params: { id: lastEdited.id } }"
-            class="group flex min-w-0 max-w-xs items-center gap-3 rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-pop"
+            class="group flex min-w-0 max-w-xs items-center gap-3 rounded-xl border border-line-200 bg-white px-3.5 py-2.5 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-pop"
           >
             <span
               class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600"
@@ -857,7 +857,7 @@ async function useTemplate(templateId: string): Promise<void> {
           >
             <button
               type="button"
-              class="flex w-full items-center gap-2.5 rounded-xl border border-ink-200 bg-white px-3.5 py-3 text-left text-sm font-medium text-ink-800 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55"
+              class="flex w-full items-center gap-2.5 rounded-xl border border-line-200 bg-white px-3.5 py-3 text-left text-sm font-medium text-ink-800 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55"
               :disabled="creating"
               :aria-haspopup="a.id === 'duplicate' ? 'menu' : undefined"
               :aria-expanded="a.id === 'duplicate' ? dupOpen : undefined"
@@ -871,7 +871,7 @@ async function useTemplate(templateId: string): Promise<void> {
               </span>
               <span class="min-w-0 flex-1 truncate">{{ a.label }}</span>
               <kbd
-                class="hidden shrink-0 rounded border border-ink-200 bg-ink-50 px-1.5 py-0.5 font-sans text-xs font-medium text-ink-500 lg:inline"
+                class="hidden shrink-0 rounded border border-line-200 bg-ink-50 px-1.5 py-0.5 font-sans text-xs font-medium text-ink-500 lg:inline"
                 aria-hidden="true"
                 >{{ a.key }}</kbd
               >
@@ -887,7 +887,7 @@ async function useTemplate(templateId: string): Promise<void> {
               <div
                 v-if="a.id === 'duplicate' && dupOpen"
                 role="menu"
-                class="absolute right-0 z-30 mt-1 w-64 overflow-hidden rounded-xl border border-ink-200 bg-white p-1 shadow-pop"
+                class="absolute right-0 z-30 mt-1 w-64 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
               >
                 <p v-if="!forms.length" class="px-3 py-2 text-sm text-ink-500">
                   No forms to duplicate yet.
@@ -928,7 +928,7 @@ async function useTemplate(templateId: string): Promise<void> {
           <div
             v-for="n in 4"
             :key="n"
-            class="rounded-xl border border-ink-200 bg-white p-4"
+            class="rounded-xl border border-line-200 bg-white p-4"
           >
             <div class="flex items-center gap-2.5">
               <UiSkeleton class="h-9 w-9 rounded-lg" />
@@ -942,7 +942,7 @@ async function useTemplate(templateId: string): Promise<void> {
           v-for="s in stats"
           v-else
           :key="s.label"
-          class="rounded-xl border border-ink-200 bg-white p-4 shadow-card transition duration-200 ease-soft hover:-translate-y-0.5 hover:border-ink-300 hover:shadow-pop"
+          class="rounded-xl border border-line-200 bg-white p-4 shadow-card transition duration-200 ease-soft hover:-translate-y-0.5 hover:border-line-300 hover:shadow-pop"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2.5">
@@ -959,7 +959,7 @@ async function useTemplate(templateId: string): Promise<void> {
                 {{ s.label }}
                 <UiTooltip v-if="s.explain" :text="s.explain">
                   <p
-                    class="h-4 w-4 cursor-help flex items-center justify-center rounded-full border border-ink-300 text-[10px] font-semibold text-ink-500"
+                    class="h-4 w-4 cursor-help flex items-center justify-center rounded-full border border-line-300 text-[10px] font-semibold text-ink-500"
                     tabindex="0"
                     role="note"
                     :aria-label="s.explain"
@@ -1020,7 +1020,7 @@ async function useTemplate(templateId: string): Promise<void> {
                 cy="24"
                 r="20"
                 fill="none"
-                stroke="#eceaf1"
+                stroke="#e2e8f0"
                 stroke-width="5"
               />
               <circle
@@ -1041,7 +1041,7 @@ async function useTemplate(templateId: string): Promise<void> {
       <!-- Row 1: analytics (8) | activity (4) -->
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section
-          class="rounded-xl border border-ink-200 bg-white p-5 shadow-card lg:col-span-8"
+          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-8"
           aria-label="Analytics"
         >
           <div class="flex flex-wrap items-start justify-between gap-3">
@@ -1141,7 +1141,7 @@ async function useTemplate(templateId: string): Promise<void> {
           <!-- Empty state: nothing published means nothing to measure -->
           <div
             v-else-if="!usage?.published"
-            class="mt-4 flex h-56 flex-col items-center justify-center rounded-lg border border-dashed border-ink-200 bg-ink-50/60 px-6 text-center"
+            class="mt-4 flex h-56 flex-col items-center justify-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 text-center"
           >
             <span
               class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
@@ -1178,7 +1178,7 @@ async function useTemplate(templateId: string): Promise<void> {
                   :x2="W - PAD.right"
                   :y1="y(t)"
                   :y2="y(t)"
-                  stroke="#eceaf1"
+                  stroke="#e2e8f0"
                   stroke-width="1"
                 />
                 <text
@@ -1250,7 +1250,7 @@ async function useTemplate(templateId: string): Promise<void> {
                   :x2="x(hover)"
                   :y1="PAD.top"
                   :y2="H - PAD.bottom"
-                  stroke="#b8b4c2"
+                  stroke="#94a3b8"
                   stroke-width="1"
                 />
                 <circle
@@ -1266,7 +1266,7 @@ async function useTemplate(templateId: string): Promise<void> {
             </svg>
             <div
               v-if="hover !== null && days[hover]"
-              class="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border border-ink-200 bg-white px-3 py-2 shadow-pop"
+              class="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border border-line-200 bg-white px-3 py-2 shadow-pop"
               :style="{ left: `${(x(hover) / W) * 100}%` }"
             >
               <p class="whitespace-nowrap text-sm font-medium text-ink-900">
@@ -1290,7 +1290,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
         <!-- Activity -->
         <section
-          class="rounded-xl border border-ink-200 bg-white p-5 shadow-card lg:col-span-4"
+          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-4"
           aria-label="Recent activity"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1339,7 +1339,7 @@ async function useTemplate(templateId: string): Promise<void> {
               >
                 {{ g.label }}
               </p>
-              <ul class="mt-1 divide-y divide-ink-100">
+              <ul class="mt-1 divide-y divide-line-100">
                 <li v-for="ev in g.items" :key="ev.key">
                   <router-link
                     :to="ev.to"
@@ -1371,7 +1371,7 @@ async function useTemplate(templateId: string): Promise<void> {
       <!-- Row 2: recent forms (7) | recent responses (5) -->
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section
-          class="rounded-xl border border-ink-200 bg-white p-5 shadow-card lg:col-span-7"
+          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-7"
           aria-label="Recent forms"
         >
           <div class="flex items-baseline justify-between">
@@ -1397,7 +1397,7 @@ async function useTemplate(templateId: string): Promise<void> {
           <!-- Empty state -->
           <div
             v-else-if="!recentForms.length"
-            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-ink-200 bg-ink-50/60 px-6 py-10 text-center"
+            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
           >
             <span
               class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
@@ -1431,7 +1431,7 @@ async function useTemplate(templateId: string): Promise<void> {
                   v-for="t in suggestedTemplates"
                   :key="t.id"
                   type="button"
-                  class="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:opacity-55"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-line-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:opacity-55"
                   :disabled="creating"
                   @click="useTemplate(t.id)"
                 >
@@ -1442,7 +1442,7 @@ async function useTemplate(templateId: string): Promise<void> {
             </div>
           </div>
 
-          <ul v-else class="mt-2 divide-y divide-ink-100">
+          <ul v-else class="mt-2 divide-y divide-line-100">
             <li
               v-for="f in recentForms"
               :key="f.id"
@@ -1544,7 +1544,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
         <!-- Recent responses -->
         <section
-          class="rounded-xl border border-ink-200 bg-white p-5 shadow-card lg:col-span-5"
+          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-5"
           aria-label="Recent responses"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1576,7 +1576,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
           <div
             v-else-if="!recentResponses.length"
-            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-ink-200 bg-ink-50/60 px-6 py-10 text-center"
+            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
           >
             <span
               class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
@@ -1598,7 +1598,7 @@ async function useTemplate(templateId: string): Promise<void> {
             </UiButton>
           </div>
 
-          <ul v-else class="mt-2 divide-y divide-ink-100">
+          <ul v-else class="mt-2 divide-y divide-line-100">
             <li v-for="r in recentResponses" :key="r.id">
               <router-link
                 :to="{ name: 'responses', params: { id: r.formId } }"
@@ -1606,14 +1606,14 @@ async function useTemplate(templateId: string): Promise<void> {
                 @click="markResponsesSeen"
               >
                 <span
-                  class="relative grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600"
+                  class="relative grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-secondary-50 text-secondary-600"
                   aria-hidden="true"
                 >
                   <UiIcon name="paper-airplane" class="text-inherit h-4 w-4" />
                   <!-- Unread dot: arrived after you last looked -->
                   <span
                     v-if="isUnread(r)"
-                    class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-blue-600"
+                    class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-secondary-600"
                   />
                 </span>
                 <div class="min-w-0 flex-1">
@@ -1642,7 +1642,7 @@ async function useTemplate(templateId: string): Promise<void> {
       <!-- Row 3: plan usage | tips -->
       <div v-if="!loading && usage" class="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section
-          class="rounded-xl border border-ink-200 bg-white p-5 shadow-card lg:col-span-7"
+          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-7"
           aria-label="Plan usage"
         >
           <div class="flex items-baseline justify-between">
@@ -1709,7 +1709,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
         <section
           v-if="!isDismissed('tips')"
-          class="flex flex-col rounded-xl border border-ink-200 bg-white p-5 shadow-card lg:col-span-5"
+          class="flex flex-col rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-5"
           aria-label="Tips"
         >
           <div class="flex items-center justify-between gap-2">
@@ -1790,7 +1790,7 @@ async function useTemplate(templateId: string): Promise<void> {
       <!-- Health summary: what the numbers add up to -->
       <section
         v-if="!loading && health"
-        class="rounded-xl border border-ink-200 bg-white p-5 shadow-card"
+        class="rounded-xl border border-line-200 bg-white p-5 shadow-card"
         aria-label="Form health"
       >
         <h2 class="font-semibold text-ink-900">Health summary</h2>
@@ -1864,7 +1864,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
     <!-- Mobile sticky actions: the primary two, docked above the tab bar. -->
     <div
-      class="fixed inset-x-0 bottom-14 z-20 flex gap-2 border-t border-ink-200 bg-white/95 px-4 py-2.5 backdrop-blur md:hidden"
+      class="fixed inset-x-0 bottom-14 z-20 flex gap-2 border-t border-line-200 bg-white/95 px-4 py-2.5 backdrop-blur md:hidden"
     >
       <UiButton class="flex-1" :disabled="creating" @click="createForm">
         <UiIcon name="plus" class="text-inherit h-4 w-4" />

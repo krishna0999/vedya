@@ -69,7 +69,7 @@ like they arrive naturally. Don't invent new curves.
 ## Focus animations
 
 - The focus ring appears instantly-ish: `--dur-fast`, `ease-soft`.
-- Ring = `shadow-focus` (`0 0 0 3px rgba(99,102,241,0.35)`), driven by
+- Ring = `shadow-focus` (`0 0 0 3px rgba(16,185,129,0.35)`), driven by
   `focus-visible` (keyboard), not `focus` (avoids ring-on-click noise).
 - Never animate focus so slowly that keyboard users outrun the ring. Never remove
   focus transition entirely — the grow reads as "you are here."

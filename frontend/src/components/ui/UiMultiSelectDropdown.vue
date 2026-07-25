@@ -164,9 +164,9 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     >
       <div
         v-if="open"
-        class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop"
+        class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-line-200 bg-white shadow-pop"
       >
-        <div class="flex items-center gap-2 border-b border-ink-100 px-3">
+        <div class="flex items-center gap-2 border-b border-line-100 px-3">
           <UiIcon
             name="magnifying-glass"
             class="h-5 w-5 shrink-0 text-ink-500"
@@ -200,7 +200,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
               :class="
                 isChecked(o)
                   ? 'border-brand-600 bg-brand-600 text-white'
-                  : 'border-ink-300 bg-white'
+                  : 'border-line-300 bg-white'
               "
             >
               <UiIcon

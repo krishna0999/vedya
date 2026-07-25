@@ -4,7 +4,7 @@
 import type { Theme } from '../schema/index';
 
 export const DEFAULT_THEME: Theme = {
-  primaryColor: '#4f46e5',
+  primaryColor: '#047857',
   fontFamily: 'Inter, system-ui, sans-serif',
   borderRadius: 10,
 };

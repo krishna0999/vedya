@@ -83,7 +83,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <div
         v-if="open"
         role="menu"
-        class="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-xl border border-ink-200 bg-white p-1 shadow-pop"
+        class="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
       >
         <button
           v-for="o in options"
@@ -99,7 +99,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             :class="
               isChecked(o.id)
                 ? 'border-brand-600 bg-brand-600 text-white'
-                : 'border-ink-300 bg-white'
+                : 'border-line-300 bg-white'
             "
           >
             <UiIcon

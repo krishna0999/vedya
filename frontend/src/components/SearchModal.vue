@@ -170,7 +170,7 @@ function openTemplate(template: TemplateSummary): void {
                     v-for="f in formHits"
                     :key="f.id"
                     type="button"
-                    class="rounded-xl border border-ink-200 bg-white p-3 text-left transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    class="rounded-xl border border-line-200 bg-white p-3 text-left transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
                     @click="openForm(f)"
                   >
                     <p class="truncate text-sm font-semibold text-ink-900">
@@ -208,7 +208,7 @@ function openTemplate(template: TemplateSummary): void {
                     v-for="t in templateHits"
                     :key="t.id"
                     type="button"
-                    class="rounded-xl border border-ink-200 bg-white p-3 text-left transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    class="rounded-xl border border-line-200 bg-white p-3 text-left transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
                     @click="openTemplate(t)"
                   >
                     <p

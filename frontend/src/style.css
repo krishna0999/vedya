@@ -29,14 +29,14 @@
 @layer components {
   .fb-input {
     @apply w-full border bg-white px-3.5 py-2.5 text-ink-900 outline-none placeholder:text-ink-500;
-    border-color: #dcd9e3; /* ink-300 */
+    border-color: #d1d5db; /* line-300 */
     border-radius: var(--fb-radius, 10px);
     transition:
       border-color var(--dur-base) var(--ease-soft),
       box-shadow var(--dur-base) var(--ease-soft);
   }
   .fb-input:hover {
-    border-color: #b8b4c2; /* ink-400 */
+    border-color: #9ca3af; /* line-400 */
   }
   .fb-input:focus {
     border-color: var(--fb-primary);
@@ -51,7 +51,7 @@
 
   /* Product-chrome inputs (builder panels). Brand/ink tokens, not form theme. */
   .ui-input {
-    @apply w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 outline-none transition placeholder:text-ink-500 hover:border-ink-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-lg border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 outline-none transition placeholder:text-ink-500 hover:border-line-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
   }
   .ui-label {
     @apply mb-1 block text-sm font-semibold uppercase tracking-wide text-ink-500;
@@ -61,7 +61,7 @@
      .fb-mark--on (explicit, not CSS :has) so it's robust across markup. */
   .fb-mark {
     @apply mt-0.5 grid h-5 w-5 shrink-0 place-items-center border bg-white text-white;
-    border-color: #b8b4c2;
+    border-color: #9ca3af; /* line-400 */
     transition: all var(--dur-fast) var(--ease-soft);
   }
   .fb-mark--radio {
@@ -78,7 +78,7 @@
   /* Phone input container — one field housing the country selector + number. */
   .fb-phone {
     @apply flex items-stretch overflow-hidden border bg-white;
-    border-color: #dcd9e3;
+    border-color: #d1d5db; /* line-300 */
     border-radius: var(--fb-radius, 10px);
     transition:
       border-color var(--dur-base) var(--ease-soft),

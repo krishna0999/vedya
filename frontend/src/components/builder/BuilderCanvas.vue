@@ -68,7 +68,7 @@ const dragging = computed(() => dragIndex.value !== null);
     <!-- empty state -->
     <div
       v-if="builder.draft.fields.length === 0"
-      class="rounded-2xl border-2 border-dashed border-ink-200 bg-white/60 p-12 text-center"
+      class="rounded-2xl border-2 border-dashed border-line-200 bg-white/60 p-12 text-center"
     >
       <p class="text-ink-600">No fields yet.</p>
       <p class="mt-1 text-sm text-ink-500">
@@ -94,7 +94,7 @@ const dragging = computed(() => dragIndex.value !== null);
         :class="[
           builder.selectedId === field.id
             ? 'border-brand-400 shadow-card ring-2 ring-brand-100'
-            : 'border-ink-200 hover:border-ink-300 hover:shadow-card',
+            : 'border-line-200 hover:border-line-300 hover:shadow-card',
           overIndex === i && dragIndex !== null && dragIndex !== i
             ? 'border-brand-400 ring-2 ring-brand-200'
             : '',
@@ -140,7 +140,7 @@ const dragging = computed(() => dragIndex.value !== null);
         <!-- Insert-type menu for this gap -->
         <div
           v-if="addAt === i"
-          class="absolute inset-x-0 top-0 z-20 -translate-y-2 rounded-xl border border-ink-200 bg-white p-3 shadow-pop"
+          class="absolute inset-x-0 top-0 z-20 -translate-y-2 rounded-xl border border-line-200 bg-white p-3 shadow-pop"
           @click.stop
           @keydown.escape="addAt = null"
         >

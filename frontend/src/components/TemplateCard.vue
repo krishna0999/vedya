@@ -36,7 +36,7 @@ function estMinutes(): number {
        The preview is the only child that paints to the edge and it clips
        itself. -->
   <div
-    class="group relative flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-ink-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
+    class="group relative flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-line-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
     :style="{ '--card-accent': template.primaryColor }"
   >
     <!-- min-h on title + description reserves two lines each, so every card's
@@ -112,7 +112,7 @@ function estMinutes(): number {
     />
 
     <div
-      class="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-ink-100 pt-3 text-sm text-ink-500"
+      class="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-line-100 pt-3 text-sm text-ink-500"
     >
       <UiBadge variant="gray">{{ template.category }}</UiBadge>
       <span>

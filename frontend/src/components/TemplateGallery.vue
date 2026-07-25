@@ -192,7 +192,7 @@ onMounted(load);
         <div
           v-for="n in 6"
           :key="n"
-          class="flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5"
+          class="flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5"
         >
           <UiSkeleton class="h-4 w-2/3" />
           <UiSkeleton class="mt-2 h-3.5 w-full" />
@@ -272,7 +272,7 @@ onMounted(load);
       >
         <!-- Header -->
         <header
-          class="flex items-start justify-between gap-3 border-b border-ink-200 px-5 py-4"
+          class="flex items-start justify-between gap-3 border-b border-line-200 px-5 py-4"
         >
           <div class="min-w-0">
             <div class="text-2xl" aria-hidden="true">
@@ -307,7 +307,7 @@ onMounted(load);
         <div class="min-h-0 flex-1 overflow-y-auto bg-ink-50 px-4 py-5 sm:px-5">
           <div
             v-if="previewVersion"
-            class="rounded-2xl border border-ink-200 bg-white p-5 shadow-card sm:p-6"
+            class="rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
           >
             <FormRenderer
               :key="previewVersion.formId"
@@ -319,7 +319,7 @@ onMounted(load);
 
         <!-- Footer -->
         <footer
-          class="flex items-center justify-end gap-2 border-t border-ink-200 px-5 py-3"
+          class="flex items-center justify-end gap-2 border-t border-line-200 px-5 py-3"
         >
           <UiButton variant="ghost" @click="closePreview">Close</UiButton>
           <UiButton :disabled="busy" @click="onUse(previewTemplate.id)">

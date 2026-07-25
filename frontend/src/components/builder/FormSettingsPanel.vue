@@ -39,14 +39,14 @@ const FONTS = [
       />
     </div>
 
-    <div class="border-t border-ink-100 pt-3">
+    <div class="border-t border-line-100 pt-3">
       <p class="ui-label">Theme</p>
 
       <label class="mb-1 block text-sm text-ink-500">Primary color</label>
       <div class="flex items-center gap-2">
         <input
           type="color"
-          class="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-ink-200 bg-white p-0.5"
+          class="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-line-200 bg-white p-0.5"
           :value="builder.draft.theme.primaryColor"
           @input="builder.setTheme({ primaryColor: ($event.target as HTMLInputElement).value })"
         />

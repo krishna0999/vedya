@@ -10,7 +10,7 @@ import { api } from '@/api/client';
 // Exported so other surfaces that render an ad-hoc preview FormVersion (e.g.
 // the template gallery) use the same defaults as a fresh draft.
 export const DEFAULT_THEME: Theme = {
-  primaryColor: '#4f46e5',
+  primaryColor: '#047857',
   fontFamily: 'Inter, system-ui, sans-serif',
   borderRadius: 10,
 };

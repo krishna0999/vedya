@@ -30,7 +30,7 @@ const hover = ref(0);
         name="star"
         type="solid"
         class="h-7 w-7 transition-colors duration-150"
-        :style="{ color: (hover || modelValue || 0) >= n ? 'var(--fb-primary)' : '#dcd9e3' }"
+        :style="{ color: (hover || modelValue || 0) >= n ? 'var(--fb-primary)' : '#d1d5db' }"
       />
     </button>
   </div>

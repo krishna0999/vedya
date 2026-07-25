@@ -24,7 +24,7 @@ them.
 
 **Two theme layers (Principle 10 — architectural, keep separate):**
 
-1. **Product theme** — our brand. The `brand`, `ink`, `success/warn/danger`
+1. **Product theme** — our brand. The `brand`, `secondary`, `ink`, `line`, `success/warn/danger`
    scales and all app-chrome tokens. Fixed.
 2. **Form theme** — the creator's per-form styling. The `--fb-*` variables are
    *defaults only*; `FormRenderer` overrides them per form from
@@ -55,43 +55,75 @@ time a component genuinely needs it, not before (YAGNI).
 
 ## Color tokens
 
-### Brand — indigo/violet accent
+### Brand — emerald accent
 
 The action color and brand identity. `600` is the default (matches
-`--fb-primary`).
+`--fb-primary`). Steps 50–500 are stock Tailwind emerald; **600+ are pulled one
+step darker** so white text on `bg-brand-600` clears 4.5:1 (stock `emerald-600`
+is 3.8:1 and fails).
 
 | Token | Hex |
 |---|---|
-| `brand-50`  | `#eef2ff` |
-| `brand-100` | `#e0e7ff` |
-| `brand-200` | `#c7d2fe` |
-| `brand-300` | `#a5b4fc` |
-| `brand-400` | `#818cf8` |
-| `brand-500` | `#6366f1` |
-| `brand-600` | `#4f46e5` ← default action |
-| `brand-700` | `#4338ca` |
-| `brand-800` | `#3730a3` |
-| `brand-900` | `#312e81` |
+| `brand-50`  | `#ecfdf5` |
+| `brand-100` | `#d1fae5` |
+| `brand-200` | `#a7f3d0` |
+| `brand-300` | `#6ee7b7` |
+| `brand-400` | `#34d399` |
+| `brand-500` | `#10b981` |
+| `brand-600` | `#047857` ← default action (5.5:1 on white) |
+| `brand-700` | `#065f46` |
+| `brand-800` | `#064e3b` |
+| `brand-900` | `#022c22` |
 
-### Ink — warm neutral scale
+### Secondary — cyan accent
 
-Slightly violet-tinted grays — the "approachable" base. Surfaces, borders, text.
+Second-series data, informational tints, "new/unread". Never the primary action.
+Same 600+ darkening, same reason.
+
+| Token | Hex |
+|---|---|
+| `secondary-50`  | `#ecfeff` |
+| `secondary-100` | `#cffafe` |
+| `secondary-200` | `#a5f3fc` |
+| `secondary-300` | `#67e8f9` |
+| `secondary-400` | `#22d3ee` |
+| `secondary-500` | `#06b6d4` |
+| `secondary-600` | `#0e7490` (5.4:1 on white) |
+| `secondary-700` | `#155e75` |
+| `secondary-800` | `#164e63` |
+| `secondary-900` | `#083344` |
+
+### Ink — slate scale
+
+Surfaces and text. **Not borders** — those are `line-*`.
 
 | Token | Hex | Typical use |
 |---|---|---|
-| `ink-50`  | `#faf9fb` | app background (`body`) |
-| `ink-100` | `#f5f3f7` | subtle surface / hover fill |
-| `ink-200` | `#eceaf1` | card surface, dividers |
-| `ink-300` | `#dcd9e3` | default border |
-| `ink-400` | `#b8b4c2` | disabled text, placeholder |
-| `ink-500` | `#918d9c` | muted / secondary text |
-| `ink-600` | `#6c6878` | body-secondary |
-| `ink-700` | `#514e5c` | strong body text |
-| `ink-800` | `#343240` | headings |
-| `ink-900` | `#1d1b26` | primary text (`body` color) |
+| `ink-50`  | `#f8fafc` | app background (`body`) |
+| `ink-100` | `#f1f5f9` | subtle surface / hover fill / recessed track |
+| `ink-200` | `#e2e8f0` | inset well, chart gridline |
+| `ink-300` | `#cbd5e1` | scrollbar thumb, low-emphasis fill |
+| `ink-400` | `#94a3b8` | disabled text, placeholder |
+| `ink-500` | `#64748b` | muted / secondary text |
+| `ink-600` | `#475569` | body-secondary |
+| `ink-700` | `#334155` | strong body text |
+| `ink-800` | `#1e293b` | headings |
+| `ink-900` | `#0f172a` | primary text (`body` color), scrim base |
 
-> **Muted-text default:** secondary/muted text uses `ink-500`. (CLAUDE.md names
-> `gray-500` generically; in our warm scale that role is `ink-500`.)
+> **Muted-text default:** secondary/muted text uses `ink-500` (4.8:1 on white).
+> CLAUDE.md names `gray-500` generically; in our scale that role is `ink-500`.
+
+### Line — neutral gray scale
+
+Borders and rules **only**. Deliberately off the slate ramp so edges stay quieter
+than the surfaces they separate. Never use for text, icons, or fills.
+
+| Token | Hex | Typical use |
+|---|---|---|
+| `line-100` | `#f3f4f6` | hairline divider inside a card |
+| `line-200` | `#e5e7eb` | default border (cards, panels, inputs) |
+| `line-300` | `#d1d5db` | form-control border, hover border |
+| `line-400` | `#9ca3af` | strong / emphasis border |
 
 ### Semantic
 
@@ -109,7 +141,7 @@ variant; until then compose with opacity.
 
 | Variable | Default | Overridden by |
 |---|---|---|
-| `--fb-primary` | `#4f46e5` | `FormVersion.theme.primaryColor` |
+| `--fb-primary` | `#047857` | `FormVersion.theme.primaryColor` |
 
 ---
 
@@ -190,8 +222,8 @@ Color and width conventions:
 
 | Role | Value |
 |---|---|
-| Default border | `border border-ink-300` |
-| Subtle divider | `border-ink-200` |
+| Default border | `border border-line-200` |
+| Subtle divider | `border-line-200` |
 | Focused input | `border-brand-600` (paired with focus shadow) |
 | Error input | `border-danger` |
 | Hairline (1px) | `border` |
@@ -207,9 +239,9 @@ Gentle elevation, tinted with `ink-900` (not pure black) so shadows feel warm.
 
 | Token | Value | Use |
 |---|---|---|
-| `shadow-card` | `0 1px 2px rgba(29,27,38,0.04), 0 4px 16px rgba(29,27,38,0.06)` | cards, resting panels |
-| `shadow-pop` | `0 10px 34px rgba(29,27,38,0.14)` | popovers, dropdowns, modals |
-| `shadow-focus` | `0 0 0 3px rgba(99,102,241,0.35)` | focus ring (brand-500 @ 35%) |
+| `shadow-card` | `0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.06)` | cards, resting panels |
+| `shadow-pop` | `0 10px 34px rgba(15,23,42,0.14)` | popovers, dropdowns, modals |
+| `shadow-focus` | `0 0 0 3px rgba(16,185,129,0.35)` | focus ring (brand-500 @ 35%) |
 
 `shadow-focus` pairs with `focus-visible` for the visible focus ring
 (Principle 5 / accessibility). Never remove focus outline without this

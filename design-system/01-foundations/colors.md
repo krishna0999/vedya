@@ -11,80 +11,115 @@ Related: [design-tokens](design-tokens.md) · [design-principles](design-princip
 
 ## Brand colors
 
-Our identity is **indigo/violet** on a **warm, slightly violet-tinted neutral**.
-The combination reads as *warm & approachable, professional* — Notion/Typeform
-warmth with product precision. Two families carry it:
+Our identity is **emerald** on a **cool slate neutral**, with **neutral-gray
+edges**. The combination reads as *calm, credible, precise* — confident enough for
+someone to trust it with real data. Four families carry it:
 
-- **Brand (indigo/violet)** — action, identity, focus.
-- **Ink (warm neutral)** — everything structural: surfaces, borders, text.
+- **Brand (emerald)** — action, identity, focus.
+- **Secondary (cyan)** — second-series data, informational tints, non-brand emphasis.
+- **Ink (slate)** — surfaces and all text.
+- **Line (neutral gray)** — borders and rules, and nothing else.
 
 Semantic colors (success/warn/danger) are used sparingly and only for meaning,
 never decoration.
 
 > **Product vs form brand:** the brand scale is *our* chrome only. A creator's
 > per-form accent comes from `FormVersion.theme.primaryColor` (`--fb-primary`),
-> applied scoped to the rendered form. Our indigo never bakes into a published
+> applied scoped to the rendered form. Our emerald never bakes into a published
 > form (Principle 10).
 
 ---
 
 ## Primary palette
 
-**Brand — indigo/violet.** `brand-600` is the default action color.
+**Brand — emerald.** `brand-600` is the default action color.
 
 | Token | Hex | Role |
 |---|---|---|
-| `brand-50`  | `#eef2ff` | tint background (selected row, subtle fill) |
-| `brand-100` | `#e0e7ff` | hover fill on brand-tinted surfaces |
-| `brand-200` | `#c7d2fe` | soft accents, borders on tinted surfaces |
-| `brand-300` | `#a5b4fc` | disabled brand button |
-| `brand-400` | `#818cf8` | secondary accent, icon on tint |
-| `brand-500` | `#6366f1` | focus ring color (`shadow-focus`) |
-| `brand-600` | `#4f46e5` | **primary action** (button bg, active link) |
-| `brand-700` | `#4338ca` | primary hover / pressed |
-| `brand-800` | `#3730a3` | pressed on dark, high-emphasis |
-| `brand-900` | `#312e81` | deepest accent, rare |
+| `brand-50`  | `#ecfdf5` | tint background (selected row, subtle fill) |
+| `brand-100` | `#d1fae5` | hover fill on brand-tinted surfaces |
+| `brand-200` | `#a7f3d0` | soft accents, borders on tinted surfaces |
+| `brand-300` | `#6ee7b7` | focus ring (`ring-brand-300`), disabled brand button |
+| `brand-400` | `#34d399` | accent, icon on tint |
+| `brand-500` | `#10b981` | focus glow color (`shadow-focus`) |
+| `brand-600` | `#047857` | **primary action** (button bg, active link) — 5.5:1 on white |
+| `brand-700` | `#065f46` | primary hover / pressed |
+| `brand-800` | `#064e3b` | pressed on dark, high-emphasis |
+| `brand-900` | `#022c22` | deepest accent, rare |
 
 Primary button: `bg-brand-600` → hover `bg-brand-700` → focus adds
 `shadow-focus`.
+
+> **Why 600+ is darker than Tailwind emerald.** True `emerald-600` (`#059669`)
+> is only **3.8:1** against white — it fails AA for the white label on a primary
+> button. The ramp is pulled one step darker from 600 up so `bg-brand-600` clears
+> 4.5:1. Steps 50–500 are stock emerald. Don't "correct" this back.
 
 ---
 
 ## Secondary palette
 
-We deliberately run **no separate secondary color family** — a second accent
-competes with the primary and erodes the "one loud action" rule (Principle 1).
-"Secondary" is expressed through **hierarchy**, not a new hue:
+**Secondary — cyan.** A real second accent, deliberately narrow in scope. It
+never competes for "the action" — that's brand's job (Principle 1) — and it is
+**not** what the `secondary` *button* variant uses (that stays a white/bordered
+button; see [buttons](../02-components/buttons.md)).
+
+| Token | Hex | Role |
+|---|---|---|
+| `secondary-50`  | `#ecfeff` | informational tint background |
+| `secondary-100` | `#cffafe` | hover on informational tint |
+| `secondary-500` | `#06b6d4` | chart accents |
+| `secondary-600` | `#0e7490` | second data series, unread/new indicator — 5.4:1 on white |
+| `secondary-700` | `#155e75` | hover on secondary fills |
+
+Use it for: the second series in a chart, "new / unread" indicators, and
+informational (not success, not warning) emphasis. Same 600+ darkening as brand,
+for the same contrast reason.
+
+Button hierarchy is still expressed through **weight, not hue**:
 
 | Role | Treatment |
 |---|---|
-| Secondary button | `bg-ink-100` text `ink-800`, hover `bg-ink-200` |
-| Tertiary / ghost button | transparent, text `ink-700`, hover `bg-ink-100` |
-| Secondary link | `text-ink-700` underline on hover |
-| Brand-tinted secondary | `bg-brand-50` text `brand-700` (soft brand emphasis) |
-
-If a genuine second accent is ever needed (e.g. a chart categorical scale), add it
-as a *purpose-named* scale (see [design-tokens](design-tokens.md) "Future token
-guidelines") — never a loose second brand color.
+| Secondary button | white, `border-line-200`, text `ink-800`, hover `bg-ink-50` |
+| Tertiary / ghost button | transparent, text `ink-600`, hover `bg-ink-100` |
+| Brand-tinted secondary | `bg-brand-50` text `brand-700` |
 
 ---
 
 ## Neutral palette
 
-**Ink — warm neutral** (slightly violet-tinted grays). The structural backbone.
+**Ink — slate.** Surfaces and all text. Not borders (see below).
 
 | Token | Hex | Role |
 |---|---|---|
-| `ink-50`  | `#faf9fb` | app background |
-| `ink-100` | `#f5f3f7` | subtle surface, hover fill, secondary button |
-| `ink-200` | `#eceaf1` | raised card surface, divider |
-| `ink-300` | `#dcd9e3` | default border |
-| `ink-400` | `#b8b4c2` | placeholder, disabled text, disabled icon |
-| `ink-500` | `#918d9c` | **muted / secondary text** (default muted) |
-| `ink-600` | `#6c6878` | secondary body text |
-| `ink-700` | `#514e5c` | strong body / tertiary button text |
-| `ink-800` | `#343240` | headings |
-| `ink-900` | `#1d1b26` | **primary text** |
+| `ink-50`  | `#f8fafc` | app background |
+| `ink-100` | `#f1f5f9` | subtle surface, hover fill, recessed track |
+| `ink-200` | `#e2e8f0` | inset well, chart gridline |
+| `ink-300` | `#cbd5e1` | scrollbar thumb, low-emphasis fill |
+| `ink-400` | `#94a3b8` | placeholder, disabled text, disabled icon |
+| `ink-500` | `#64748b` | **muted / secondary text** (default muted) — 4.8:1 |
+| `ink-600` | `#475569` | secondary body text |
+| `ink-700` | `#334155` | strong body / tertiary button text |
+| `ink-800` | `#1e293b` | headings |
+| `ink-900` | `#0f172a` | **primary text**, scrim base |
+
+---
+
+## Line palette
+
+**Line — neutral gray.** Borders and rules only. Kept off the slate ramp so edges
+read a touch quieter and warmer than the cool surfaces they separate.
+
+| Token | Hex | Role |
+|---|---|---|
+| `line-100` | `#f3f4f6` | hairline divider inside a card |
+| `line-200` | `#e5e7eb` | **default border** (cards, panels, inputs) |
+| `line-300` | `#d1d5db` | form-control border, hover border |
+| `line-400` | `#9ca3af` | strong / emphasis border, input hover |
+
+**Never use `line-*` for text, icons, or fills** — it exists so that changing
+border weight across the app is one token edit, and mixing it into type would
+break that.
 
 ---
 
@@ -123,9 +158,10 @@ solid token today; soft-tint backgrounds are **`(planned)`** — compose with al
 
 ### Info
 
-We have **no dedicated info color** — informational emphasis uses **brand**
-(`brand-600` / `bg-brand-50`), keeping the palette tight. An info callout is a
-brand-tinted surface, not a fourth semantic hue.
+Informational emphasis uses **secondary (cyan)** — `secondary-600` /
+`bg-secondary-50`. It is an *accent*, not a fourth semantic token: "info" here
+means neutral news (new responses arrived), never a state that passed or failed.
+If it's good news use `success`, if it needs attention use `warn`.
 
 > Never rely on color alone to signal state (accessibility). Pair semantic color
 > with an icon and/or text.
@@ -138,7 +174,7 @@ The furthest-back layer, behind surfaces.
 
 | Role | Token | Use |
 |---|---|---|
-| App background | `ink-50` (`#faf9fb`) | `body`, main canvas behind cards |
+| App background | `ink-50` (`#f8fafc`) | `body`, main canvas behind cards |
 | Subtle background | `ink-100` | inset areas, code blocks, wells |
 | Brand-tinted background | `brand-50` | selected/active regions |
 | Scrim (modal) | `ink-900 / 60%` (`bg-ink-900/60`) | behind modals & drawers |
@@ -158,7 +194,7 @@ shadow together.
 | Modal | white | `shadow-pop` |
 | Inline well / inset | `ink-100` | none |
 
-Surfaces are white by default so content and the warm `ink-50` canvas provide
+Surfaces are white by default so content and the cool slate `ink-50` canvas provide
 gentle contrast without heavy borders.
 
 ---
@@ -169,9 +205,10 @@ Keep borders quiet — prefer surface + elevation over strong outlines.
 
 | Role | Token |
 |---|---|
-| Default border | `ink-300` |
-| Subtle divider | `ink-200` |
-| Strong / emphasis border | `ink-400` |
+| Default border | `line-200` |
+| Form-control border | `line-300` |
+| Subtle divider | `line-100` |
+| Strong / emphasis border | `line-400` |
 | Focused input | `brand-600` (+ `shadow-focus`) |
 | Error input | `danger` |
 | Success input | `success` |
@@ -209,13 +246,13 @@ Proposed dark mapping (invert the ink ramp; desaturate brand slightly for glare)
 
 | Role | Light | Dark (proposed) |
 |---|---|---|
-| App background | `ink-50` | `#151320` (near `ink-900`) |
-| Surface | `#ffffff` | `#201e2b` |
-| Raised surface | `ink-50` | `#2a2836` |
-| Border | `ink-300` | `#3a3747` |
-| Primary text | `ink-900` | `#f5f3f7` (`ink-100`) |
-| Muted text | `ink-500` | `#9d99a8` |
-| Brand action | `brand-600` | `brand-500` (`#6366f1`) |
+| App background | `ink-50` | `#0f172a` (`ink-900`) |
+| Surface | `#ffffff` | `#1e293b` (`ink-800`) |
+| Raised surface | `ink-50` | `#334155` (`ink-700`) |
+| Border | `line-200` | `#334155` |
+| Primary text | `ink-900` | `#f1f5f9` (`ink-100`) |
+| Muted text | `ink-500` | `#94a3b8` (`ink-400`) |
+| Brand action | `brand-600` | `brand-500` (`#10b981`) — lighter, since 600 is too dark on a dark surface |
 | Focus ring | `brand-500/35` | `brand-400/45` |
 
 When built, dark mode is a **token concern**, resolved centrally — see

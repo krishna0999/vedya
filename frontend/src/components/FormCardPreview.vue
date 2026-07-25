@@ -17,7 +17,7 @@ const props = defineProps<{
 
 // Default to the product brand so templates (no per-form theme yet) still get a
 // tasteful accent. White paper + hairline border + a top edge in the form color.
-const accent = computed(() => props.accent ?? "#4f46e5");
+const accent = computed(() => props.accent ?? "#047857");
 const panelStyle = computed(() => ({ borderTop: `3px solid ${accent.value}` }));
 
 // The question types that give a form its character — a rating says "feedback",
@@ -84,7 +84,7 @@ const DROPDOWN = new Set<Field["type"]>(["dropdown", "multi_dropdown"]);
           class="flex items-center gap-1.5"
         >
           <span
-            class="h-2.5 w-2.5 shrink-0 border border-ink-400 bg-white"
+            class="h-2.5 w-2.5 shrink-0 border border-line-400 bg-white"
             :class="
               f.type === 'multi_select' ? 'rounded-[3px]' : 'rounded-full'
             "
@@ -102,18 +102,18 @@ const DROPDOWN = new Set<Field["type"]>(["dropdown", "multi_dropdown"]);
 
       <!-- Dropdowns: answer line with a collapsed chevron -->
       <div v-else-if="DROPDOWN.has(f.type)" class="flex w-3/5 items-end gap-1">
-        <span class="h-3 flex-1 border-b border-ink-400" />
+        <span class="h-3 flex-1 border-b border-line-400" />
         <span class="text-[10px] leading-none text-ink-400">▾</span>
       </div>
 
       <!-- Long text: two ruled lines, like lined paper -->
       <template v-else-if="f.type === 'long_text'">
-        <div class="h-3 w-full border-b border-ink-400" />
-        <div class="h-3 w-4/5 border-b border-ink-400" />
+        <div class="h-3 w-full border-b border-line-400" />
+        <div class="h-3 w-4/5 border-b border-line-400" />
       </template>
 
       <!-- Everything else: a blank answer line -->
-      <div v-else class="h-3 w-3/5 border-b border-ink-400" />
+      <div v-else class="h-3 w-3/5 border-b border-line-400" />
     </div>
   </div>
 </template>

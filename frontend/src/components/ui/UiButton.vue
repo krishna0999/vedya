@@ -19,7 +19,7 @@ const classes = computed(() => {
   const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-4 py-2.5 text-sm' };
   const variants = {
     primary: 'bg-brand-600 text-white shadow-sm hover:bg-brand-700',
-    secondary: 'bg-white text-ink-800 border border-ink-200 hover:border-ink-300 hover:bg-ink-50',
+    secondary: 'bg-white text-ink-800 border border-line-200 hover:border-line-300 hover:bg-ink-50',
     ghost: 'text-ink-600 hover:bg-ink-100 hover:text-ink-800',
     danger: 'bg-danger text-white shadow-sm hover:bg-red-700',
   };

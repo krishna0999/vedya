@@ -53,7 +53,7 @@ const moreActions = (): UiActionItem[] => [
   <!-- overflow-visible (no clip) so the preview can float BELOW the card on
        hover to peek at more questions than the tile's height would fit. -->
   <li
-    class="group relative flex h-80 flex-col rounded-xl border border-ink-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-ink-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
+    class="group relative flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-line-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
     :style="{ '--card-accent': form.primaryColor }"
   >
     <!-- Header: title left, actions right (fade in on hover / focus) -->
@@ -164,7 +164,7 @@ const moreActions = (): UiActionItem[] => [
 
     <!-- Quiet metrics — pinned to the bottom so every tile lines up -->
     <div
-      class="flex shrink-0 flex-wrap items-center gap-2 border-t border-ink-100 pt-6 text-sm text-ink-600"
+      class="flex shrink-0 flex-wrap items-center gap-2 border-t border-line-100 pt-6 text-sm text-ink-600"
     >
       <span>
         <span class="font-semibold tabular-nums text-ink-800">{{

@@ -254,12 +254,12 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     >
       <div
         v-if="open"
-        class="absolute z-20 mt-2 w-[19rem] overflow-hidden rounded-2xl border border-ink-200 bg-white p-3 shadow-pop"
+        class="absolute z-20 mt-2 w-[19rem] overflow-hidden rounded-2xl border border-line-200 bg-white p-3 shadow-pop"
       >
         <!-- presets (single mode) -->
         <div
           v-if="!range && presets.length"
-          class="mb-2 flex flex-wrap gap-1.5 border-b border-ink-100 pb-3"
+          class="mb-2 flex flex-wrap gap-1.5 border-b border-line-100 pb-3"
         >
           <button
             v-for="p in presets"

@@ -121,7 +121,7 @@ onMounted(load);
       <!-- Basic analytics (ROADMAP Phase 1): views / submissions / completion. -->
       <dl v-if="!loading && stats" class="mb-6 grid grid-cols-3 gap-3">
         <div
-          class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card"
+          class="rounded-xl border border-line-200 bg-white px-4 py-3 shadow-card"
         >
           <dt class="text-sm font-medium text-ink-500">Views</dt>
           <dd class="mt-0.5 text-xl font-semibold text-ink-900">
@@ -129,7 +129,7 @@ onMounted(load);
           </dd>
         </div>
         <div
-          class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card"
+          class="rounded-xl border border-line-200 bg-white px-4 py-3 shadow-card"
         >
           <dt class="text-sm font-medium text-ink-500">Responses</dt>
           <dd class="mt-0.5 text-xl font-semibold text-ink-900">
@@ -137,7 +137,7 @@ onMounted(load);
           </dd>
         </div>
         <div
-          class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card"
+          class="rounded-xl border border-line-200 bg-white px-4 py-3 shadow-card"
         >
           <dt class="text-sm font-medium text-ink-500">Completion</dt>
           <dd class="mt-0.5 text-xl font-semibold text-ink-900">
@@ -153,13 +153,13 @@ onMounted(load);
           <div
             v-for="n in 3"
             :key="n"
-            class="rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card"
+            class="rounded-xl border border-line-200 bg-white px-4 py-3 shadow-card"
           >
             <UiSkeleton class="h-3.5 w-20" />
             <UiSkeleton class="mt-2 h-6 w-12" />
           </div>
         </div>
-        <div class="rounded-xl border border-ink-200 bg-white p-4 shadow-card">
+        <div class="rounded-xl border border-line-200 bg-white p-4 shadow-card">
           <UiSkeleton class="h-4 w-full" />
           <UiSkeleton v-for="n in 6" :key="n" class="mt-3 h-3.5 w-full" />
         </div>
@@ -167,7 +167,7 @@ onMounted(load);
 
       <div
         v-else-if="submissions.length === 0"
-        class="rounded-2xl border border-dashed border-ink-300 bg-white p-12 text-center"
+        class="rounded-2xl border border-dashed border-line-300 bg-white p-12 text-center"
       >
         <h2 class="text-lg font-semibold text-ink-900">No responses yet</h2>
         <p class="mx-auto mt-1 max-w-sm text-sm text-ink-500">
@@ -177,11 +177,11 @@ onMounted(load);
 
       <div
         v-else
-        class="scrollbar-thin overflow-x-auto rounded-xl border border-ink-200 bg-white shadow-card"
+        class="scrollbar-thin overflow-x-auto rounded-xl border border-line-200 bg-white shadow-card"
       >
         <table class="w-full border-collapse text-sm">
           <thead>
-            <tr class="border-b border-ink-200 bg-ink-50 text-left">
+            <tr class="border-b border-line-200 bg-ink-50 text-left">
               <th
                 class="whitespace-nowrap px-4 py-3 font-semibold text-ink-500"
               >
@@ -200,7 +200,7 @@ onMounted(load);
             <tr
               v-for="s in submissions"
               :key="s.id"
-              class="border-b border-ink-100 last:border-0 hover:bg-ink-50/60"
+              class="border-b border-line-100 last:border-0 hover:bg-ink-50/60"
             >
               <td class="whitespace-nowrap px-4 py-3 text-ink-500">
                 {{ formatTime(s.meta.submittedAt) }}

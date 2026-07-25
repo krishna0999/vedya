@@ -11,7 +11,7 @@
   --dur-base: 180ms;
 
   /* Form-theme DEFAULTS (overridden per form by FormRenderer). */
-  --fb-primary: #4f46e5;
+  --fb-primary: #047857;
   --fb-radius: 10px;
 }
 
@@ -23,6 +23,6 @@ html {
 
 body {
   margin: 0;
-  background: #faf9fb; /* ink-50 */
-  color: #1d1b26; /* ink-900 */
+  background: #f8fafc; /* ink-50 (slate) */
+  color: #0f172a; /* ink-900 (slate) */
 }

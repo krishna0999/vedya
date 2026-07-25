@@ -45,7 +45,7 @@ watch(
         role="alertdialog"
         aria-modal="true"
         :aria-label="title"
-        class="w-full max-w-xl rounded-2xl border border-ink-200 bg-white p-6 shadow-pop"
+        class="w-full max-w-xl rounded-2xl border border-line-200 bg-white p-6 shadow-pop"
       >
         <div class="flex items-start justify-between gap-3">
           <h2 class="font-semibold text-ink-900">{{ title }}</h2>

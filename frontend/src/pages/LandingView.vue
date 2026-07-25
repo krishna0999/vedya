@@ -125,7 +125,7 @@ function toggleFaq(i: number): void {
           ></div>
           <svg
             viewBox="0 0 520 380"
-            class="w-full rounded-2xl border border-ink-200 bg-white shadow-pop"
+            class="w-full rounded-2xl border border-line-200 bg-white shadow-pop"
             role="img"
             aria-label="A form being built in Vedya"
           >
@@ -244,7 +244,7 @@ function toggleFaq(i: number): void {
         <div
           v-for="f in features"
           :key="f.title"
-          class="rounded-2xl border border-ink-200 bg-white p-6 shadow-card"
+          class="rounded-2xl border border-line-200 bg-white p-6 shadow-card"
         >
           <span
             class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600"
@@ -286,7 +286,7 @@ function toggleFaq(i: number): void {
           Questions, answered
         </h2>
         <div
-          class="mx-auto mt-8 max-w-2xl divide-y divide-ink-200 overflow-hidden rounded-2xl border border-ink-200 bg-white"
+          class="mx-auto mt-8 max-w-2xl divide-y divide-line-200 overflow-hidden rounded-2xl border border-line-200 bg-white"
         >
           <div v-for="(faq, i) in faqs" :key="faq.q">
             <button
