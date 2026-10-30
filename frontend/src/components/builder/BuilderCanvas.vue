@@ -197,7 +197,7 @@ const dragging = computed(() => dragIndex.value !== null);
                 :name="metaFor(field.type)?.icon ?? 'text-t'"
                 class="h-4 w-4 shrink-0 text-ink-400"
               />
-              <span class="truncate font-medium text-ink-900">{{
+              <span class="line-clamp-2 break-words font-medium text-ink-900">{{
                 field.label || "(untitled)"
               }}</span>
             </div>

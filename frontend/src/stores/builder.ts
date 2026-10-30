@@ -43,9 +43,10 @@ export const useBuilderStore = defineStore('builder', {
     selectedId: null as string | null,
     loaded: false, // true once a real form is loaded from the API
     saveStatus: 'idle' as SaveStatus,
-    // Edits since the last publish ("Save form" in the builder). Autosave keeps
-    // the draft persisted regardless; this only tracks the published snapshot.
+    // Edits since the last publish. Autosave keeps the draft persisted
+    // regardless; this only tracks the published snapshot.
     dirty: false,
+    published: false, // a version is live at /f/:id
     publishStatus: 'idle' as PublishStatus,
     lastPublished: null as FormVersion | null,
     error: null as string | null,
@@ -74,7 +75,9 @@ export const useBuilderStore = defineStore('builder', {
       this.publishStatus = 'idle';
       this.lastPublished = null;
       try {
-        this.draft = await api.getForm(id);
+        const { published, ...draft } = await api.getForm(id);
+        this.draft = draft;
+        this.published = published;
         this.selectedId = null;
         this.saveStatus = 'saved';
         this.dirty = false;
@@ -124,6 +127,7 @@ export const useBuilderStore = defineStore('builder', {
         await this.persistNow();
         this.lastPublished = await api.publishForm(this.draft.id);
         this.publishStatus = 'published';
+        this.published = true;
         this.dirty = false;
       } catch (err) {
         this.publishStatus = 'error';

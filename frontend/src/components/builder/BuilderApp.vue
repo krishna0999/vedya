@@ -56,7 +56,8 @@ const saveLabel = computed(() => {
     case "saving":
       return "Saving…";
     case "saved":
-      return "Saved";
+      // "Draft", so autosave isn't mistaken for the form being live.
+      return "Draft saved";
     case "error":
       return "Save failed";
     default:
@@ -64,9 +65,12 @@ const saveLabel = computed(() => {
   }
 });
 
+// Nothing to publish once the live version matches the draft.
 const canPublish = computed(
   () =>
-    builder.draft.fields.length > 0 && builder.publishStatus !== "publishing",
+    builder.draft.fields.length > 0 &&
+    builder.publishStatus !== "publishing" &&
+    (!builder.published || builder.dirty),
 );
 const publicUrl = computed(
   () => `${window.location.origin}/f/${builder.draft.id}`,
@@ -79,19 +83,19 @@ async function copyLink(): Promise<void> {
   setTimeout(() => (copied.value = false), 1500);
 }
 
-// In edit mode the publish CTA reads as "Save form" — same action underneath
-// (flush draft + snapshot a new published version).
+// One verb for one action (flush draft + snapshot a new published version):
+// "Publish" the first time, "Publish changes" over a live form, "Published"
+// (disabled) when the live form is up to date.
 const publishLabel = computed(() => {
-  if (builder.publishStatus === "publishing")
-    return mode.value === "edit" ? "Saving…" : "Publishing…";
-  return mode.value === "edit" ? "Save form" : "Publish";
+  if (builder.publishStatus === "publishing") return "Publishing…";
+  if (!builder.published) return "Publish";
+  return builder.dirty ? "Publish changes" : "Published";
 });
 
-// Confirm before saving edits over the published form; publish directly when
-// there's nothing new to save.
+// Confirm only when edits replace a live form; a first publish just goes.
 const saveConfirmOpen = ref(false);
 function onPublishClick(): void {
-  if (mode.value === "edit" && builder.dirty) saveConfirmOpen.value = true;
+  if (builder.published && builder.dirty) saveConfirmOpen.value = true;
   else void builder.publish();
 }
 function confirmSave(): void {
@@ -99,10 +103,11 @@ function confirmSave(): void {
   void builder.publish();
 }
 
-// Leaving the builder with unsaved (unpublished) edits asks first.
+// Leaving with edits that aren't live yet asks first — only for a form that's
+// already live; an unpublished draft is simply saved for later.
 const leaveTo = ref<RouteLocationNormalized | null>(null);
 onBeforeRouteLeave((to) => {
-  if (!builder.dirty || leaveTo.value) return true;
+  if (!builder.published || !builder.dirty || leaveTo.value) return true;
   leaveTo.value = to;
   return false;
 });
@@ -297,7 +302,7 @@ function confirmLeave(): void {
 
         <div class="flex min-h-0 flex-1">
           <FieldPalette
-            class="hidden w-72 shrink-0 border-r border-line-200 lg:block xl:w-80"
+            class="hidden w-60 shrink-0 border-r border-line-200 lg:block xl:w-64"
           />
           <main
             class="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6"
@@ -306,7 +311,7 @@ function confirmLeave(): void {
             <BuilderCanvas />
           </main>
           <aside
-            class="scrollbar-none hidden w-80 shrink-0 overflow-y-auto border-l border-line-200 bg-white p-4 lg:block xl:w-96"
+            class="scrollbar-none hidden w-72 shrink-0 overflow-y-auto border-l border-line-200 bg-white p-4 lg:block xl:w-80"
           >
             <FieldConfigPanel
               v-if="builder.selectedField"
@@ -492,9 +497,9 @@ function confirmLeave(): void {
 
     <UiConfirmDialog
       :open="saveConfirmOpen"
-      title="Save form"
-      message="This saves your edits and updates the live form — everyone with the link will see the new version. Continue?"
-      confirm-label="Save form"
+      title="Publish changes?"
+      message="Everyone with the link will see the new version right away. Responses you already have stay attached to the version they were submitted on."
+      confirm-label="Publish changes"
       confirm-variant="primary"
       cancel-label="Keep editing"
       @confirm="confirmSave"
@@ -503,9 +508,9 @@ function confirmLeave(): void {
 
     <UiConfirmDialog
       :open="leaveTo !== null"
-      title="Unsaved changes"
-      message="Your edits haven't been saved to the form yet. Are you sure you want to leave without saving?"
-      confirm-label="Leave without saving"
+      title="Changes not published"
+      message="Your edits are saved as a draft, but the live form still shows the previous version. Leave without publishing?"
+      confirm-label="Leave without publishing"
       cancel-label="Keep editing"
       @confirm="confirmLeave"
       @cancel="leaveTo = null"

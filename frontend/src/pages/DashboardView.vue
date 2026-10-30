@@ -847,7 +847,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
         <!-- Quick actions panel -->
         <div
-          class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
+          class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5"
           role="group"
           aria-label="Quick actions"
         >
@@ -864,7 +864,7 @@ async function useTemplate(templateId: string): Promise<void> {
           >
             <button
               type="button"
-              class="flex w-full items-center gap-2.5 rounded-xl border border-line-200 bg-white px-3.5 py-3 text-left text-sm font-medium text-ink-800 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55"
+              class="flex h-full w-full items-center gap-2.5 rounded-xl border border-line-200 bg-white px-3.5 py-3 text-left text-sm font-medium text-ink-800 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55"
               :disabled="creating"
               :aria-haspopup="a.id === 'duplicate' ? 'menu' : undefined"
               :aria-expanded="a.id === 'duplicate' ? dupOpen : undefined"
@@ -876,9 +876,10 @@ async function useTemplate(templateId: string): Promise<void> {
               >
                 <UiIcon :name="a.icon" class="text-inherit h-5 w-5" />
               </span>
-              <span class="min-w-0 flex-1 truncate">{{ a.label }}</span>
+              <!-- Wraps rather than truncates: a cut-off action label is a guess. -->
+              <span class="min-w-0 flex-1 leading-snug">{{ a.label }}</span>
               <kbd
-                class="hidden shrink-0 rounded border border-line-200 bg-ink-50 px-1.5 py-0.5 font-sans text-xs font-medium text-ink-500 lg:inline"
+                class="hidden shrink-0 rounded border border-line-200 bg-ink-50 px-1.5 py-0.5 font-sans text-xs font-medium text-ink-500 2xl:inline"
                 aria-hidden="true"
                 >{{ a.key }}</kbd
               >

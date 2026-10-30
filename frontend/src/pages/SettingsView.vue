@@ -144,6 +144,14 @@ async function logout(): Promise<void> {
               </button>
               <span v-if="verifyError" class="block text-danger">{{ verifyError }}</span>
             </p>
+            <p class="mt-1 text-sm text-ink-500">
+              To change your email, write to
+              <a
+                href="mailto:support@vedya.app"
+                class="font-medium text-brand-700 hover:text-brand-800"
+                >support@vedya.app</a
+              >.
+            </p>
           </div>
 
           <p

@@ -157,7 +157,8 @@ export const api = {
   generateForm: (prompt: string) =>
     request<FormDraft>("POST", "/forms/generate", { prompt }),
   listForms: () => request<FormSummary[]>("GET", "/forms"),
-  getForm: (id: string) => request<FormDraft>("GET", `/forms/${id}`),
+  getForm: (id: string) =>
+    request<FormDraft & { published: boolean }>("GET", `/forms/${id}`),
   updateForm: (id: string, patch: DraftPatch) =>
     request<FormDraft>("PATCH", `/forms/${id}`, patch),
   publishForm: (id: string) =>

@@ -123,8 +123,17 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
   });
 }
 
-export async function getForm(ownerId: string, formId: string): Promise<FormDraft> {
-  return loadOwnedDraft(ownerId, formId);
+// The builder's view of a form: the draft, plus whether a version is live (so
+// it can say "Publish" vs "Publish changes" and only warn when edits go live).
+export async function getForm(ownerId: string, formId: string): Promise<FormDraft & { published: boolean }> {
+  const { rows } = await pool.query<DraftRow & { published: boolean }>(
+    `SELECT current_draft, published_version_id IS NOT NULL AS published
+       FROM forms WHERE id = $1 AND owner_id = $2`,
+    [formId, ownerId],
+  );
+  const row = rows[0];
+  if (!row) throw notFound('Form');
+  return { ...row.current_draft, published: row.published };
 }
 
 export async function updateForm(ownerId: string, formId: string, patch: DraftPatch): Promise<FormDraft> {

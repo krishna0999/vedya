@@ -111,6 +111,15 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
           <UiIcon name="cog-6-tooth" class="h-5 w-5 text-ink-500" />
           Settings
         </router-link>
+        <a
+          href="mailto:support@vedya.app"
+          role="menuitem"
+          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          @click="close"
+        >
+          <UiIcon name="envelope" class="h-5 w-5 text-ink-500" />
+          Contact support
+        </a>
         <div class="my-1 h-px bg-ink-100"></div>
         <button
           type="button"
