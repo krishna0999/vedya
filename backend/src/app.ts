@@ -3,6 +3,7 @@
 // cross-cutting concerns (CORS, rate limit, error mapping) live.
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
+import * as Sentry from '@sentry/node';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { env } from './config/env';
@@ -57,6 +58,8 @@ export async function buildApp(): Promise<FastifyInstance> {
       return reply.status(e.statusCode).send({ error: e.message });
     }
     reply.log.error(error);
+    // Only real failures reach monitoring; 4xx above are the client's doing.
+    Sentry.captureException(error, { tags: { route: _req.routeOptions.url ?? 'unknown' } });
     return reply.status(500).send({ error: 'Internal server error.' });
   });
 

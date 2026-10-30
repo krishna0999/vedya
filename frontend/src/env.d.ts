@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_API_BASE?: string;
   // Cloudflare Turnstile site key for the public submit bot check. Unset = off.
   readonly VITE_TURNSTILE_SITE_KEY?: string;
+  // Sentry DSN for frontend error monitoring. Unset = off (and not loaded).
+  readonly VITE_SENTRY_DSN?: string;
 }
 
 // The slice of Cloudflare's Turnstile global we use (loaded on public forms).

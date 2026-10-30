@@ -7,6 +7,7 @@ import { useRoute, useRouter } from "vue-router";
 import { api, ApiError } from "@/api/client";
 import { useAuthStore } from "@/stores/auth";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiPasswordInput from "@/components/ui/UiPasswordInput.vue";
 import UiLogo from "@/components/ui/UiLogo.vue";
 
 const route = useRoute();
@@ -95,20 +96,18 @@ async function setPassword(): Promise<void> {
             </p>
             <div>
               <label for="new-password" class="ui-label">New password</label>
-              <input
+              <UiPasswordInput
                 id="new-password"
                 v-model="password"
-                type="password"
                 autocomplete="new-password"
                 class="ui-input"
               />
             </div>
             <div>
               <label for="confirm-password" class="ui-label">Confirm new password</label>
-              <input
+              <UiPasswordInput
                 id="confirm-password"
                 v-model="confirm"
-                type="password"
                 autocomplete="new-password"
                 class="ui-input"
               />

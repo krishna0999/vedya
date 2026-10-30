@@ -23,6 +23,8 @@ const EnvSchema = z.object({
   // Resend API key for transactional email. Unset = emails are logged (dev).
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Vedya <no-reply@vedya.app>"),
+  // Sentry DSN for error monitoring. Unset = monitoring off.
+  SENTRY_DSN: z.string().optional(),
 });
 
 const parsed = EnvSchema.safeParse(process.env);

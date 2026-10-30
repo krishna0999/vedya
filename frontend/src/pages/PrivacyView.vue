@@ -100,6 +100,12 @@ import UiLogo from "@/components/ui/UiLogo.vue";
           </li>
           <li><strong>Resend</strong> — sends our emails.</li>
           <li>
+            <strong>Sentry</strong> — error monitoring: when something breaks,
+            technical details of the error (what failed and where, browser and
+            device type) are sent so we can fix it. We configure it not to
+            send form answers, cookies or account details.
+          </li>
+          <li>
             <strong>OpenAI</strong> — only when you use “Generate with AI”: your
             prompt is sent to OpenAI to draft the form. Under OpenAI’s API
             policies, API data isn’t used to train their models by default.

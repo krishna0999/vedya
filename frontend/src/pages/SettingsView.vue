@@ -8,6 +8,7 @@ import { api, ApiError } from "@/api/client";
 import { useAuthStore } from "@/stores/auth";
 import AppShell from "@/components/AppShell.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiPasswordInput from "@/components/ui/UiPasswordInput.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 
 const router = useRouter();
@@ -195,10 +196,9 @@ async function logout(): Promise<void> {
               for="current-password"
               >Current password</label
             >
-            <input
+            <UiPasswordInput
               id="current-password"
               v-model="currentPassword"
-              type="password"
               autocomplete="current-password"
               required
               class="w-full rounded-lg border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
@@ -208,10 +208,9 @@ async function logout(): Promise<void> {
             <label class="mb-1 block text-sm text-ink-500" for="new-password"
               >New password</label
             >
-            <input
+            <UiPasswordInput
               id="new-password"
               v-model="newPassword"
-              type="password"
               autocomplete="new-password"
               required
               minlength="8"
@@ -224,10 +223,9 @@ async function logout(): Promise<void> {
               for="confirm-password"
               >Confirm new password</label
             >
-            <input
+            <UiPasswordInput
               id="confirm-password"
               v-model="confirmPassword"
-              type="password"
               autocomplete="new-password"
               required
               minlength="8"

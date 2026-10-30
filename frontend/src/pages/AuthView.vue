@@ -7,6 +7,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { ApiError } from "@/api/client";
 import UiButton from "@/components/ui/UiButton.vue";
+import UiPasswordInput from "@/components/ui/UiPasswordInput.vue";
 import UiLogo from "@/components/ui/UiLogo.vue";
 
 const props = defineProps<{ mode: "login" | "signup" }>();
@@ -104,10 +105,9 @@ async function submit(): Promise<void> {
                 >Forgot password?</router-link
               >
             </div>
-            <input
+            <UiPasswordInput
               id="password"
               v-model="password"
-              type="password"
               :autocomplete="isSignup ? 'new-password' : 'current-password'"
               placeholder="••••••••"
               class="ui-input"

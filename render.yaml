@@ -45,3 +45,6 @@ services:
       # reset and response emails. Until set, emails are only logged.
       - key: RESEND_API_KEY
         sync: false
+      # Sentry DSN (backend project) for error monitoring. Until set, it's off.
+      - key: SENTRY_DSN
+        sync: false
