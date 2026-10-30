@@ -16,6 +16,10 @@ const router = createRouter({
     { path: '/account', name: 'account', component: () => import('@/pages/AccountView.vue'), meta: { requiresAuth: true } },
     { path: '/login', name: 'login', component: () => import('@/pages/AuthView.vue'), props: { mode: 'login' } },
     { path: '/signup', name: 'signup', component: () => import('@/pages/AuthView.vue'), props: { mode: 'signup' } },
+    // Emailed-link flows: reachable signed in or out.
+    { path: '/forgot-password', name: 'forgot-password', component: () => import('@/pages/PasswordResetView.vue') },
+    { path: '/reset-password', name: 'reset-password', component: () => import('@/pages/PasswordResetView.vue') },
+    { path: '/verify-email', name: 'verify-email', component: () => import('@/pages/VerifyEmailView.vue') },
     { path: '/f/:formId', name: 'public-form', component: () => import('@/pages/PublicFormView.vue') },
     // Unknown paths fall back to the landing page (which redirects if logged in).
     { path: '/:pathMatch(.*)*', redirect: '/' },

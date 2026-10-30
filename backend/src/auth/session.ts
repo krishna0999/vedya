@@ -10,6 +10,7 @@ export interface SessionUser {
   email: string;
   name: string | null;
   plan: string;
+  emailVerified: boolean;
 }
 
 declare module 'fastify' {

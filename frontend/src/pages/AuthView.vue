@@ -95,7 +95,15 @@ async function submit(): Promise<void> {
           </div>
 
           <div>
-            <label for="password" class="ui-label">Password</label>
+            <div class="flex items-baseline justify-between">
+              <label for="password" class="ui-label">Password</label>
+              <router-link
+                v-if="!isSignup"
+                :to="{ name: 'forgot-password' }"
+                class="text-sm font-medium text-brand-700 hover:text-brand-800"
+                >Forgot password?</router-link
+              >
+            </div>
             <input
               id="password"
               v-model="password"

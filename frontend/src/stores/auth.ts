@@ -31,6 +31,9 @@ export const useAuthStore = defineStore('auth', {
     async signup(email: string, password: string) {
       this.user = await api.signup(email, password);
     },
+    async resetPassword(token: string, newPassword: string) {
+      this.user = await api.resetPassword(token, newPassword);
+    },
     async updateProfile(name: string) {
       this.user = await api.updateProfile(name);
     },

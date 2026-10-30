@@ -35,3 +35,7 @@ services:
       # submissions are accepted without it.
       - key: TURNSTILE_SECRET_KEY
         sync: false
+      # Resend API key (sending access, vedya.app) for verification, password
+      # reset and response emails. Until set, emails are only logged.
+      - key: RESEND_API_KEY
+        sync: false

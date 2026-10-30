@@ -20,6 +20,9 @@ const EnvSchema = z.object({
   // Cloudflare Turnstile secret for the public submit bot check. Unset = the
   // check is skipped (local dev); set it in production.
   TURNSTILE_SECRET_KEY: z.string().optional(),
+  // Resend API key for transactional email. Unset = emails are logged (dev).
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().default("Vedya <no-reply@vedya.app>"),
 });
 
 const parsed = EnvSchema.safeParse(process.env);
@@ -35,6 +38,8 @@ export const env = {
   corsOrigins: parsed.data.CORS_ORIGIN.split(",")
     .map((s) => s.trim())
     .filter(Boolean),
+  // Where emailed links point: the frontend, i.e. the first allowed origin.
+  appUrl: parsed.data.CORS_ORIGIN.split(",")[0]!.trim(),
   // True once a real key replaces the dummy placeholder.
   openaiConfigured:
     parsed.data.OPENAI_API_KEY.length > 0 &&

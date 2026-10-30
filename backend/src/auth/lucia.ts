@@ -17,6 +17,7 @@ export const lucia = new Lucia(adapter, {
     email: attributes.email,
     name: attributes.name,
     plan: attributes.plan,
+    emailVerified: attributes.email_verified_at !== null,
   }),
 });
 
@@ -27,6 +28,7 @@ interface DatabaseUserAttributes {
   name: string | null;
   plan: string;
   password_hash: string | null;
+  email_verified_at: Date | null;
   created_at: Date;
 }
 

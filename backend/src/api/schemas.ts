@@ -109,6 +109,20 @@ export const ChangePasswordSchema = z.object({
   newPassword: PasswordSchema,
 });
 
+export const ForgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email('Enter a valid email address.'),
+});
+
+// Emailed tokens are 43-char base64url; the cap just bounds junk input.
+const EmailTokenSchema = z.string().min(1).max(200);
+
+export const ResetPasswordSchema = z.object({
+  token: EmailTokenSchema,
+  newPassword: PasswordSchema,
+});
+
+export const VerifyEmailSchema = z.object({ token: EmailTokenSchema });
+
 // Empty string clears the name (stored as NULL); the UI falls back to email.
 export const UpdateProfileSchema = z.object({
   name: z.string().trim().max(80, 'Name must be 80 characters or fewer.'),

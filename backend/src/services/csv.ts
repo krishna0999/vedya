@@ -9,7 +9,7 @@ export interface CsvColumn {
 }
 
 // Format one answer value into a single CSV cell string (pre-escaping).
-function formatValue(value: unknown): string {
+export function formatValue(value: unknown): string {
   if (value === undefined || value === null) return '';
   if (typeof value === 'string') return value;
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);

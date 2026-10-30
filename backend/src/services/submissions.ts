@@ -5,6 +5,8 @@ import { randomUUID } from 'node:crypto';
 import { validateAnswers, type Field } from '../schema/index';
 import { env } from '../config/env';
 import { pool } from '../db/pool';
+import { sendEmail } from '../lib/email';
+import { formatValue } from './csv';
 import { AppError, unprocessable } from '../lib/errors';
 import { limitsForPlan } from '../limits';
 import { getPublishedVersion } from './forms';
@@ -83,5 +85,34 @@ export async function submit(
      RETURNING submitted_at`,
     [id, formId, version.versionId, json(cleaned), json(labelSnapshot), json(meta)],
   );
+  // Post-submission side effects hang off this point (CLAUDE.md §9). Never
+  // awaited: the respondent's submit must not wait on, or fail because of, email.
+  void notifyOwner(formId, version.fields, cleaned).catch((err) => console.error('[notify]', err));
   return { id, submittedAt: rows[0]!.submitted_at.toISOString() };
+}
+
+// Email the form owner a new response — only if they've verified their inbox,
+// so an account signed up with someone else's address can't spam them.
+// ponytail: always on for verified owners; add a per-form toggle when asked.
+async function notifyOwner(formId: string, fields: Field[], answers: Record<string, unknown>): Promise<void> {
+  const { rows } = await pool.query<{ email: string; title: string }>(
+    `SELECT u.email, f.title FROM forms f JOIN users u ON u.id = f.owner_id
+      WHERE f.id = $1 AND u.email_verified_at IS NOT NULL`,
+    [formId],
+  );
+  const owner = rows[0];
+  if (!owner) return;
+  const lines = answerFields(fields)
+    .slice(0, 20)
+    .map((f) => {
+      const v = formatValue(answers[f.id]) || '—';
+      return `${f.label}: ${v.length > 300 ? `${v.slice(0, 300)}…` : v}`;
+    });
+  await sendEmail({
+    to: owner.email,
+    subject: `New response: ${owner.title}`,
+    text:
+      `"${owner.title}" got a new response.\n\n${lines.join('\n')}\n\n` +
+      `See all responses: ${env.appUrl}/forms/${formId}/responses`,
+  });
 }

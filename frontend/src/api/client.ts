@@ -55,6 +55,7 @@ export interface AuthUser {
   email: string;
   name: string | null;
   plan: string;
+  emailVerified: boolean; // response notifications only go to verified inboxes
 }
 
 // A gallery card: catalog metadata plus the fields (for client-side preview).
@@ -138,6 +139,14 @@ export const api = {
       newPassword,
     }),
   deleteAccount: () => request<void>("DELETE", "/auth/account"),
+  forgotPassword: (email: string) =>
+    request<{ ok: true }>("POST", "/auth/forgot-password", { email }),
+  resetPassword: (token: string, newPassword: string) =>
+    request<AuthUser>("POST", "/auth/reset-password", { token, newPassword }),
+  verifyEmail: (token: string) =>
+    request<{ ok: true }>("POST", "/auth/verify-email", { token }),
+  resendVerification: () =>
+    request<{ ok: true }>("POST", "/auth/resend-verification"),
 
   // Owner (authenticated)
   createForm: (title?: string) =>

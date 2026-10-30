@@ -34,6 +34,21 @@ async function saveName(): Promise<void> {
   }
 }
 
+// Email confirmation: response notifications only go to confirmed inboxes.
+const verifySent = ref(false);
+const verifyError = ref<string | null>(null);
+
+async function resendVerification(): Promise<void> {
+  verifyError.value = null;
+  try {
+    await api.resendVerification();
+    verifySent.value = true;
+  } catch (err) {
+    verifyError.value =
+      err instanceof ApiError ? err.message : "Couldn't send the email.";
+  }
+}
+
 const currentPassword = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
@@ -111,8 +126,23 @@ async function logout(): Promise<void> {
               readonly
               class="w-full cursor-not-allowed rounded-lg border border-line-200 bg-ink-50 px-3 py-2 text-sm text-ink-500"
             />
-            <p class="mt-1 text-sm text-ink-500">
-              Contact support to change your email.
+            <p v-if="auth.user?.emailVerified" class="mt-1 text-sm text-ink-500">
+              Confirmed — you get an email for each new response.
+            </p>
+            <p v-else class="mt-1 text-sm text-ink-500" role="status">
+              Not confirmed yet, so you won't get response emails.
+              <span v-if="verifySent" class="font-medium text-success"
+                >Link sent — check your inbox.</span
+              >
+              <button
+                v-else
+                type="button"
+                class="font-medium text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                @click="resendVerification"
+              >
+                Send confirmation link
+              </button>
+              <span v-if="verifyError" class="block text-danger">{{ verifyError }}</span>
             </p>
           </div>
 
