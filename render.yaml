@@ -1,14 +1,20 @@
 # Render Blueprint for the Fastify API (backend/).
 # The frontend is deployed separately on Vercel — this file only covers the API.
 #
-# On first deploy: create the service from this blueprint, then set the two
-# `sync: false` secrets in the Render dashboard (DATABASE_URL, CORS_ORIGIN).
-# Point the api.vedya.app custom domain at this service in Settings → Custom Domains.
+# Production today is the `vedya-api-sg` service, created by hand (not from this
+# blueprint) with exactly these settings. This file is its reference: to rebuild
+# from scratch, create a Blueprint instance from it, then set every
+# `sync: false` secret in the dashboard and point the api.vedya.app custom
+# domain at the service (Settings → Custom Domains).
+#
+# Singapore, next to the Neon "Vedya SG" database (ap-southeast-1): the API and
+# DB must share a region, or every query pays a cross-region round trip.
 services:
   - type: web
-    name: vedya-api
+    name: vedya-api-sg
     runtime: node
     plan: free
+    region: singapore
     rootDir: backend
     # Render uses corepack + the packageManager field in package.json for pnpm.
     buildCommand: pnpm install --frozen-lockfile
@@ -21,7 +27,7 @@ services:
         value: "22"
       - key: NODE_ENV
         value: production
-      # Neon production connection string — set in the dashboard, never commit.
+      # Neon "Vedya SG" pooled connection string — set in the dashboard, never commit.
       - key: DATABASE_URL
         sync: false
       # Exact origin of the deployed frontend, e.g. https://vedya.app
