@@ -1,5 +1,6 @@
 // The ONE place plan limits live (CLAUDE.md §8). Never scatter plan checks —
 // every gate reads from here so retuning the freemium line is a single edit.
+// The free-plan numbers are also quoted to users in frontend TermsView.vue.
 // The wedges in §9 (file-upload fields, etc.) add flags here, not new checks.
 
 export interface PlanLimits {

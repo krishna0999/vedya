@@ -16,6 +16,11 @@ const formId = route.params.formId as string;
 const version = ref<FormVersion | null>(null);
 const branding = ref(true);
 const title = ref("");
+const reportHref = `mailto:support@vedya.app?subject=${encodeURIComponent(
+  `Report form ${formId}`,
+)}&body=${encodeURIComponent(
+  `Form: ${window.location.origin}/f/${formId}\n\nWhat's wrong with it:\n`,
+)}`;
 const loading = ref(true);
 const loadError = ref<string | null>(null);
 
@@ -210,6 +215,12 @@ onMounted(load);
         </div>
         <p v-if="branding" class="mt-6 text-center text-sm text-ink-500">
           Made with Vedya
+        </p>
+        <!-- On every form, branded or not: respondents need a way to flag a
+             phishing form and to see how their answers are handled. -->
+        <p class="mt-2 flex justify-center gap-4 text-sm text-ink-500">
+          <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700">Privacy</router-link>
+          <a :href="reportHref" class="hover:text-ink-700">Report this form</a>
         </p>
       </div>
     </div>

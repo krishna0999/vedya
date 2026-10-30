@@ -148,3 +148,23 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--fb-primary) 35%, transparent);
   }
 }
+
+/* Long-form text (Privacy Policy, Terms): product chrome, brand/ink tokens. */
+@layer components {
+  .legal-prose {
+    @apply text-sm leading-relaxed text-ink-700;
+  }
+  .legal-prose h2 {
+    @apply mt-8 text-base font-semibold text-ink-900;
+  }
+  .legal-prose p,
+  .legal-prose ul {
+    @apply mt-3;
+  }
+  .legal-prose ul {
+    @apply list-disc space-y-1.5 pl-5;
+  }
+  .legal-prose a {
+    @apply font-medium text-brand-700 underline-offset-2 hover:underline;
+  }
+}

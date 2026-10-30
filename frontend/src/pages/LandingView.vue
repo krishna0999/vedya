@@ -336,6 +336,11 @@ function toggleFaq(i: number): void {
       class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-ink-500"
     >
       © Vedya. Built with the thinnest credible engine.
+      <nav class="mt-2 flex justify-center gap-4" aria-label="Legal">
+        <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700">Privacy</router-link>
+        <router-link :to="{ name: 'terms' }" class="hover:text-ink-700">Terms</router-link>
+        <a href="mailto:support@vedya.app" class="hover:text-ink-700">Contact</a>
+      </nav>
     </footer>
   </div>
 </template>

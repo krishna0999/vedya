@@ -20,7 +20,9 @@ const router = createRouter({
     { path: '/forgot-password', name: 'forgot-password', component: () => import('@/pages/PasswordResetView.vue') },
     { path: '/reset-password', name: 'reset-password', component: () => import('@/pages/PasswordResetView.vue') },
     { path: '/verify-email', name: 'verify-email', component: () => import('@/pages/VerifyEmailView.vue') },
-    { path: '/f/:formId', name: 'public-form', component: () => import('@/pages/PublicFormView.vue') },
+    { path: '/f/:formId', name: 'public-form', component: () => import('@/pages/PublicFormView.vue'), meta: { public: true } },
+    { path: '/privacy', name: 'privacy', component: () => import('@/pages/PrivacyView.vue'), meta: { public: true } },
+    { path: '/terms', name: 'terms', component: () => import('@/pages/TermsView.vue'), meta: { public: true } },
     // Unknown paths fall back to the landing page (which redirects if logged in).
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
@@ -29,9 +31,9 @@ const router = createRouter({
 // Resolve the session once, then gate. Unauthed → login (remembering intent);
 // authed users skip the landing/login/signup screens and land on the dashboard.
 router.beforeEach(async (to) => {
-  // A stranger's form never needs the session: don't make them wait on (or
-  // break with) /auth/me before the form can even start loading.
-  if (to.name === 'public-form') return true;
+  // Public pages (a stranger's form, the legal pages) never need the session:
+  // don't make them wait on (or break with) /auth/me before they can load.
+  if (to.meta.public) return true;
   const auth = useAuthStore();
   if (!auth.ready) await auth.init();
 
