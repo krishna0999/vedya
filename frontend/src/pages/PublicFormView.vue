@@ -29,6 +29,7 @@ const done = ref(false);
 // undefined at build time and the whole widget is tree-shaken out.
 const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 const turnstileEl = ref<HTMLElement | null>(null);
+const challengeVisible = ref(false);
 let widgetId: string | undefined;
 let turnstileToken: string | undefined;
 
@@ -56,6 +57,9 @@ async function mountTurnstile(): Promise<void> {
       appearance: "interaction-only",
       callback: (token: string) => (turnstileToken = token),
       "expired-callback": () => (turnstileToken = undefined),
+      // Interaction-only widgets show/hide themselves; space them only while shown.
+      "before-interactive-callback": () => (challengeVisible.value = true),
+      "after-interactive-callback": () => (challengeVisible.value = false),
     });
   } catch {
     submitError.value =
@@ -193,8 +197,11 @@ onMounted(load);
             :version="version"
             :submitting="submitting"
             @submit="onSubmit"
-          />
-          <div v-if="siteKey" ref="turnstileEl" />
+          >
+            <template #before-submit>
+              <div v-if="siteKey" ref="turnstileEl" :class="{ 'mb-5': challengeVisible }" />
+            </template>
+          </FormRenderer>
         </div>
         <p v-if="branding" class="mt-6 text-center text-sm text-ink-500">
           Made with Vedya

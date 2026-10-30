@@ -197,6 +197,10 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
       </UiField>
     </template>
 
+    <!-- Host-page content that must sit above Submit (e.g. the public page's
+         bot check), so a respondent sees it before they click. -->
+    <slot name="before-submit" />
+
     <button type="submit" class="fb-btn w-full sm:w-auto" :disabled="submitting">
       <UiIcon v-if="submitting" name="arrow-path" class="text-inherit h-5 w-5 animate-spin" />
       {{ submitting ? 'Submitting…' : 'Submit' }}
