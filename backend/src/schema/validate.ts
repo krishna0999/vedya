@@ -12,6 +12,10 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/; // ISO calendar date (YYYY-MM-DD)
 // client-side concern (libphonenumber); this is the shared shape check.
 const PHONE_RE = /^\+[1-9]\d{6,14}$/;
 
+// Hard ceilings, whatever the author configured: a stranger must not be able
+// to store ~1MB per answer (the body limit) and fill the database.
+export const ANSWER_MAX_LENGTH = { short_text: 1000, long_text: 10000, email: 254 } as const;
+
 function isIsoDate(value: unknown): boolean {
   return typeof value === 'string' && DATE_RE.test(value) && !Number.isNaN(Date.parse(value));
 }
@@ -48,11 +52,10 @@ function validateField(field: Field, value: unknown): string | null {
     case 'short_text':
     case 'long_text': {
       if (typeof value !== 'string') return 'Expected text.';
+      const cap = Math.min(v.maxLength ?? Infinity, ANSWER_MAX_LENGTH[field.type]);
+      if (value.length > cap) return `Must be at most ${cap} character${cap === 1 ? '' : 's'}.`;
       if (v.minLength != null && value.length < v.minLength) {
         return `Must be at least ${v.minLength} character${v.minLength === 1 ? '' : 's'}.`;
-      }
-      if (v.maxLength != null && value.length > v.maxLength) {
-        return `Must be at most ${v.maxLength} character${v.maxLength === 1 ? '' : 's'}.`;
       }
       if (v.pattern) {
         let re: RegExp;
@@ -69,7 +72,7 @@ function validateField(field: Field, value: unknown): string | null {
 
     case 'email': {
       if (typeof value !== 'string') return 'Expected text.';
-      if (!EMAIL_RE.test(value)) return 'Enter a valid email address.';
+      if (value.length > ANSWER_MAX_LENGTH.email || !EMAIL_RE.test(value)) return 'Enter a valid email address.';
       return null;
     }
 

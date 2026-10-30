@@ -3,7 +3,7 @@
 // FormVersion and feeds it to <FormRenderer>. The server re-validates on submit
 // (authoritative); this page just relays the answers and shows the outcome.
 // Form theme is scoped inside FormRenderer — no product brand leaks into it.
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import type { FormVersion } from "@schema";
 import { api, ApiError } from "@/api/client";
@@ -22,6 +22,44 @@ const submitting = ref(false);
 const submitError = ref<string | null>(null);
 const done = ref(false);
 
+// Bot check (Cloudflare Turnstile), only when a site key is configured. The
+// server verifies the token; "interaction-only" keeps the widget invisible
+// unless Cloudflare actually needs the respondent to click.
+const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+const turnstileEl = ref<HTMLElement | null>(null);
+let widgetId: string | undefined;
+let turnstileToken: string | undefined;
+
+function loadTurnstileScript(): Promise<void> {
+  if (window.turnstile) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("turnstile script failed"));
+    document.head.appendChild(s);
+  });
+}
+
+async function mountTurnstile(): Promise<void> {
+  if (!siteKey) return;
+  await nextTick(); // the container renders with the form
+  try {
+    await loadTurnstileScript();
+    if (!turnstileEl.value || !window.turnstile) return;
+    widgetId = window.turnstile.render(turnstileEl.value, {
+      sitekey: siteKey,
+      appearance: "interaction-only",
+      callback: (token: string) => (turnstileToken = token),
+      "expired-callback": () => (turnstileToken = undefined),
+    });
+  } catch {
+    submitError.value =
+      "Couldn’t load the spam check. Disable content blockers for this page and reload.";
+  }
+}
+
 async function load(): Promise<void> {
   loading.value = true;
   loadError.value = null;
@@ -30,6 +68,7 @@ async function load(): Promise<void> {
     version.value = form.version;
     branding.value = form.branding;
     trackView();
+    void mountTurnstile();
   } catch (err) {
     loadError.value =
       err instanceof ApiError && err.status === 404
@@ -56,10 +95,14 @@ function trackView(): void {
 }
 
 async function onSubmit(answers: Record<string, unknown>): Promise<void> {
+  if (siteKey && !turnstileToken) {
+    submitError.value = "Still checking you’re human — try again in a moment.";
+    return;
+  }
   submitting.value = true;
   submitError.value = null;
   try {
-    await api.submit(formId, answers);
+    await api.submit(formId, answers, turnstileToken);
     done.value = true;
   } catch (err) {
     submitError.value =
@@ -68,6 +111,9 @@ async function onSubmit(answers: Record<string, unknown>): Promise<void> {
         : err instanceof Error
           ? err.message
           : "Something went wrong. Please try again.";
+    // Tokens are single-use: get a fresh one for the retry.
+    turnstileToken = undefined;
+    if (widgetId) window.turnstile?.reset(widgetId);
   } finally {
     submitting.value = false;
   }
@@ -145,6 +191,7 @@ onMounted(load);
             :submitting="submitting"
             @submit="onSubmit"
           />
+          <div v-if="siteKey" ref="turnstileEl" />
         </div>
         <p v-if="branding" class="mt-6 text-center text-sm text-ink-500">
           Made with Vedya

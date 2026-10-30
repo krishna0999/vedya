@@ -17,6 +17,9 @@ const EnvSchema = z.object({
   // the server boots without it; the AI route returns 503 until a real key is set.
   OPENAI_API_KEY: z.string().default("sk-dummy-set-me"),
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
+  // Cloudflare Turnstile secret for the public submit bot check. Unset = the
+  // check is skipped (local dev); set it in production.
+  TURNSTILE_SECRET_KEY: z.string().optional(),
 });
 
 const parsed = EnvSchema.safeParse(process.env);

@@ -30,3 +30,7 @@ services:
       # Until set, the generate endpoint returns 503 and the rest of the API works.
       - key: OPENAI_API_KEY
         sync: false
+      # Cloudflare Turnstile secret for the public-submit bot check. Until set,
+      # submissions are accepted without it.
+      - key: TURNSTILE_SECRET_KEY
+        sync: false

@@ -166,10 +166,14 @@ export const api = {
     request<PublicForm>("GET", `/f/${formId}`),
   recordView: (formId: string) =>
     request<void>("POST", `/f/${formId}/views`),
-  submit: (formId: string, answers: Record<string, unknown>) =>
+  submit: (
+    formId: string,
+    answers: Record<string, unknown>,
+    turnstileToken?: string,
+  ) =>
     request<{ id: string; submittedAt: string }>(
       "POST",
       `/f/${formId}/submissions`,
-      { answers },
+      { answers, turnstileToken },
     ),
 };

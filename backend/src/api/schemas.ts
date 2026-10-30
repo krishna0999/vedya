@@ -24,13 +24,15 @@ const FieldOptionSchema = z.object({
   description: z.string().optional(),
 });
 
+// `pattern` / `patternMessage` are deliberately NOT accepted (zod strips them):
+// the server would run an author-supplied regex on every public submission,
+// and a catastrophic-backtracking pattern freezes the event loop (ReDoS).
+// ponytail: no UI sets a pattern today; when one does, evaluate it with RE2.
 const FieldValidationSchema = z.object({
   min: z.number().optional(),
   max: z.number().optional(),
   minLength: z.number().optional(),
   maxLength: z.number().optional(),
-  pattern: z.string().optional(),
-  patternMessage: z.string().optional(),
 });
 
 const DateConfigSchema = z.object({
@@ -92,6 +94,7 @@ export const DraftPatchSchema = z
 
 export const SubmissionBodySchema = z.object({
   answers: z.record(z.string(), z.unknown()),
+  turnstileToken: z.string().max(2048).optional(),
 });
 
 const PasswordSchema = z.string().min(8, 'Password must be at least 8 characters.').max(256);

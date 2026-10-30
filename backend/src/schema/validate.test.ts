@@ -56,6 +56,18 @@ describe('text: length + pattern', () => {
     const bad = versionOf([field({ id: 't', type: 'short_text', validation: { pattern: '([' } })]);
     expect(validateAnswers(bad, { t: 'anything' }).valid).toBe(true);
   });
+  it('caps answer length even when the author set no maxLength', () => {
+    const open = versionOf([
+      field({ id: 's', type: 'short_text' }),
+      field({ id: 'l', type: 'long_text', validation: { maxLength: 50_000 } }),
+      field({ id: 'e', type: 'email' }),
+    ]);
+    const res = validateAnswers(open, { s: 'a'.repeat(1001), l: 'a'.repeat(10_001), e: `${'a'.repeat(250)}@b.co` });
+    expect(res.errors.s).toContain('at most 1000');
+    expect(res.errors.l).toContain('at most 10000');
+    expect(res.errors.e).toBeDefined();
+    expect(validateAnswers(open, { s: 'a'.repeat(1000), l: 'a'.repeat(10_000) }).valid).toBe(true);
+  });
 });
 
 describe('email', () => {

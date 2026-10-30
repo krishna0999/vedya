@@ -3,9 +3,17 @@
   "configurations": [
     {
       "name": "web",
-      "runtimeExecutable": "/Users/krishnamuraree/.nvm/versions/node/v22.14.0/bin/node",
-      "runtimeArgs": ["frontend/node_modules/vite/bin/vite.js", "frontend", "--port", "3000"],
+      "runtimeExecutable": "/Users/krishnamuraree/.nvm/versions/node/v20.20.2/bin/node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "3000"],
+      "cwd": "frontend",
       "port": 3000
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "/Users/krishnamuraree/.nvm/versions/node/v20.20.2/bin/node",
+      "runtimeArgs": ["--import", "tsx", "src/index.ts"],
+      "cwd": "backend",
+      "port": 8080
     }
   ]
 }

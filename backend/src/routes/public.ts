@@ -2,6 +2,7 @@
 // endpoint is rate-limited (it is the one write path a stranger can hit).
 import type { FastifyPluginAsync } from 'fastify';
 import { SubmissionBodySchema } from '../api/schemas';
+import { clientIp } from '../lib/clientIp';
 import { getPublicForm, recordView } from '../services/forms';
 import { submit } from '../services/submissions';
 
@@ -27,11 +28,13 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     '/f/:formId/submissions',
     { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
     async (req, reply) => {
-      const { answers } = SubmissionBodySchema.parse(req.body ?? {});
-      const result = await submit(req.params.formId, answers, {
-        ip: req.ip,
-        userAgent: req.headers['user-agent'],
-      });
+      const { answers, turnstileToken } = SubmissionBodySchema.parse(req.body ?? {});
+      const result = await submit(
+        req.params.formId,
+        answers,
+        { ip: clientIp(req), userAgent: req.headers['user-agent'] },
+        turnstileToken,
+      );
       return reply.status(201).send(result);
     },
   );
