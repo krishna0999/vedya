@@ -25,6 +25,9 @@ const router = createRouter({
 // Resolve the session once, then gate. Unauthed → login (remembering intent);
 // authed users skip the landing/login/signup screens and land on the dashboard.
 router.beforeEach(async (to) => {
+  // A stranger's form never needs the session: don't make them wait on (or
+  // break with) /auth/me before the form can even start loading.
+  if (to.name === 'public-form') return true;
   const auth = useAuthStore();
   if (!auth.ready) await auth.init();
 

@@ -15,6 +15,7 @@ const formId = route.params.formId as string;
 
 const version = ref<FormVersion | null>(null);
 const branding = ref(true);
+const title = ref("");
 const loading = ref(true);
 const loadError = ref<string | null>(null);
 
@@ -74,6 +75,9 @@ async function load(): Promise<void> {
     const form = await api.getPublicForm(formId);
     version.value = form.version;
     branding.value = form.branding;
+    // Guarded: Vercel can deploy before the API that returns `title`.
+    title.value = form.title ?? "";
+    if (form.title) document.title = form.title;
     trackView();
     void mountTurnstile();
   } catch (err) {
@@ -195,6 +199,7 @@ onMounted(load);
           </p>
           <FormRenderer
             :version="version"
+            :title="title"
             :submitting="submitting"
             @submit="onSubmit"
           >

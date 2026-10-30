@@ -81,6 +81,7 @@ export interface TemplateCatalog {
 export interface PublicForm {
   version: FormVersion;
   branding: boolean;
+  title: string; // the title as published (shown to respondents)
 }
 
 // Error carrying the HTTP status and any machine-readable body (e.g. per-field

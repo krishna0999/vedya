@@ -15,6 +15,7 @@ const router = useRouter();
 const formId = route.params.id as string;
 
 const title = ref("Responses");
+const fieldOrder = ref<string[]>([]); // the form's field ids, top to bottom
 const submissions = ref<Submission[]>([]);
 const stats = ref<FormStats | null>(null);
 const loading = ref(true);
@@ -30,6 +31,7 @@ async function load(): Promise<void> {
       api.getFormStats(formId),
     ]);
     title.value = form.title;
+    fieldOrder.value = form.fields.map((f) => f.id);
     submissions.value = subs;
     stats.value = formStats;
   } catch (err) {
@@ -51,7 +53,8 @@ const completionRate = computed(() => {
 });
 
 // Column set: first-seen id wins its (latest) label, since submissions arrive
-// newest-first from the API.
+// newest-first from the API. Ordered like the form — labelSnapshot is jsonb,
+// which doesn't keep key order. Fields since deleted go last (stable sort).
 const columns = computed(() => {
   const cols = new Map<string, string>();
   for (const s of submissions.value) {
@@ -59,7 +62,13 @@ const columns = computed(() => {
       if (!cols.has(id)) cols.set(id, label);
     }
   }
-  return [...cols.entries()].map(([id, header]) => ({ id, header }));
+  const rank = (id: string) => {
+    const i = fieldOrder.value.indexOf(id);
+    return i === -1 ? fieldOrder.value.length : i;
+  };
+  return [...cols.entries()]
+    .map(([id, header]) => ({ id, header }))
+    .sort((a, b) => rank(a.id) - rank(b.id));
 });
 
 function formatCell(value: unknown): string {

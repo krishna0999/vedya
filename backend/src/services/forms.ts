@@ -161,12 +161,12 @@ export async function publishForm(ownerId: string, formId: string): Promise<Form
   try {
     await client.query('BEGIN');
     const { rows } = await client.query<{ id: string; version: number; published_at: Date }>(
-      `INSERT INTO form_versions (form_id, version, schema, theme)
+      `INSERT INTO form_versions (form_id, version, schema, theme, title)
        VALUES ($1,
                (SELECT COALESCE(MAX(version), 0) + 1 FROM form_versions WHERE form_id = $1),
-               $2, $3)
+               $2, $3, $4)
        RETURNING id, version, published_at`,
-      [formId, json(draft.fields), json(draft.theme)],
+      [formId, json(draft.fields), json(draft.theme), draft.title],
     );
     const created = rows[0]!;
     await client.query('UPDATE forms SET published_version_id = $2 WHERE id = $1', [formId, created.id]);
@@ -212,12 +212,17 @@ export async function getPublishedVersion(formId: string): Promise<FormVersion> 
 }
 
 // Public: the published version plus whether to show the "Made with —" badge,
-// derived from the owner's plan (CLAUDE.md §8). One query, no owner scoping.
-export async function getPublicForm(formId: string): Promise<{ version: FormVersion; branding: boolean }> {
+// derived from the owner's plan (CLAUDE.md §8), and the title respondents see.
+// One query, no owner scoping.
+export async function getPublicForm(
+  formId: string,
+): Promise<{ version: FormVersion; branding: boolean; title: string }> {
   const { rows } = await pool.query<{
     id: string; version: number; schema: Field[]; theme: Theme; published_at: Date; plan: string;
+    title: string;
   }>(
-    `SELECT fv.id, fv.version, fv.schema, fv.theme, fv.published_at, u.plan
+    `SELECT fv.id, fv.version, fv.schema, fv.theme, fv.published_at, u.plan,
+            COALESCE(fv.title, f.title) AS title
        FROM forms f
        JOIN form_versions fv ON fv.id = f.published_version_id
        JOIN users u ON u.id = f.owner_id
@@ -236,6 +241,7 @@ export async function getPublicForm(formId: string): Promise<{ version: FormVers
       publishedAt: row.published_at.toISOString(),
     },
     branding: limitsForPlan(row.plan).branding,
+    title: row.title,
   };
 }
 
