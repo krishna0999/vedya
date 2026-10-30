@@ -14,7 +14,8 @@ services:
     buildCommand: pnpm install --frozen-lockfile
     # Migrations run first on every start. They're idempotent (no-op if already applied).
     startCommand: pnpm migrate && pnpm start
-    healthCheckPath: /api/health
+    # DB-free route, so health checks don't keep Neon from scaling to zero.
+    healthCheckPath: /api/ping
     envVars:
       - key: NODE_VERSION
         value: "22"
