@@ -24,8 +24,10 @@ const done = ref(false);
 
 // Bot check (Cloudflare Turnstile), only when a site key is configured. The
 // server verifies the token; "interaction-only" keeps the widget invisible
-// unless Cloudflare actually needs the respondent to click.
-const siteKey = import.meta.env.TURNSTILE_SITE_KEY;
+// unless Cloudflare actually needs the respondent to click. The VITE_ prefix is
+// required: Vite only exposes VITE_* vars to browser code, anything else is
+// undefined at build time and the whole widget is tree-shaken out.
+const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 const turnstileEl = ref<HTMLElement | null>(null);
 let widgetId: string | undefined;
 let turnstileToken: string | undefined;
