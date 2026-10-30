@@ -25,7 +25,7 @@ const done = ref(false);
 // Bot check (Cloudflare Turnstile), only when a site key is configured. The
 // server verifies the token; "interaction-only" keeps the widget invisible
 // unless Cloudflare actually needs the respondent to click.
-const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+const siteKey = import.meta.env.TURNSTILE_SITE_KEY;
 const turnstileEl = ref<HTMLElement | null>(null);
 let widgetId: string | undefined;
 let turnstileToken: string | undefined;
@@ -34,7 +34,8 @@ function loadTurnstileScript(): Promise<void> {
   if (window.turnstile) return Promise.resolve();
   return new Promise((resolve, reject) => {
     const s = document.createElement("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.src =
+      "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     s.async = true;
     s.onload = () => resolve();
     s.onerror = () => reject(new Error("turnstile script failed"));
