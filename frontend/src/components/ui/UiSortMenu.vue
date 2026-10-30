@@ -10,7 +10,12 @@ export interface UiSortOption {
   label: string;
 }
 
-const props = defineProps<{ options: UiSortOption[]; modelValue: string }>();
+const props = defineProps<{
+  options: UiSortOption[];
+  modelValue: string;
+  /** Drop the label under sm — for toolbars that share the row with other controls. */
+  compact?: boolean;
+}>();
 const emit = defineEmits<{ "update:modelValue": [value: string] }>();
 
 const open = ref(false);
@@ -52,7 +57,8 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       @click="toggleMenu"
     >
       <UiIcon name="bars-3-bottom-left" class="text-inherit h-5 w-5 shrink-0" />
-      <span class="hidden sm:inline">{{ activeLabel }}</span>
+      <!-- The label rides along on mobile too: a bare ☰ doesn't say "sort". -->
+      <span :class="compact ? 'hidden sm:inline' : ''">{{ activeLabel }}</span>
     </button>
 
     <transition

@@ -241,7 +241,12 @@ onMounted(load);
     <!-- Content — the shared AppShell topbar carries search; page actions
            (AI generate, New form) live in this heading row instead. -->
     <main class="w-full px-6 py-8">
-      <div class="mb-5 flex flex-nowrap items-center justify-between gap-3">
+      <!-- Title stacks above the actions on mobile so neither has to squeeze;
+           the primary CTA then takes the full width (flex-1) and is an easy
+           thumb target. From sm up it's the usual one-line heading row. -->
+      <div
+        class="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between"
+      >
         <div class="min-w-0">
           <h1 class="truncate text-lg font-semibold text-ink-900">
             {{ activeView === "templates" ? "Templates" : "My forms" }}
@@ -259,7 +264,7 @@ onMounted(load);
               }}
             </span>
             <UiFilterMenu v-model="statusFilter" :options="STATUS_OPTIONS" />
-            <UiSortMenu v-model="sortBy" :options="SORT_OPTIONS" />
+            <UiSortMenu v-model="sortBy" :options="SORT_OPTIONS" compact />
           </template>
 
           <!-- On the templates view, surface AI generation directly: "none of
@@ -275,8 +280,13 @@ onMounted(load);
           </UiButton>
 
           <!-- Create form split dropdown: blank vs. AI generate -->
-          <div ref="createRoot" class="relative" @keydown.escape="closeCreate">
+          <div
+            ref="createRoot"
+            class="relative flex-1 sm:flex-none"
+            @keydown.escape="closeCreate"
+          >
             <UiButton
+              class="w-full sm:w-auto"
               :disabled="creating"
               aria-haspopup="menu"
               :aria-expanded="createOpen"
