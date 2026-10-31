@@ -21,6 +21,9 @@ const router = createRouter({
     { path: '/reset-password', name: 'reset-password', component: () => import('@/pages/PasswordResetView.vue'), meta: { title: 'Reset password' } },
     { path: '/verify-email', name: 'verify-email', component: () => import('@/pages/VerifyEmailView.vue'), meta: { title: 'Confirm email' } },
     { path: '/f/:formId', name: 'public-form', component: () => import('@/pages/PublicFormView.vue'), meta: { public: true } },
+    // Public template gallery + pages (SEO). Prerendered as static HTML at build.
+    { path: '/templates', name: 'templates', component: () => import('@/pages/TemplatesView.vue'), meta: { public: true, title: 'Free form templates', description: 'Free form templates for contact forms, RSVPs, job applications, surveys, registrations and more. Pick one, edit anything, share a link.' } },
+    { path: '/templates/:slug', name: 'template', component: () => import('@/pages/TemplateView.vue'), meta: { public: true, title: 'Form template' } },
     { path: '/privacy', name: 'privacy', component: () => import('@/pages/PrivacyView.vue'), meta: { public: true, title: 'Privacy Policy', description: 'How Vedya collects, uses, and protects your data and the responses your forms collect.' } },
     { path: '/terms', name: 'terms', component: () => import('@/pages/TermsView.vue'), meta: { public: true, title: 'Terms of Service', description: 'The terms for using Vedya, the online form builder.' } },
     // Unknown paths fall back to the landing page (which redirects if logged in).

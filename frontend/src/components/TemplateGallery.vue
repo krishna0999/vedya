@@ -374,6 +374,12 @@ onMounted(load);
                 </span>
                 <span class="text-ink-300">·</span>
                 <span>By Vedya</span>
+                <span class="text-ink-300">·</span>
+                <router-link
+                  :to="{ name: 'template', params: { slug: previewTemplate.id } }"
+                  class="font-medium text-brand-700 hover:text-brand-800"
+                  >Full page</router-link
+                >
               </p>
             </div>
           </div>

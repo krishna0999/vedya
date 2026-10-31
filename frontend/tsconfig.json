@@ -16,6 +16,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "vite.config.ts", "middleware.ts"],
+  "include": ["src", "vite.config.ts", "middleware.ts", "scripts"],
   "exclude": ["../backend/src/schema/*.test.ts", "../backend/src/schema/*.spec.ts"]
 }

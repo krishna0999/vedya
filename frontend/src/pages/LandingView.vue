@@ -143,6 +143,11 @@ function toggleFaq(i: number): void {
     >
       <UiLogo />
       <nav class="flex items-center gap-2">
+        <router-link
+          :to="{ name: 'templates' }"
+          class="hidden px-3 py-1.5 text-sm font-medium text-ink-600 hover:text-ink-900 sm:inline"
+          >Templates</router-link
+        >
         <a
           href="#pricing"
           class="hidden px-3 py-1.5 text-sm font-medium text-ink-600 hover:text-ink-900 sm:inline"
@@ -361,7 +366,10 @@ function toggleFaq(i: number): void {
       class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-ink-500"
     >
       © 2026 Vedya
-      <nav class="mt-2 flex justify-center gap-4" aria-label="Legal">
+      <nav class="mt-2 flex justify-center gap-4" aria-label="Footer">
+        <router-link :to="{ name: 'templates' }" class="hover:text-ink-700"
+          >Templates</router-link
+        >
         <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700"
           >Privacy</router-link
         >
