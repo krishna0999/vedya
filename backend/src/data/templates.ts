@@ -702,6 +702,98 @@ export const TEMPLATES: FormTemplate[] = [
 
   // — Education —
   {
+    id: 'admission-enquiry',
+    title: 'Admission enquiry',
+    category: 'Education',
+    description: 'Capture enquiries from parents and students for your classes.',
+    icon: '🏫',
+    fields: [
+      f('student', 'short_text', 'Student name', { required: true }),
+      f('parent', 'short_text', 'Parent or guardian name', { required: true }),
+      f('phone', 'phone', 'Phone number (WhatsApp)', { required: true }),
+      f('email', 'email', 'Email'),
+      f('class', 'dropdown', 'Class', {
+        required: true,
+        options: [
+          opt('6-8', 'Class 6 to 8'),
+          opt('9-10', 'Class 9 to 10'),
+          opt('11-12', 'Class 11 to 12'),
+          opt('other', 'College or other'),
+        ],
+      }),
+      f('course', 'dropdown', 'Interested in', {
+        required: true,
+        options: [
+          opt('tuition', 'School tuition'),
+          opt('jee', 'JEE'),
+          opt('neet', 'NEET'),
+          opt('foundation', 'Foundation / Olympiad'),
+          opt('other', 'Other'),
+        ],
+      }),
+      f('mode', 'single_select', 'Preferred mode', {
+        options: [opt('offline', 'At the centre'), opt('online', 'Online'), opt('either', 'Either')],
+      }),
+      f('timing', 'single_select', 'Preferred batch timing', {
+        options: [
+          opt('morning', 'Morning'),
+          opt('afternoon', 'Afternoon'),
+          opt('evening', 'Evening'),
+          opt('weekend', 'Weekends'),
+        ],
+      }),
+      f('source', 'dropdown', 'How did you hear about us?', {
+        options: [
+          opt('friend', 'Friend or family'),
+          opt('instagram', 'Instagram'),
+          opt('google', 'Google'),
+          opt('poster', 'Poster or pamphlet'),
+          opt('other', 'Other'),
+        ],
+      }),
+      f('questions', 'long_text', 'Any questions for us?'),
+    ],
+  },
+  {
+    id: 'demo-class-booking',
+    title: 'Demo class booking',
+    category: 'Education',
+    description: 'Let students book a free trial class at a time that suits them.',
+    icon: '🧑‍🏫',
+    fields: [
+      f('student', 'short_text', 'Student name', { required: true }),
+      f('phone', 'phone', 'Parent or student phone (WhatsApp)', { required: true }),
+      f('class', 'dropdown', 'Class', {
+        required: true,
+        options: [
+          opt('6-8', 'Class 6 to 8'),
+          opt('9-10', 'Class 9 to 10'),
+          opt('11-12', 'Class 11 to 12'),
+          opt('other', 'College or other'),
+        ],
+      }),
+      f('subjects', 'multi_select', 'Subjects', {
+        required: true,
+        options: [
+          opt('maths', 'Maths'),
+          opt('physics', 'Physics'),
+          opt('chemistry', 'Chemistry'),
+          opt('biology', 'Biology'),
+          opt('english', 'English'),
+        ],
+      }),
+      f('date', 'date', 'Preferred date', { required: true, date: dt() }),
+      f('slot', 'single_select', 'Preferred time', {
+        required: true,
+        options: [opt('4pm', '4 to 5 PM'), opt('5pm', '5 to 6 PM'), opt('6pm', '6 to 7 PM')],
+      }),
+      f('mode', 'single_select', 'Attend', {
+        options: [opt('offline', 'At the centre'), opt('online', 'Online')],
+      }),
+      f('notes', 'long_text', 'Anything the teacher should know?'),
+    ],
+  },
+  {
     id: 'student-feedback',
     title: 'Student feedback',
     category: 'Education',
