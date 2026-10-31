@@ -8,6 +8,7 @@ import { useRoute } from "vue-router";
 import type { FormVersion } from "@schema";
 import { api, ApiError } from "@/api/client";
 import FormRenderer from "@/components/FormRenderer.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 import UiSkeleton from "@/components/ui/UiSkeleton.vue";
 
 const route = useRoute();
@@ -145,7 +146,7 @@ onMounted(load);
       <div
         v-if="loading"
         role="status"
-        class="rounded-2xl border border-line-200 bg-white p-6 shadow-card sm:p-8"
+        class="rounded-2xl border border-line-200 bg-white p-6 sm:p-10"
       >
         <span class="sr-only">Loading…</span>
         <UiSkeleton class="h-6 w-2/3" />
@@ -166,12 +167,14 @@ onMounted(load);
 
       <div
         v-else-if="done"
-        class="rounded-2xl border border-line-200 bg-white p-10 text-center shadow-card"
+        class="rounded-2xl border border-line-200 bg-white p-10 text-center"
       >
         <div
-          class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-2xl text-brand-600"
+          class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full text-white"
+          :style="{ background: version?.theme.primaryColor ?? '#047857' }"
+          aria-hidden="true"
         >
-          ✓
+          <UiIcon name="check" class="h-6 w-6 text-inherit" />
         </div>
         <h1 class="text-lg font-semibold text-ink-900">
           Your response is submitted. Thank you!
@@ -193,8 +196,10 @@ onMounted(load);
       </div>
 
       <div v-else-if="version">
+        <!-- Top edge in the form's own colour: the creator's brand, not ours. -->
         <div
-          class="rounded-2xl border border-line-200 bg-white p-6 shadow-card sm:p-8"
+          class="rounded-2xl border border-t-4 border-line-200 bg-white p-6 sm:p-10"
+          :style="{ borderTopColor: version.theme.primaryColor }"
         >
           <p
             v-if="submitError"

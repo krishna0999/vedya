@@ -12,13 +12,13 @@ defineProps<{
 </script>
 
 <template>
-  <div class="mb-5">
-    <label v-if="label" :for="inputId" class="mb-1 block text-sm font-medium text-gray-800">
+  <div class="mb-7">
+    <label v-if="label" :for="inputId" class="mb-1.5 block text-[0.95rem] font-medium leading-snug text-ink-900">
       {{ label }}
-      <span v-if="required" class="text-red-500" aria-hidden="true">*</span>
+      <span v-if="required" class="text-danger" aria-hidden="true">*</span>
     </label>
-    <p v-if="description" class="mb-1.5 text-sm text-gray-500">{{ description }}</p>
+    <p v-if="description" class="mb-2 text-sm text-ink-500">{{ description }}</p>
     <slot />
-    <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
+    <p v-if="error" class="mt-1.5 text-sm text-danger">{{ error }}</p>
   </div>
 </template>

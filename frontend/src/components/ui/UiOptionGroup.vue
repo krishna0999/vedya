@@ -37,11 +37,11 @@ function onChange(v: string): void {
 </script>
 
 <template>
-  <div class="space-y-1">
+  <div class="space-y-2">
     <label
       v-for="o in options"
       :key="o.id"
-      class="flex cursor-pointer items-start gap-3 py-1.5"
+      :class="['fb-option', isChecked(optValue(o)) && 'fb-option--on']"
     >
       <input
         :type="multiple ? 'checkbox' : 'radio'"
@@ -56,7 +56,6 @@ function onChange(v: string): void {
           'fb-mark',
           multiple ? 'fb-mark--check' : 'fb-mark--radio',
           isChecked(optValue(o)) && 'fb-mark--on',
-          'peer-focus-visible:ring-2 peer-focus-visible:ring-brand-300 peer-focus-visible:ring-offset-1',
         ]"
         aria-hidden="true"
       >

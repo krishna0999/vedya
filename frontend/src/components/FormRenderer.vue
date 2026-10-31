@@ -95,7 +95,7 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
 
 <template>
   <form :style="themeVars" class="mx-auto max-w-xl" novalidate @submit.prevent="onSubmit">
-    <h1 v-if="title" class="mb-6 text-2xl font-semibold text-ink-900">{{ title }}</h1>
+    <h1 v-if="title" class="mb-8 text-3xl font-semibold tracking-tight text-ink-900">{{ title }}</h1>
 
     <template v-for="field in version.fields" :key="field.id">
       <!-- section_break: presentational only, carries no answer -->

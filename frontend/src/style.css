@@ -111,6 +111,28 @@
     background: var(--fb-primary);
   }
 
+  /* A choice as a bordered row (Typeform/Tally style). Selected and keyboard
+     focus use the FORM's colour, never our brand — form-theme layer only. */
+  .fb-option {
+    @apply flex cursor-pointer items-start gap-3 border bg-white px-3.5 py-3;
+    border-color: #d1d5db; /* line-300 */
+    border-radius: var(--fb-radius, 10px);
+    transition:
+      border-color var(--dur-fast) var(--ease-soft),
+      background-color var(--dur-fast) var(--ease-soft);
+  }
+  .fb-option:hover {
+    border-color: #9ca3af; /* line-400 */
+  }
+  .fb-option--on,
+  .fb-option--on:hover {
+    border-color: var(--fb-primary);
+    background: color-mix(in srgb, var(--fb-primary) 6%, white);
+  }
+  .fb-option:has(input:focus-visible) {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fb-primary) 22%, transparent);
+  }
+
   /* Phone input container — one field housing the country selector + number. */
   .fb-phone {
     @apply flex items-stretch overflow-hidden border bg-white;
