@@ -117,12 +117,12 @@ async function submit(): Promise<void> {
           <UiButton type="submit" :disabled="busy" class="w-full">
             {{ busy ? "Please wait…" : cta }}
           </UiButton>
-          <p v-if="isSignup" class="text-center text-sm text-ink-500">
+          <!-- <p v-if="isSignup" class="text-center text-sm text-ink-500">
             By signing up you agree to our
             <router-link :to="{ name: 'terms' }" class="font-medium text-brand-700 hover:text-brand-800">Terms</router-link>
             and
             <router-link :to="{ name: 'privacy' }" class="font-medium text-brand-700 hover:text-brand-800">Privacy Policy</router-link>.
-          </p>
+          </p> -->
         </form>
       </div>
 

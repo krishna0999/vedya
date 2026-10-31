@@ -130,7 +130,8 @@ async function onSubmit(answers: Record<string, unknown>): Promise<void> {
     done.value = true;
     // Inside an iframe, navigating would load the creator's page in the frame;
     // the done screen offers the link (target _top) instead.
-    if (redirectUrl.value && !embedded) window.location.assign(redirectUrl.value);
+    if (redirectUrl.value && !embedded)
+      window.location.assign(redirectUrl.value);
   } catch (err) {
     submitError.value =
       err instanceof ApiError && err.status === 429
@@ -273,12 +274,12 @@ onMounted(load);
         <!-- On every form, branded or not: respondents need a way to flag a
              phishing form and to see how their answers are handled. -->
         <p class="mt-2 flex justify-center gap-4 text-sm text-ink-500">
-          <router-link
+          <!-- <router-link
             :to="{ name: 'privacy' }"
             :target="embedded ? '_blank' : undefined"
             class="hover:text-ink-700"
             >Privacy</router-link
-          >
+          > -->
           <a :href="reportHref" class="hover:text-ink-700">Report this form</a>
         </p>
       </div>

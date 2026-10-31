@@ -51,12 +51,12 @@ onMounted(() => {
         <router-link :to="{ name: 'templates' }" class="hover:text-ink-700"
           >Templates</router-link
         >
-        <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700"
+        <!-- <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700"
           >Privacy</router-link
         >
         <router-link :to="{ name: 'terms' }" class="hover:text-ink-700"
           >Terms</router-link
-        >
+        > -->
         <a href="mailto:support@vedya.app" class="hover:text-ink-700"
           >Contact</a
         >
