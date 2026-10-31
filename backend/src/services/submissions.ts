@@ -9,7 +9,7 @@ import { sendEmail } from '../lib/email';
 import { formatValue } from './csv';
 import { AppError, unprocessable } from '../lib/errors';
 import { limitsForPlan } from '../limits';
-import { getPublishedVersion } from './forms';
+import { assertAcceptingResponses, getPublishedVersion } from './forms';
 
 export interface SubmitMeta {
   ip?: string;
@@ -64,6 +64,7 @@ export async function submit(
 ): Promise<{ id: string; submittedAt: string }> {
   await assertHuman(turnstileToken, meta.ip); // before any DB work: shed bots cheaply
   const version = await getPublishedVersion(formId); // 404 if unpublished/missing
+  await assertAcceptingResponses(formId); // closed by the owner, a date, or a cap
   await assertWithinQuota(formId); // freemium response cap
 
   const result = validateAnswers(version, answers);

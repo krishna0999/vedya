@@ -2,9 +2,12 @@
 // this is testable against a throwaway database. All owner-scoped reads/writes
 // filter by owner_id (the auth trust boundary until Lucia arrives in step 5).
 import { randomUUID } from 'node:crypto';
-import type { Field, FormDraft, FormVersion, Submission, Theme } from '../schema/index';
+import { isFormClosed } from '../schema/index';
+import type {
+  Field, FormAccess, FormDraft, FormEnding, FormVersion, Submission, Theme,
+} from '../schema/index';
 import { pool } from '../db/pool';
-import { notFound } from '../lib/errors';
+import { AppError, notFound } from '../lib/errors';
 import { DEFAULT_THEME } from '../lib/theme';
 import { limitsForPlan } from '../limits';
 import { toCsv, type CsvColumn } from './csv';
@@ -38,6 +41,8 @@ export interface DraftPatch {
   category?: string;
   fields?: Field[];
   theme?: Theme;
+  ending?: FormEnding;
+  access?: FormAccess;
 }
 
 interface DraftRow { current_draft: FormDraft }
@@ -141,6 +146,8 @@ export async function updateForm(ownerId: string, formId: string, patch: DraftPa
     category: patch.category ?? current.category,
     fields: patch.fields ?? current.fields,
     theme: patch.theme ?? current.theme,
+    ending: patch.ending ?? current.ending,
+    access: patch.access ?? current.access,
     updatedAt: new Date().toISOString(),
   };
   await pool.query(
@@ -167,12 +174,12 @@ export async function publishForm(ownerId: string, formId: string): Promise<Form
   try {
     await client.query('BEGIN');
     const { rows } = await client.query<{ id: string; version: number; published_at: Date }>(
-      `INSERT INTO form_versions (form_id, version, schema, theme, title)
+      `INSERT INTO form_versions (form_id, version, schema, theme, title, ending)
        VALUES ($1,
                (SELECT COALESCE(MAX(version), 0) + 1 FROM form_versions WHERE form_id = $1),
-               $2, $3, $4)
+               $2, $3, $4, $5)
        RETURNING id, version, published_at`,
-      [formId, json(draft.fields), json(draft.theme), draft.title],
+      [formId, json(draft.fields), json(draft.theme), draft.title, draft.ending ? json(draft.ending) : null],
     );
     const created = rows[0]!;
     await client.query('UPDATE forms SET published_version_id = $2 WHERE id = $1', [formId, created.id]);
@@ -183,6 +190,7 @@ export async function publishForm(ownerId: string, formId: string): Promise<Form
       version: created.version,
       fields: draft.fields,
       theme: draft.theme,
+      ...(draft.ending && { ending: draft.ending }),
       publishedAt: created.published_at.toISOString(),
     };
   } catch (err) {
@@ -217,18 +225,21 @@ export async function getPublishedVersion(formId: string): Promise<FormVersion> 
   };
 }
 
-// Public: the published version plus whether to show the "Made with —" badge,
-// derived from the owner's plan (CLAUDE.md §8), and the title respondents see.
-// One query, no owner scoping.
+// Public: the published version plus whether to show the "Made with" badge,
+// derived from the owner's plan (CLAUDE.md §8), the title respondents see, and
+// whether the form still takes responses (read live from the draft's access
+// settings, so closing never needs a republish). One query, no owner scoping.
 export async function getPublicForm(
   formId: string,
-): Promise<{ version: FormVersion; branding: boolean; title: string }> {
+): Promise<{ version: FormVersion; branding: boolean; title: string; closed: boolean }> {
   const { rows } = await pool.query<{
-    id: string; version: number; schema: Field[]; theme: Theme; published_at: Date; plan: string;
-    title: string;
+    id: string; version: number; schema: Field[]; theme: Theme; ending: FormEnding | null;
+    published_at: Date; plan: string; title: string; access: FormAccess | null; responses: string;
   }>(
-    `SELECT fv.id, fv.version, fv.schema, fv.theme, fv.published_at, u.plan,
-            COALESCE(fv.title, f.title) AS title
+    `SELECT fv.id, fv.version, fv.schema, fv.theme, fv.ending, fv.published_at, u.plan,
+            COALESCE(fv.title, f.title) AS title,
+            f.current_draft->'access' AS access,
+            (SELECT count(*) FROM submissions s WHERE s.form_id = f.id) AS responses
        FROM forms f
        JOIN form_versions fv ON fv.id = f.published_version_id
        JOIN users u ON u.id = f.owner_id
@@ -244,11 +255,30 @@ export async function getPublicForm(
       version: row.version,
       fields: row.schema,
       theme: row.theme,
+      ...(row.ending && { ending: row.ending }),
       publishedAt: row.published_at.toISOString(),
     },
     branding: limitsForPlan(row.plan).branding,
     title: row.title,
+    closed: isFormClosed(row.access, Number(row.responses)),
   };
+}
+
+// Public: refuse a submission once the form has closed. The same live rule the
+// renderer was told about, re-checked here because the client can't be trusted.
+// ponytail: count-then-insert isn't atomic, so simultaneous submits can overshoot
+// maxResponses by a few; lock the form row if exact caps ever matter.
+export async function assertAcceptingResponses(formId: string): Promise<void> {
+  const { rows } = await pool.query<{ access: FormAccess | null; responses: string }>(
+    `SELECT current_draft->'access' AS access,
+            (SELECT count(*) FROM submissions WHERE form_id = $1) AS responses
+       FROM forms WHERE id = $1`,
+    [formId],
+  );
+  const row = rows[0];
+  if (row && isFormClosed(row.access, Number(row.responses))) {
+    throw new AppError(403, 'This form is no longer accepting responses.');
+  }
 }
 
 // Public: record one renderer view. Only published forms count (the WHERE

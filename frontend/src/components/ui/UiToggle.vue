@@ -11,6 +11,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>();
       type="button"
       role="switch"
       :aria-checked="modelValue"
+      :aria-label="label"
       class="relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-1"
       :class="modelValue ? 'bg-brand-600' : 'bg-ink-200'"
       @click="emit('update:modelValue', !modelValue)"

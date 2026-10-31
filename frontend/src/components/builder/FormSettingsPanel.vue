@@ -1,8 +1,11 @@
 <script setup lang="ts">
 // Right pane when no field is selected: form title + form theme (the end-user's
-// per-form styling, distinct from our product chrome).
-import { ref, watch } from 'vue';
-import { FORM_TITLE_MAX, validateFormTitle } from '@schema';
+// per-form styling, distinct from our product chrome), what respondents see
+// after submitting, and whether the form still takes responses.
+import { computed, ref, watch } from 'vue';
+import { FORM_TITLE_MAX, isSafeRedirectUrl, validateFormTitle } from '@schema';
+import UiDatePicker from '@/components/ui/UiDatePicker.vue';
+import UiToggle from '@/components/ui/UiToggle.vue';
 import { useBuilderStore } from '@/stores/builder';
 import { FORM_CATEGORIES } from '@/data/categories';
 import BuilderSelect from './BuilderSelect.vue';
@@ -35,6 +38,35 @@ function onTitleBlur(): void {
   if (!titleError.value) return;
   title.value = builder.draft.title;
   titleError.value = null;
+}
+
+// Same pattern as the title: the draft only ever holds a valid link (or none).
+const redirect = ref(builder.draft.ending?.redirectUrl ?? '');
+const redirectError = ref<string | null>(null);
+function onRedirectInput(value: string): void {
+  redirect.value = value;
+  const url = value.trim();
+  redirectError.value = url && !isSafeRedirectUrl(url) ? 'Use a full link starting with https://' : null;
+  if (!redirectError.value) builder.setEnding({ redirectUrl: url });
+}
+
+// Close date: picked as a day, stored as the end of that day in the creator's
+// timezone, so "closes on the 5th" still takes responses all of the 5th.
+const closesOn = computed(() => {
+  const at = builder.draft.access?.closesAt;
+  if (!at) return undefined;
+  const d = new Date(at);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+});
+function setClosesOn(day: unknown): void {
+  builder.setAccess({
+    closesAt: typeof day === 'string' ? new Date(`${day}T23:59:59.999`).toISOString() : undefined,
+  });
+}
+
+function setMaxResponses(value: string): void {
+  const n = Math.floor(Number(value));
+  builder.setAccess({ maxResponses: value.trim() && n >= 1 ? n : undefined });
 }
 
 // Leading "" clears the type back to none.
@@ -116,6 +148,80 @@ const FONTS = [
         :model-value="builder.draft.theme.fontFamily"
         :options="FONTS"
         @update:model-value="builder.setTheme({ fontFamily: $event })"
+      />
+    </div>
+
+    <div class="border-t border-line-100 pt-3">
+      <p class="ui-label">After submit</p>
+
+      <label for="ending-message" class="mb-1 block text-sm text-ink-500">Thank-you message</label>
+      <textarea
+        id="ending-message"
+        class="ui-input min-h-[72px] resize-y"
+        maxlength="500"
+        placeholder="Your response is submitted. Thank you!"
+        :value="builder.draft.ending?.message ?? ''"
+        @input="builder.setEnding({ message: ($event.target as HTMLTextAreaElement).value })"
+      />
+
+      <label for="ending-redirect" class="mb-1 mt-3 block text-sm text-ink-500">Redirect to a page</label>
+      <input
+        id="ending-redirect"
+        class="ui-input"
+        type="url"
+        inputmode="url"
+        placeholder="https://example.com/thanks"
+        :class="redirectError && 'border-danger focus:border-danger focus:ring-red-100'"
+        :value="redirect"
+        :aria-invalid="!!redirectError"
+        :aria-describedby="redirectError ? 'ending-redirect-error' : undefined"
+        @input="onRedirectInput(($event.target as HTMLInputElement).value)"
+      />
+      <p v-if="redirectError" id="ending-redirect-error" role="alert" class="mt-1 text-sm text-danger">
+        {{ redirectError }}
+      </p>
+      <p v-else class="mt-1 text-sm text-ink-500">Optional. Respondents go here right after submitting.</p>
+    </div>
+
+    <div class="border-t border-line-100 pt-3">
+      <p class="ui-label">Responses</p>
+      <p class="mb-3 text-sm text-ink-500">These apply right away, no need to publish.</p>
+
+      <UiToggle
+        label="Accepting responses"
+        :model-value="!builder.draft.access?.closed"
+        @update:model-value="builder.setAccess({ closed: !$event })"
+      />
+
+      <div class="mb-1 mt-3 flex items-baseline justify-between">
+        <label for="closes-on" class="text-sm text-ink-500">Close after</label>
+        <button
+          v-if="closesOn"
+          type="button"
+          class="text-sm font-medium text-brand-700 hover:text-brand-800"
+          @click="setClosesOn(undefined)"
+        >
+          Clear
+        </button>
+      </div>
+      <UiDatePicker
+        id="closes-on"
+        placeholder="No close date"
+        :model-value="closesOn"
+        :presets="[]"
+        @update:model-value="setClosesOn"
+      />
+
+      <label for="max-responses" class="mb-1 mt-3 block text-sm text-ink-500">Response limit</label>
+      <input
+        id="max-responses"
+        class="ui-input"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="No limit"
+        :value="builder.draft.access?.maxResponses ?? ''"
+        @change="setMaxResponses(($event.target as HTMLInputElement).value)"
       />
     </div>
   </div>

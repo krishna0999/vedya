@@ -62,6 +62,21 @@ export interface Theme {
   borderRadius: number;
 }
 
+// What a respondent sees after submitting. Part of the published snapshot, so
+// edits go live on the next publish like everything else respondents see.
+export interface FormEnding {
+  message?: string;      // replaces the default thank-you line
+  redirectUrl?: string;  // http(s) only (isSafeRedirectUrl); sent there after submit
+}
+
+// Whether the form takes responses. Stored on the draft but read LIVE by the
+// public endpoints, so closing a form never needs a republish.
+export interface FormAccess {
+  closed?: boolean;       // manual off switch
+  closesAt?: string;      // ISO timestamp; closed from then on
+  maxResponses?: number;  // closed once the form has this many responses
+}
+
 export interface FormDraft {              // editable working copy
   id: string;
   ownerId: string;
@@ -69,6 +84,8 @@ export interface FormDraft {              // editable working copy
   category?: string;               // owner-set form type (e.g. 'Survey'); optional
   fields: Field[];
   theme: Theme;
+  ending?: FormEnding;
+  access?: FormAccess;
   updatedAt: string;
 }
 
@@ -78,6 +95,7 @@ export interface FormVersion {            // IMMUTABLE — created on publish
   version: number;                 // monotonic: 1, 2, 3…
   fields: Field[];                 // frozen
   theme: Theme;
+  ending?: FormEnding;
   publishedAt: string;
 }
 

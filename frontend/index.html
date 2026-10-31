@@ -11,10 +11,9 @@
       content="Design a beautiful form, publish it to a shareable link, and watch responses roll in. Free to start, no credit card required."
     />
     <meta name="theme-color" content="#047857" />
-    <!-- Link previews (WhatsApp, Slack, X, LinkedIn). Static for the whole SPA:
-         crawlers don't run JS, so a shared form link previews as Vedya, not the
-         form. ponytail: per-form previews need an edge function that injects
-         the form's title — add when shared links matter for growth. -->
+    <!-- Link previews (WhatsApp, Slack, X, LinkedIn). Crawlers don't run JS;
+         /f/:id links get the form's own title from middleware.ts, which
+         rewrites these tags, so keep their attribute order. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Vedya" />
     <meta

@@ -1,7 +1,9 @@
 // Typed client for the Fastify API. All server shapes come from @schema (the
 // single source of truth); only response-envelope shapes unique to the API
 // (summaries, submit result) are declared here.
-import type { Field, FormDraft, FormVersion, Submission, Theme } from "@schema";
+import type {
+  Field, FormAccess, FormDraft, FormEnding, FormVersion, Submission, Theme,
+} from "@schema";
 
 const BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080/api";
 
@@ -47,6 +49,8 @@ export interface DraftPatch {
   category?: string;
   fields?: Field[];
   theme?: Theme;
+  ending?: FormEnding;
+  access?: FormAccess;
 }
 
 export interface AuthUser {
@@ -82,6 +86,7 @@ export interface PublicForm {
   version: FormVersion;
   branding: boolean;
   title: string; // the title as published (shown to respondents)
+  closed?: boolean; // no longer taking responses (optional: older API)
 }
 
 // Error carrying the HTTP status and any machine-readable body (e.g. per-field

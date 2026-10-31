@@ -18,6 +18,7 @@ import FormRenderer from "@/components/FormRenderer.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiConfirmDialog from "@/components/ui/UiConfirmDialog.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
+import { embedCode } from "@/lib/share";
 
 const router = useRouter();
 const builder = useBuilderStore();
@@ -76,11 +77,15 @@ const publicUrl = computed(
   () => `${window.location.origin}/f/${builder.draft.id}`,
 );
 
-const copied = ref(false);
-async function copyLink(): Promise<void> {
-  await navigator.clipboard.writeText(publicUrl.value);
-  copied.value = true;
-  setTimeout(() => (copied.value = false), 1500);
+const copied = ref<"link" | "embed" | null>(null);
+async function copyLink(what: "link" | "embed"): Promise<void> {
+  await navigator.clipboard.writeText(
+    what === "link"
+      ? publicUrl.value
+      : embedCode(builder.draft.id, builder.draft.title),
+  );
+  copied.value = what;
+  setTimeout(() => (copied.value = null), 1500);
 }
 
 // One verb for one action (flush draft + snapshot a new published version):
@@ -246,9 +251,16 @@ function confirmLeave(): void {
       <button
         type="button"
         class="text-sm font-medium text-brand-700 hover:text-brand-800"
-        @click="copyLink"
+        @click="copyLink('link')"
       >
-        {{ copied ? "Copied!" : "Copy link" }}
+        {{ copied === "link" ? "Copied!" : "Copy link" }}
+      </button>
+      <button
+        type="button"
+        class="text-sm font-medium text-brand-700 hover:text-brand-800"
+        @click="copyLink('embed')"
+      >
+        {{ copied === "embed" ? "Copied!" : "Copy embed code" }}
       </button>
       <a
         :href="publicUrl"

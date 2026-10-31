@@ -2,7 +2,7 @@
 // These parse/validate shape only; the canonical TypeScript types still come from
 // @schema. The field-type list here mirrors schema/types.ts FieldType.
 import { z } from 'zod';
-import { FORM_TITLE_MAX, validateFormTitle } from '../schema/index';
+import { FORM_TITLE_MAX, isSafeRedirectUrl, validateFormTitle } from '../schema/index';
 
 // The form name. Same shared rule the builder runs for instant feedback — the
 // client is UX, this is the trust boundary (CLAUDE.md §3).
@@ -60,6 +60,21 @@ const ThemeSchema = z.object({
   borderRadius: z.number(),
 });
 
+const EndingSchema = z.object({
+  message: z.string().max(500, 'Keep the message under 500 characters.').optional(),
+  redirectUrl: z
+    .string()
+    .max(2000)
+    .refine(isSafeRedirectUrl, 'Use a full link starting with https://')
+    .optional(),
+});
+
+const AccessSchema = z.object({
+  closed: z.boolean().optional(),
+  closesAt: z.string().datetime({ offset: true }).optional(),
+  maxResponses: z.number().int().min(1).max(1_000_000).optional(),
+});
+
 // Create is deliberately laxer than rename: an absent or blank title is a
 // normal case here (createFormWith falls back to "Untitled form"), so only the
 // ceiling applies. Renaming to blank, by contrast, is never intended.
@@ -89,6 +104,8 @@ export const DraftPatchSchema = z
     category: z.string().max(60).optional(),
     fields: z.array(FieldSchema).optional(),
     theme: ThemeSchema.optional(),
+    ending: EndingSchema.optional(),
+    access: AccessSchema.optional(),
   })
   .strict();
 

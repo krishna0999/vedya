@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { FORM_TITLE_MAX, validateAnswers, validateFormTitle } from './validate';
+import {
+  FORM_TITLE_MAX, isFormClosed, isSafeRedirectUrl, validateAnswers, validateFormTitle,
+} from './validate';
 import type { Field, FormVersion } from './types';
 
 // Build a FormVersion around a set of fields with sane frozen-version metadata.
@@ -197,5 +199,30 @@ describe('validateFormTitle', () => {
   it('measures length after trimming', () => {
     expect(validateFormTitle(`  ${'a'.repeat(FORM_TITLE_MAX)}  `)).toBeNull();
     expect(validateFormTitle('a'.repeat(FORM_TITLE_MAX + 1))).toMatch(/under/);
+  });
+});
+
+describe('isSafeRedirectUrl', () => {
+  it('allows web links only', () => {
+    expect(isSafeRedirectUrl('https://example.com/thanks')).toBe(true);
+    expect(isSafeRedirectUrl('http://example.com')).toBe(true);
+    expect(isSafeRedirectUrl('javascript:alert(1)')).toBe(false);
+    expect(isSafeRedirectUrl('data:text/html,hi')).toBe(false);
+    expect(isSafeRedirectUrl('example.com')).toBe(false);
+  });
+});
+
+describe('isFormClosed', () => {
+  const now = Date.parse('2026-06-01T12:00:00Z');
+  it('is open with no settings', () => {
+    expect(isFormClosed(undefined, 5, now)).toBe(false);
+    expect(isFormClosed({}, 5, now)).toBe(false);
+  });
+  it('closes on the switch, the date, or the cap', () => {
+    expect(isFormClosed({ closed: true }, 0, now)).toBe(true);
+    expect(isFormClosed({ closesAt: '2026-06-01T11:59:59Z' }, 0, now)).toBe(true);
+    expect(isFormClosed({ closesAt: '2026-06-02T00:00:00Z' }, 0, now)).toBe(false);
+    expect(isFormClosed({ maxResponses: 3 }, 3, now)).toBe(true);
+    expect(isFormClosed({ maxResponses: 3 }, 2, now)).toBe(false);
   });
 });

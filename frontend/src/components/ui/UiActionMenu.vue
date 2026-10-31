@@ -21,6 +21,7 @@ export type UiActionIcon =
   | "pencil"
   | "responses"
   | "copy"
+  | "code"
   | "email"
   | "external"
   | "trash"
@@ -32,6 +33,7 @@ const ICONS: Record<UiActionIcon, IconName> = {
   pencil: "pencil-square",
   responses: "list-bullet",
   copy: "document-duplicate",
+  code: "code-bracket",
   email: "envelope",
   external: "arrow-top-right-on-square",
   trash: "trash",

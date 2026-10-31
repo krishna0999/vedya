@@ -3,9 +3,9 @@
 // FormVersion and feeds it to <FormRenderer>. The server re-validates on submit
 // (authoritative); this page just relays the answers and shows the outcome.
 // Form theme is scoped inside FormRenderer — no product brand leaks into it.
-import { nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import type { FormVersion } from "@schema";
+import { isSafeRedirectUrl, type FormVersion } from "@schema";
 import { api, ApiError } from "@/api/client";
 import FormRenderer from "@/components/FormRenderer.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -22,6 +22,11 @@ const reportHref = `mailto:support@vedya.app?subject=${encodeURIComponent(
 )}&body=${encodeURIComponent(
   `Form: ${window.location.origin}/f/${formId}\n\nWhat's wrong with it:\n`,
 )}`;
+// ?embed=1: rendered inside a creator's iframe (see lib/share.ts), so drop the
+// page background and open our own links in a new tab instead of the frame.
+const embedded = route.query.embed === "1";
+if (embedded) document.body.style.background = "transparent"; // show the host page behind the card
+const closed = ref(false);
 const loading = ref(true);
 const loadError = ref<string | null>(null);
 
@@ -83,7 +88,9 @@ async function load(): Promise<void> {
     branding.value = form.branding;
     // Guarded: Vercel can deploy before the API that returns `title`.
     title.value = form.title ?? "";
+    closed.value = form.closed === true;
     if (form.title) document.title = form.title;
+    if (closed.value) return;
     trackView();
     void mountTurnstile();
   } catch (err) {
@@ -121,6 +128,9 @@ async function onSubmit(answers: Record<string, unknown>): Promise<void> {
   try {
     await api.submit(formId, answers, turnstileToken);
     done.value = true;
+    // Inside an iframe, navigating would load the creator's page in the frame;
+    // the done screen offers the link (target _top) instead.
+    if (redirectUrl.value && !embedded) window.location.assign(redirectUrl.value);
   } catch (err) {
     submitError.value =
       err instanceof ApiError && err.status === 429
@@ -136,11 +146,18 @@ async function onSubmit(answers: Record<string, unknown>): Promise<void> {
   }
 }
 
+// The creator's ending, re-checked here even though the server validated it:
+// a redirect target must never be a javascript: URL.
+const redirectUrl = computed(() => {
+  const url = version.value?.ending?.redirectUrl;
+  return url && isSafeRedirectUrl(url) ? url : null;
+});
+
 onMounted(load);
 </script>
 
 <template>
-  <div class="min-h-screen bg-ink-50 px-4 py-10">
+  <div :class="embedded ? 'p-1' : 'min-h-screen bg-ink-50 px-4 py-10'">
     <div class="mx-auto max-w-xl">
       <!-- Skeleton mirror of the form card: title + a few label/input pairs -->
       <div
@@ -166,6 +183,18 @@ onMounted(load);
       </div>
 
       <div
+        v-else-if="closed"
+        class="rounded-md border border-line-200 bg-white p-10 text-center"
+      >
+        <h1 class="text-lg font-semibold text-ink-900">
+          {{ title || "This form" }} is closed
+        </h1>
+        <p class="mt-1 text-sm text-ink-500">
+          It's no longer accepting responses.
+        </p>
+      </div>
+
+      <div
         v-else-if="done"
         class="rounded-md border border-line-200 bg-white p-10 text-center"
       >
@@ -176,15 +205,31 @@ onMounted(load);
         >
           <UiIcon name="check" class="h-6 w-6 text-inherit" />
         </div>
-        <h1 class="text-lg font-semibold text-ink-900">
-          Your response is submitted. Thank you!
+        <h1 class="whitespace-pre-line text-lg font-semibold text-ink-900">
+          {{
+            version?.ending?.message || "Your response is submitted. Thank you!"
+          }}
         </h1>
-        <p class="mt-1 text-sm text-ink-500">You can close this tab now.</p>
+        <a
+          v-if="redirectUrl && embedded"
+          :href="redirectUrl"
+          target="_top"
+          rel="noopener"
+          class="mt-3 inline-block text-sm font-medium text-brand-700 hover:text-brand-800"
+          >Continue</a
+        >
+        <p v-else-if="redirectUrl" class="mt-1 text-sm text-ink-500">
+          Taking you to the next page…
+        </p>
+        <p v-else-if="!embedded" class="mt-1 text-sm text-ink-500">
+          You can close this tab now.
+        </p>
         <!-- Growth loop, free-tier forms only: paid removes our branding (§8),
              so the CTA rides the same flag as the "Made with" badge. -->
         <template v-if="branding">
           <router-link
             :to="{ name: 'signup' }"
+            :target="embedded ? '_blank' : undefined"
             class="mt-6 inline-flex items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
           >
             Create your own form
@@ -228,7 +273,10 @@ onMounted(load);
         <!-- On every form, branded or not: respondents need a way to flag a
              phishing form and to see how their answers are handled. -->
         <p class="mt-2 flex justify-center gap-4 text-sm text-ink-500">
-          <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700"
+          <router-link
+            :to="{ name: 'privacy' }"
+            :target="embedded ? '_blank' : undefined"
+            class="hover:text-ink-700"
             >Privacy</router-link
           >
           <a :href="reportHref" class="hover:text-ink-700">Report this form</a>

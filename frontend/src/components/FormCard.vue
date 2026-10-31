@@ -47,6 +47,13 @@ const moreActions = (): UiActionItem[] => [
     disabled: !props.form.published,
     title: needsPublishTitle(),
   },
+  {
+    id: "embed",
+    label: "Copy embed code",
+    icon: "code",
+    disabled: !props.form.published,
+    title: needsPublishTitle(),
+  },
   { id: "delete", label: "Delete form", icon: "trash", danger: true },
 ];
 </script>

@@ -3,7 +3,9 @@
 // touch(), so every existing action transparently saves. Validation still lives
 // only in the shared schema.
 import { defineStore } from 'pinia';
-import type { Field, FieldType, FormDraft, FormVersion, Theme } from '@schema';
+import type {
+  Field, FieldType, FormAccess, FormDraft, FormEnding, FormVersion, Theme,
+} from '@schema';
 import { makeField } from '@/data/fieldTypes';
 import { api } from '@/api/client';
 
@@ -110,6 +112,8 @@ export const useBuilderStore = defineStore('builder', {
           category: this.draft.category,
           fields: this.draft.fields,
           theme: this.draft.theme,
+          ending: this.draft.ending,
+          access: this.draft.access,
         });
         this.saveStatus = 'saved';
       } catch (err) {
@@ -152,6 +156,25 @@ export const useBuilderStore = defineStore('builder', {
     setTheme(patch: Partial<Theme>) {
       this.draft.theme = { ...this.draft.theme, ...patch };
       this.touch();
+    },
+    // Blank values are dropped: an unset message/link means "use the default".
+    setEnding(patch: Partial<FormEnding>) {
+      const next: FormEnding = { ...this.draft.ending, ...patch };
+      if (!next.message) delete next.message;
+      if (!next.redirectUrl) delete next.redirectUrl;
+      this.draft.ending = next;
+      this.touch();
+    },
+    // Access applies live (the public form reads it from the draft), so it
+    // saves without marking the form as having unpublished changes.
+    setAccess(patch: Partial<FormAccess>) {
+      const next: FormAccess = { ...this.draft.access, ...patch };
+      for (const key of Object.keys(next) as (keyof FormAccess)[]) {
+        if (next[key] === undefined || next[key] === false) delete next[key];
+      }
+      this.draft.access = next;
+      this.draft.updatedAt = new Date().toISOString();
+      this.scheduleSave();
     },
     // Append by default; `at` inserts at a position (the between-fields "+").
     addField(type: FieldType, at?: number) {

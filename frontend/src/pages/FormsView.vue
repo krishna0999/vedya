@@ -6,6 +6,8 @@ import { useRoute, useRouter } from "vue-router";
 import { api, type FormSummary } from "@/api/client";
 import { useBoard } from "@/lib/board";
 import { fuzzyMatchAny } from "@/lib/fuzzy";
+import { embedCode } from "@/lib/share";
+import { toast } from "@/lib/toast";
 import AiGenerateModal from "@/components/AiGenerateModal.vue";
 import AppShell from "@/components/AppShell.vue";
 import FormCard from "@/components/FormCard.vue";
@@ -211,6 +213,11 @@ function onAction(form: FormSummary, actionId: string): void {
       break;
     case "copy":
       copyLink(form);
+      break;
+    case "embed":
+      void navigator.clipboard
+        .writeText(embedCode(form.id, form.title))
+        .then(() => toast("Embed code copied. Paste it into your site's HTML.", "success"));
       break;
     case "email":
       emailForm(form);

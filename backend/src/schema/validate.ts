@@ -2,7 +2,7 @@
 // instant UX feedback; the server runs the SAME function as the authoritative
 // trust boundary. Never two divergent validators. No side effects, no I/O.
 
-import type { Field, FormVersion, ValidationResult } from './types';
+import type { FormAccess, Field, FormVersion, ValidationResult } from './types';
 
 // Deliberately simple, permissive-but-sane email check. We validate shape, not
 // deliverability — the latter is a delivery-time concern, not a form concern.
@@ -163,4 +163,27 @@ export function validateFormTitle(title: string): string | null {
     return `Keep the name under ${FORM_TITLE_MAX} characters.`;
   }
   return null;
+}
+
+/** Redirect targets run in the respondent's browser: plain web links only, so a
+ * creator can't smuggle in a javascript: or data: URL. */
+export function isSafeRedirectUrl(url: string): boolean {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === 'https:' || protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+/** Whether a form has stopped taking responses (manual switch, date, or cap). */
+export function isFormClosed(
+  access: FormAccess | null | undefined,
+  responseCount: number,
+  now: number = Date.now(),
+): boolean {
+  if (!access) return false;
+  if (access.closed) return true;
+  if (access.closesAt && Date.parse(access.closesAt) <= now) return true;
+  return access.maxResponses !== undefined && responseCount >= access.maxResponses;
 }
