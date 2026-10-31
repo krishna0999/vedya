@@ -21,6 +21,10 @@
 // ponytail: alignment is a prop, not auto-flipping — that needs measurement,
 // a resize/scroll listener, and a portal. Revisit if callers start guessing wrong.
 //
+// Not rendered on touch screens (hover: none): they can't hover, a tap leaves a
+// sticky :hover bubble behind, and a hidden bubble still takes up layout, so one
+// near the right edge made the whole page pan sideways on phones.
+//
 // Decorative by design: triggers already carry their own aria-label, so the
 // bubble is aria-hidden and a screen reader announces the control once.
 import { computed } from "vue";
@@ -85,7 +89,7 @@ const arrowClass = computed(() =>
       v-if="!disabled"
       role="tooltip"
       aria-hidden="true"
-      class="pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-ink-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-pop transition-opacity delay-100 duration-150 ease-soft group-hover/tip:opacity-100 group-has-[:focus-visible]/tip:opacity-100"
+      class="pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-ink-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-pop transition-opacity delay-100 duration-150 ease-soft group-hover/tip:opacity-100 group-has-[:focus-visible]/tip:opacity-100 [@media(hover:none)]:hidden"
       :class="bubbleClass"
     >
       {{ text }}
