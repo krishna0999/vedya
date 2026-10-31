@@ -309,6 +309,17 @@ export async function listSubmissions(ownerId: string, formId: string): Promise<
   return rows.map((r) => rowToSubmission(formId, r));
 }
 
+// Delete one response. Owner-scoped in the same statement (the join on forms),
+// so a submission id from someone else's form simply isn't found.
+export async function deleteSubmission(ownerId: string, formId: string, submissionId: string): Promise<void> {
+  const { rowCount } = await pool.query(
+    `DELETE FROM submissions s USING forms f
+      WHERE s.id = $1 AND s.form_id = $2 AND f.id = s.form_id AND f.owner_id = $3`,
+    [submissionId, formId, ownerId],
+  );
+  if (!rowCount) throw notFound('Response');
+}
+
 // CSV column set: union of answer-bearing field ids across ALL of a form's
 // versions, in first-appearance order, each headed by its most recent label.
 async function buildColumns(formId: string): Promise<CsvColumn[]> {

@@ -166,6 +166,8 @@ export const api = {
   deleteForm: (id: string) => request<void>("DELETE", `/forms/${id}`),
   listSubmissions: (id: string) =>
     request<Submission[]>("GET", `/forms/${id}/submissions`),
+  deleteSubmission: (formId: string, submissionId: string) =>
+    request<void>("DELETE", `/forms/${formId}/submissions/${submissionId}`),
   getFormStats: (id: string) =>
     request<FormStats>("GET", `/forms/${id}/stats`),
   getUsage: () => request<AccountUsage>("GET", "/usage"),

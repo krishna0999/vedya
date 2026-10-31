@@ -7,7 +7,7 @@ import { getUserId, requireAuth } from '../auth/session';
 import { generateForm } from '../services/ai';
 import type { DraftPatch } from '../services/forms';
 import {
-  createForm, deleteForm, exportAccount, exportSubmissionsCsv, getAccountUsage,
+  createForm, deleteForm, deleteSubmission, exportAccount, exportSubmissionsCsv, getAccountUsage,
   getForm, getFormStats, listForms, listSubmissions, publishForm, updateForm,
 } from '../services/forms';
 import { createFormFromTemplate } from '../services/templates';
@@ -63,6 +63,14 @@ export const formRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get<IdParams>('/forms/:id/submissions', async (req) => listSubmissions(getUserId(req), req.params.id));
+
+  app.delete<{ Params: { id: string; submissionId: string } }>(
+    '/forms/:id/submissions/:submissionId',
+    async (req, reply) => {
+      await deleteSubmission(getUserId(req), req.params.id, req.params.submissionId);
+      return reply.status(204).send();
+    },
+  );
 
   // Basic analytics (ROADMAP Phase 1): views / submissions for one form.
   app.get<IdParams>('/forms/:id/stats', async (req) => getFormStats(getUserId(req), req.params.id));
