@@ -97,7 +97,7 @@ const moreActions = (): UiActionItem[] => [
       </div>
     </div>
 
-    <!-- <div class="relative mt-6 min-h-0 flex-1">
+    <div class="relative mt-6 min-h-0 flex-1">
       <FormCardPreview
         :fields="form.previewFields"
         :accent="form.primaryColor"
@@ -109,7 +109,7 @@ const moreActions = (): UiActionItem[] => [
             : ''
         "
       />
-    </div> -->
+    </div>
 
     <!-- Quiet metrics — pinned to the bottom so every tile lines up -->
     <div
