@@ -16,7 +16,9 @@ import UiPhoneInput from './ui/UiPhoneInput.vue';
 import UiDatePicker from './ui/UiDatePicker.vue';
 import UiIcon from '@/components/ui/UiIcon.vue';
 
-const props = defineProps<{ version: FormVersion; title?: string; submitting?: boolean }>();
+// hideSubmit: render the questions only (the builder canvas previews one
+// field at a time with this).
+const props = defineProps<{ version: FormVersion; title?: string; submitting?: boolean; hideSubmit?: boolean }>();
 const emit = defineEmits<{ submit: [answers: Record<string, unknown>] }>();
 
 // Answers keyed by Field.id. Multi-value fields start as an empty array so they
@@ -197,13 +199,15 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
       </UiField>
     </template>
 
-    <!-- Host-page content that must sit above Submit (e.g. the public page's
-         bot check), so a respondent sees it before they click. -->
-    <slot name="before-submit" />
+    <template v-if="!hideSubmit">
+      <!-- Host-page content that must sit above Submit (e.g. the public page's
+           bot check), so a respondent sees it before they click. -->
+      <slot name="before-submit" />
 
-    <button type="submit" class="fb-btn w-full sm:w-auto" :disabled="submitting">
-      <UiIcon v-if="submitting" name="arrow-path" class="text-inherit h-5 w-5 animate-spin" />
-      {{ submitting ? 'Submitting…' : 'Submit' }}
-    </button>
+      <button type="submit" class="fb-btn w-full sm:w-auto" :disabled="submitting">
+        <UiIcon v-if="submitting" name="arrow-path" class="text-inherit h-5 w-5 animate-spin" />
+        {{ submitting ? 'Submitting…' : 'Submit' }}
+      </button>
+    </template>
   </form>
 </template>

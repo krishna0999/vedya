@@ -2,9 +2,10 @@
 // Center pane (edit mode): the draft's fields as selectable, reorderable cards.
 // Reorder via native drag-and-drop (handle) with up/down buttons as a fallback.
 import { computed, ref } from "vue";
-import type { Field, FieldType } from "@schema";
+import type { Field, FieldType, FormVersion } from "@schema";
 import { FIELD_CATEGORIES, FIELD_TYPES, metaFor } from "@/data/fieldTypes";
 import { useBuilderStore } from "@/stores/builder";
+import FormRenderer from "@/components/FormRenderer.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 
 const builder = useBuilderStore();
@@ -16,10 +17,27 @@ function typeLabel(field: Field): string {
   return metaFor(field.type)?.label ?? field.type;
 }
 
-// Compact chips summarizing the field's validation rules on the card.
+// Each card previews its question exactly as respondents will see it: the real
+// renderer, in the form's theme, made inert. The label is rendered by the card
+// itself (editable in place when selected), so the preview gets it blank.
+const previews = computed(
+  () =>
+    new Map<string, FormVersion>(
+      builder.draft.fields.map((f) => [
+        f.id,
+        { ...builder.previewVersion, fields: [{ ...f, label: "" }] },
+      ]),
+    ),
+);
+
+// The card whose question text is being typed into: not draggable meanwhile,
+// so selecting text with the mouse doesn't start a card drag.
+const editingId = ref<string | null>(null);
+
+// Compact chips for rules the preview can't show (lengths, ranges).
 function ruleChips(field: Field): string[] {
   const chips: string[] = [];
-  if (field.required) chips.push("Required");
+  if (field.type === "rating") return chips; // the stars already show the max
   const v = field.validation;
   if (v) {
     if (v.min !== undefined) chips.push(`min ${v.min}`);
@@ -89,7 +107,7 @@ const dragging = computed(() => dragIndex.value !== null);
       <li
         v-for="(field, i) in builder.draft.fields"
         :key="field.id"
-        draggable="true"
+        :draggable="editingId !== field.id"
         class="group relative rounded-xl border bg-white transition-[border-color,box-shadow,opacity] duration-150 ease-soft"
         :class="[
           builder.selectedId === field.id
@@ -175,7 +193,7 @@ const dragging = computed(() => dragIndex.value !== null);
           </div>
         </div>
 
-        <div class="flex items-center gap-3 py-3 pl-4 pr-3">
+        <div class="flex items-start gap-3 py-3.5 pl-4 pr-3">
           <!-- Drag handle: hover-reveal on desktop; always visible on touch. -->
           <span
             class="cursor-grab text-ink-300 transition-opacity duration-150 active:cursor-grabbing group-hover:text-ink-500 lg:opacity-0 lg:group-hover:opacity-100"
@@ -192,29 +210,63 @@ const dragging = computed(() => dragIndex.value !== null);
           </span>
 
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <UiIcon
-                :name="metaFor(field.type)?.icon ?? 'text-t'"
-                class="h-4 w-4 shrink-0 text-ink-400"
+            <div class="flex items-start gap-1">
+              <input
+                v-if="builder.selectedId === field.id"
+                :value="field.label"
+                type="text"
+                placeholder="Question"
+                :aria-label="`Question ${i + 1}`"
+                class="w-full rounded-md border-0 bg-transparent px-1 py-0.5 -mx-1 font-medium text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                @click.stop
+                @focus="editingId = field.id"
+                @blur="editingId = null"
+                @input="
+                  builder.updateField(field.id, {
+                    label: ($event.target as HTMLInputElement).value,
+                  })
+                "
               />
-              <span class="line-clamp-2 break-words font-medium text-ink-900">{{
-                field.label || "(untitled)"
-              }}</span>
+              <span
+                v-else
+                class="line-clamp-2 break-words py-0.5 font-medium text-ink-900"
+                :class="field.type === 'section_break' && 'text-lg'"
+                >{{ field.label || "(untitled)" }}</span
+              >
+              <span
+                v-if="field.required"
+                class="py-0.5 text-danger"
+                aria-label="Required"
+                >*</span
+              >
             </div>
+
+            <!-- What respondents see (section breaks are just the heading) -->
             <div
-              class="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-ink-500"
+              v-if="field.type !== 'section_break'"
+              inert
+              class="pointer-events-none mt-2 [&_.mb-7]:mb-0"
             >
-              <span class="rounded bg-ink-100 px-1.5 py-0.5 text-ink-500">{{
+              <FormRenderer :version="previews.get(field.id)!" hide-submit />
+            </div>
+            <p
+              v-else-if="field.description"
+              class="mt-0.5 text-sm text-ink-500"
+            >
+              {{ field.description }}
+            </p>
+
+            <div
+              class="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-ink-500"
+            >
+              <span class="rounded bg-ink-100 px-1.5 py-0.5">{{
                 typeLabel(field)
               }}</span>
               <span
                 v-for="chip in ruleChips(field)"
                 :key="chip"
-                class="rounded bg-brand-50 px-1.5 py-0.5 text-brand-700"
+                class="rounded bg-ink-100 px-1.5 py-0.5"
                 >{{ chip }}</span
-              >
-              <span v-if="field.options?.length"
-                >{{ field.options.length }} options</span
               >
             </div>
           </div>
