@@ -757,7 +757,7 @@ async function useTemplate(templateId: string): Promise<void> {
           >
             <button
               type="button"
-              class="inline-flex items-center gap-2 rounded-lg border border-line-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:border-line-300 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-55"
+              class="inline-flex items-center gap-2 rounded-md border border-line-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:border-line-300 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-55"
               :disabled="creating"
               :aria-haspopup="a.id === 'duplicate' ? 'menu' : undefined"
               :aria-expanded="a.id === 'duplicate' ? dupOpen : undefined"
@@ -832,7 +832,7 @@ async function useTemplate(templateId: string): Promise<void> {
           v-for="s in stats"
           v-else
           :key="s.label"
-          class="rounded-xl border border-line-200 bg-white p-4 shadow-card transition duration-200 ease-soft hover:-translate-y-0.5 hover:border-line-300 hover:shadow-pop"
+          class="rounded-md border border-line-200 bg-white p-4 shadow-sm"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2.5">
@@ -931,7 +931,7 @@ async function useTemplate(templateId: string): Promise<void> {
       <!-- Work first: recent forms (7) | recent responses (5) -->
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section
-          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-7"
+          class="rounded-md border border-line-200 bg-white p-5 lg:col-span-7"
           aria-label="Recent forms"
         >
           <div class="flex items-baseline justify-between">
@@ -1104,7 +1104,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
         <!-- Recent responses -->
         <section
-          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-5"
+          class="rounded-md border border-line-200 bg-white p-5 lg:col-span-5"
           aria-label="Recent responses"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1202,7 +1202,7 @@ async function useTemplate(templateId: string): Promise<void> {
       <!-- Then the numbers: analytics (8) | activity (4) -->
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section
-          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-8"
+          class="rounded-md border border-line-200 bg-white p-5 lg:col-span-8"
           aria-label="Analytics"
         >
           <div class="flex flex-wrap items-start justify-between gap-3">
@@ -1451,7 +1451,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
         <!-- Activity -->
         <section
-          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-4"
+          class="rounded-md border border-line-200 bg-white p-5 lg:col-span-4"
           aria-label="Recent activity"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1535,7 +1535,7 @@ async function useTemplate(templateId: string): Promise<void> {
         class="grid grid-cols-1 gap-4 lg:grid-cols-12"
       >
         <section
-          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-7"
+          class="rounded-md border border-line-200 bg-white p-5 lg:col-span-7"
           aria-label="Plan usage"
         >
           <div class="flex items-baseline justify-between">
@@ -1606,7 +1606,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
         <section
           v-if="!isDismissed('tips')"
-          class="flex flex-col rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-5"
+          class="flex flex-col rounded-md border border-line-200 bg-white p-5 lg:col-span-5"
           aria-label="Tips"
         >
           <div class="flex items-center justify-between gap-2">
@@ -1687,7 +1687,7 @@ async function useTemplate(templateId: string): Promise<void> {
       <!-- Health summary: what the numbers add up to -->
       <section
         v-if="!loading && health"
-        class="rounded-xl border border-line-200 bg-white p-5 shadow-card"
+        class="rounded-md border border-line-200 bg-white p-5"
         aria-label="Form health"
       >
         <h2 class="font-semibold text-ink-900">Health summary</h2>

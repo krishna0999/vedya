@@ -3,29 +3,41 @@
 // every field type, runs the SHARED validateAnswers for instant feedback, and
 // emits a submission payload keyed by Field.id. The builder is later just a UI
 // that emits the JSON this component already consumes.
-import { computed, reactive, ref } from 'vue';
-import { validateAnswers, type DateRangeValue, type Field, type FieldType, type FormVersion } from '@schema';
-import UiField from './ui/UiField.vue';
-import UiTextInput from './ui/UiTextInput.vue';
-import UiTextarea from './ui/UiTextarea.vue';
-import UiSelect from './ui/UiSelect.vue';
-import UiMultiSelectDropdown from './ui/UiMultiSelectDropdown.vue';
-import UiOptionGroup from './ui/UiOptionGroup.vue';
-import UiRating from './ui/UiRating.vue';
-import UiPhoneInput from './ui/UiPhoneInput.vue';
-import UiDatePicker from './ui/UiDatePicker.vue';
-import UiIcon from '@/components/ui/UiIcon.vue';
+import { computed, reactive, ref } from "vue";
+import {
+  validateAnswers,
+  type DateRangeValue,
+  type Field,
+  type FieldType,
+  type FormVersion,
+} from "@schema";
+import UiField from "./ui/UiField.vue";
+import UiTextInput from "./ui/UiTextInput.vue";
+import UiTextarea from "./ui/UiTextarea.vue";
+import UiSelect from "./ui/UiSelect.vue";
+import UiMultiSelectDropdown from "./ui/UiMultiSelectDropdown.vue";
+import UiOptionGroup from "./ui/UiOptionGroup.vue";
+import UiRating from "./ui/UiRating.vue";
+import UiPhoneInput from "./ui/UiPhoneInput.vue";
+import UiDatePicker from "./ui/UiDatePicker.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 // hideSubmit: render the questions only (the builder canvas previews one
 // field at a time with this).
-const props = defineProps<{ version: FormVersion; title?: string; submitting?: boolean; hideSubmit?: boolean }>();
+const props = defineProps<{
+  version: FormVersion;
+  title?: string;
+  submitting?: boolean;
+  hideSubmit?: boolean;
+}>();
 const emit = defineEmits<{ submit: [answers: Record<string, unknown>] }>();
 
 // Answers keyed by Field.id. Multi-value fields start as an empty array so they
 // always have a stable array shape for the control and the validator.
 const answers = reactive<Record<string, unknown>>({});
 for (const field of props.version.fields) {
-  if (field.type === 'multi_select' || field.type === 'multi_dropdown') answers[field.id] = [];
+  if (field.type === "multi_select" || field.type === "multi_dropdown")
+    answers[field.id] = [];
 }
 
 const submitted = ref(false);
@@ -43,13 +55,13 @@ function errorFor(field: Field): string | undefined {
 // Coerce raw control output to the type the schema expects before storing.
 function setAnswer(field: Field, raw: unknown): void {
   touched[field.id] = true;
-  if (field.type === 'number' || field.type === 'rating') {
-    if (typeof raw === 'number') {
+  if (field.type === "number" || field.type === "rating") {
+    if (typeof raw === "number") {
       answers[field.id] = raw;
       return;
     }
-    const s = String(raw ?? '').trim();
-    answers[field.id] = s === '' ? undefined : Number(s);
+    const s = String(raw ?? "").trim();
+    answers[field.id] = s === "" ? undefined : Number(s);
     return;
   }
   answers[field.id] = raw;
@@ -57,20 +69,20 @@ function setAnswer(field: Field, raw: unknown): void {
 
 function onSubmit(): void {
   submitted.value = true;
-  if (result.value.valid) emit('submit', { ...answers });
+  if (result.value.valid) emit("submit", { ...answers });
 }
 
 const themeVars = computed(() => ({
-  '--fb-primary': props.version.theme.primaryColor,
-  '--fb-radius': `${props.version.theme.borderRadius}px`,
+  "--fb-primary": props.version.theme.primaryColor,
+  "--fb-radius": `${props.version.theme.borderRadius}px`,
   fontFamily: props.version.theme.fontFamily,
 }));
 
 // phone and date have dedicated components (UiPhoneInput / UiDatePicker).
 const TEXT_INPUT_TYPES: Record<string, string> = {
-  short_text: 'text',
-  email: 'email',
-  number: 'number',
+  short_text: "text",
+  email: "email",
+  number: "number",
 };
 
 function isTextInput(type: FieldType): boolean {
@@ -96,14 +108,29 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
 </script>
 
 <template>
-  <form :style="themeVars" class="mx-auto max-w-xl" novalidate @submit.prevent="onSubmit">
-    <h1 v-if="title" class="mb-8 text-3xl font-semibold tracking-tight text-ink-900">{{ title }}</h1>
+  <form
+    :style="themeVars"
+    class="mx-auto max-w-xl"
+    novalidate
+    @submit.prevent="onSubmit"
+  >
+    <h1
+      v-if="title"
+      class="mb-8 text-3xl font-semibold tracking-tight text-ink-900"
+    >
+      {{ title }}
+    </h1>
 
     <template v-for="field in version.fields" :key="field.id">
       <!-- section_break: presentational only, carries no answer -->
-      <div v-if="field.type === 'section_break'" class="mb-4 mt-8 border-t border-line-200 pt-4">
+      <div
+        v-if="field.type === 'section_break'"
+        class="mb-4 mt-8 border-t border-line-200 pt-4"
+      >
         <h2 class="text-lg font-semibold text-ink-900">{{ field.label }}</h2>
-        <p v-if="field.description" class="mt-0.5 text-sm text-ink-500">{{ field.description }}</p>
+        <p v-if="field.description" class="mt-0.5 text-sm text-ink-500">
+          {{ field.description }}
+        </p>
       </div>
 
       <UiField
@@ -204,9 +231,17 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
            bot check), so a respondent sees it before they click. -->
       <slot name="before-submit" />
 
-      <button type="submit" class="fb-btn w-full sm:w-auto" :disabled="submitting">
-        <UiIcon v-if="submitting" name="arrow-path" class="text-inherit h-5 w-5 animate-spin" />
-        {{ submitting ? 'Submitting…' : 'Submit' }}
+      <button
+        type="submit"
+        class="fb-btn w-full sm:w-auto disabled:pointer-events-none opacity-50"
+        :disabled="submitting"
+      >
+        <UiIcon
+          v-if="submitting"
+          name="arrow-path"
+          class="text-inherit h-5 w-5 animate-spin"
+        />
+        {{ submitting ? "Submitting…" : "Submit" }}
       </button>
     </template>
   </form>

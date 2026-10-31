@@ -146,13 +146,18 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onGlobalKey));
              left side with something useful and advertises the shortcut. -->
         <button
           type="button"
-          class="flex h-9 w-full max-w-xs items-center gap-2 rounded-lg border border-line-200 bg-ink-50 px-3 text-left text-sm text-ink-500 transition hover:border-line-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+          class="flex h-9 w-full max-w-xs items-center gap-2 rounded-md border border-line-200 bg-ink-50 px-3 text-left text-sm text-ink-500 transition hover:border-line-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
           aria-label="Search forms and templates"
           aria-haspopup="dialog"
           @click="searchOpen = true"
         >
-          <UiIcon name="magnifying-glass" class="h-4 w-4 shrink-0 text-inherit" />
-          <span class="min-w-0 flex-1 truncate">Search forms and templates…</span>
+          <UiIcon
+            name="magnifying-glass"
+            class="h-4 w-4 shrink-0 text-inherit"
+          />
+          <span class="min-w-0 flex-1 truncate"
+            >Search forms and templates…</span
+          >
           <kbd
             class="hidden shrink-0 rounded border border-line-200 bg-white px-1.5 py-0.5 font-sans text-xs text-ink-500 sm:inline"
             >{{ searchHint }}</kbd

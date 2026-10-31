@@ -117,7 +117,7 @@ function openTemplate(template: TemplateSummary): void {
           role="dialog"
           aria-modal="true"
           aria-label="Search forms and templates"
-          class="flex h-full w-full flex-col overflow-hidden bg-white shadow-pop transition-[max-width,height] duration-500 ease-soft sm:rounded-2xl"
+          class="flex h-full w-full flex-col overflow-hidden bg-white shadow-pop transition-[max-width,height] duration-500 ease-soft sm:rounded-xl"
           :class="
             expanded ? 'sm:h-[560px] sm:max-w-3xl' : 'sm:h-20 sm:max-w-md'
           "
