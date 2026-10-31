@@ -146,9 +146,12 @@ interface Stat {
   explain?: string;
 }
 
+// Capped at 100%: a view counts once per browser session and views only exist
+// since analytics shipped, so responses can outnumber views. Same rule as the
+// Responses page.
 const completionRate = computed(() =>
   usage.value?.views
-    ? (usage.value.submissions / usage.value.views) * 100
+    ? Math.min(100, (usage.value.submissions / usage.value.views) * 100)
     : null,
 );
 
@@ -252,7 +255,7 @@ const days = computed(() => timeline.value.slice(-range.value));
 function valueOf(d: UsageDay): number {
   if (metric.value === "views") return d.views;
   if (metric.value === "completion")
-    return d.views ? (d.submissions / d.views) * 100 : 0;
+    return d.views ? Math.min(100, (d.submissions / d.views) * 100) : 0;
   return d.submissions;
 }
 const yMax = computed(() => {
@@ -330,17 +333,6 @@ async function copyLink(form: FormSummary): Promise<void> {
   await navigator.clipboard.writeText(`${window.location.origin}/f/${form.id}`);
   toast("Share link copied to clipboard", "success");
 }
-
-// --- continue editing ------------------------------------------------------
-
-// The one form you were last in. Resuming is the most common reason to open
-// the dashboard at all, so it gets a dedicated one-click row.
-const lastEdited = computed(
-  () =>
-    [...forms.value].sort((a, b) =>
-      b.updatedAt.localeCompare(a.updatedAt),
-    )[0] ?? null,
-);
 
 // --- unread responses ------------------------------------------------------
 
@@ -739,42 +731,21 @@ async function useTemplate(templateId: string): Promise<void> {
             <p v-else class="page-subtitle">{{ heroMessage }}</p>
           </div>
 
-          <!-- Continue editing: the single most likely next action -->
-          <router-link
-            v-if="!loading && lastEdited"
-            :to="{ name: 'builder', params: { id: lastEdited.id } }"
-            class="group flex min-w-0 max-w-xs items-center gap-3 rounded-xl border border-line-200 bg-white px-3.5 py-2.5 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-pop"
-          >
-            <span
-              class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600"
-              aria-hidden="true"
-            >
-              <UiIcon name="pencil-square" class="text-inherit h-5 w-5" />
-            </span>
-            <span class="min-w-0">
-              <span class="block text-xs font-medium text-ink-500"
-                >Continue editing</span
-              >
-              <span
-                class="block truncate text-sm font-semibold text-ink-900 group-hover:text-brand-700"
-                >{{ lastEdited.title }}</span
-              >
-            </span>
-            <UiIcon
-              name="chevron-right"
-              class="h-4 w-4 shrink-0 text-ink-400 transition group-hover:translate-x-0.5 group-hover:text-brand-600"
-            />
-          </router-link>
+          <!-- The one primary action; everything else is secondary. -->
+          <UiButton :disabled="creating" @click="onQuickAction('blank')">
+            <UiIcon name="plus" class="h-4 w-4 text-inherit" />
+            Create form
+          </UiButton>
         </div>
 
-        <!-- Quick actions panel -->
+        <!-- Secondary ways to start: a quiet row (shortcuts still work) -->
         <div
-          class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5"
+          class="mt-4 flex flex-wrap gap-2"
           role="group"
-          aria-label="Quick actions"
+          aria-label="Other ways to start"
         >
           <div
-            v-for="a in QUICK_ACTIONS"
+            v-for="a in QUICK_ACTIONS.filter((q) => q.id !== 'blank')"
             :key="a.id"
             :ref="
               a.id === 'duplicate'
@@ -786,25 +757,14 @@ async function useTemplate(templateId: string): Promise<void> {
           >
             <button
               type="button"
-              class="flex h-full w-full items-center gap-2.5 rounded-xl border border-line-200 bg-white px-3.5 py-3 text-left text-sm font-medium text-ink-800 shadow-card transition duration-150 ease-soft hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55"
+              class="inline-flex items-center gap-2 rounded-lg border border-line-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:border-line-300 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-55"
               :disabled="creating"
               :aria-haspopup="a.id === 'duplicate' ? 'menu' : undefined"
               :aria-expanded="a.id === 'duplicate' ? dupOpen : undefined"
               @click="onQuickAction(a.id)"
             >
-              <span
-                class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600"
-                aria-hidden="true"
-              >
-                <UiIcon :name="a.icon" class="text-inherit h-5 w-5" />
-              </span>
-              <!-- Wraps rather than truncates: a cut-off action label is a guess. -->
-              <span class="min-w-0 flex-1 leading-snug">{{ a.label }}</span>
-              <kbd
-                class="hidden shrink-0 rounded border border-line-200 bg-ink-50 px-1.5 py-0.5 font-sans text-xs font-medium text-ink-500 2xl:inline"
-                aria-hidden="true"
-                >{{ a.key }}</kbd
-              >
+              <UiIcon :name="a.icon" class="h-4 w-4 shrink-0 text-ink-500" />
+              {{ a.label }}
             </button>
 
             <!-- Pick which form to duplicate -->
@@ -817,7 +777,7 @@ async function useTemplate(templateId: string): Promise<void> {
               <div
                 v-if="a.id === 'duplicate' && dupOpen"
                 role="menu"
-                class="absolute right-0 z-30 mt-1 w-64 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
+                class="absolute left-0 z-30 mt-1 w-64 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
               >
                 <p v-if="!forms.length" class="px-3 py-2 text-sm text-ink-500">
                   No forms to duplicate yet.
@@ -968,7 +928,278 @@ async function useTemplate(templateId: string): Promise<void> {
         </div>
       </dl>
 
-      <!-- Row 1: analytics (8) | activity (4) -->
+      <!-- Work first: recent forms (7) | recent responses (5) -->
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <section
+          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-7"
+          aria-label="Recent forms"
+        >
+          <div class="flex items-baseline justify-between">
+            <h2 class="font-semibold text-ink-900">Recent forms</h2>
+            <router-link
+              :to="{ name: 'forms' }"
+              class="text-sm font-medium text-brand-700 hover:underline"
+            >
+              View all
+            </router-link>
+          </div>
+
+          <div v-if="loading" class="mt-4 space-y-4">
+            <div v-for="n in 4" :key="n" class="flex items-center gap-3">
+              <div class="flex-1 space-y-1.5">
+                <UiSkeleton class="h-3.5 w-2/5" />
+                <UiSkeleton class="h-3 w-1/4" />
+              </div>
+              <UiSkeleton class="h-5 w-20 rounded-full" />
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div
+            v-else-if="!recentForms.length"
+            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
+          >
+            <span
+              class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
+              aria-hidden="true"
+            >
+              <UiIcon name="rectangle-group" class="text-inherit h-5 w-5" />
+            </span>
+            <p class="mt-3 font-medium text-ink-800">No forms yet</p>
+            <p class="mt-1 max-w-xs text-sm text-ink-500">
+              Create your first form, add a few questions, and publish to share
+              a link.
+            </p>
+            <UiButton
+              size="sm"
+              class="mt-4"
+              :disabled="creating"
+              @click="createForm"
+            >
+              Create form
+            </UiButton>
+
+            <!-- Starting points beat a blank slate on an empty account -->
+            <div v-if="suggestedTemplates.length" class="mt-5 w-full">
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-ink-400"
+              >
+                Or start from a template
+              </p>
+              <div class="mt-2 flex flex-wrap justify-center gap-2">
+                <button
+                  v-for="t in suggestedTemplates"
+                  :key="t.id"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-line-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:opacity-55"
+                  :disabled="creating"
+                  @click="useTemplate(t.id)"
+                >
+                  <span aria-hidden="true">{{ t.icon }}</span>
+                  {{ t.title }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <ul v-else class="mt-2 divide-y divide-line-100">
+            <li
+              v-for="f in recentForms"
+              :key="f.id"
+              class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-ink-50"
+            >
+              <router-link
+                :to="{ name: 'builder', params: { id: f.id } }"
+                class="min-w-0 flex-1"
+              >
+                <p class="flex items-center gap-1.5 truncate">
+                  <UiIcon
+                    v-if="board.isPinned(f.id)"
+                    name="star"
+                    type="solid"
+                    class="h-4 w-4 shrink-0 text-amber-500"
+                  />
+                  <span
+                    class="truncate text-sm font-medium text-ink-900 group-hover:text-brand-700"
+                    >{{ f.title }}</span
+                  >
+                </p>
+                <p class="mt-0.5 text-sm text-ink-500">
+                  {{ f.responseCount }} response{{
+                    f.responseCount === 1 ? "" : "s"
+                  }}
+                  · edited {{ relativeTime(f.updatedAt) }}
+                </p>
+              </router-link>
+
+              <!-- Row actions, revealed on hover (always shown on touch) -->
+              <div
+                class="flex shrink-0 items-center gap-0.5 transition-opacity focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+              >
+                <UiTooltip text="Edit">
+                  <button
+                    type="button"
+                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    aria-label="Edit form"
+                    @click="
+                      router.push({ name: 'builder', params: { id: f.id } })
+                    "
+                  >
+                    <UiIcon name="pencil-square" class="text-inherit h-5 w-5" />
+                  </button>
+                </UiTooltip>
+                <UiTooltip
+                  :text="
+                    f.published ? 'Copy link' : 'Publish the form to get a link'
+                  "
+                >
+                  <button
+                    type="button"
+                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Copy share link"
+                    :disabled="!f.published"
+                    @click="copyLink(f)"
+                  >
+                    <UiIcon
+                      name="document-duplicate"
+                      class="text-inherit h-5 w-5"
+                    />
+                  </button>
+                </UiTooltip>
+                <UiTooltip text="Analytics">
+                  <button
+                    type="button"
+                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    aria-label="View responses"
+                    @click="
+                      router.push({ name: 'responses', params: { id: f.id } })
+                    "
+                  >
+                    <UiIcon name="chart-bar" class="text-inherit h-5 w-5" />
+                  </button>
+                </UiTooltip>
+                <UiTooltip text="Duplicate">
+                  <button
+                    type="button"
+                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    aria-label="Duplicate form"
+                    :disabled="creating"
+                    @click="duplicate(f)"
+                  >
+                    <UiIcon name="arrow-path" class="text-inherit h-5 w-5" />
+                  </button>
+                </UiTooltip>
+              </div>
+
+              <UiBadge
+                :variant="f.published ? 'green' : 'amber'"
+                dot
+                class="shrink-0"
+              >
+                {{ f.published ? "Published" : "Draft" }}
+              </UiBadge>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Recent responses -->
+        <section
+          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-5"
+          aria-label="Recent responses"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="flex items-center gap-2 font-semibold text-ink-900">
+              Recent responses
+              <UiBadge v-if="unreadCount" variant="brand"
+                >{{ unreadCount }} new</UiBadge
+              >
+            </h2>
+            <button
+              v-if="unreadCount"
+              type="button"
+              class="rounded-md px-1.5 py-0.5 text-sm font-medium text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              @click="markResponsesSeen"
+            >
+              Mark all read
+            </button>
+          </div>
+
+          <div v-if="loading" class="mt-4 space-y-4">
+            <div v-for="n in 4" :key="n" class="flex items-center gap-3">
+              <UiSkeleton class="h-8 w-8 shrink-0 rounded-lg" />
+              <div class="flex-1 space-y-1.5">
+                <UiSkeleton class="h-3.5 w-2/5" />
+                <UiSkeleton class="h-3 w-1/4" />
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="!recentResponses.length"
+            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
+          >
+            <span
+              class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
+              aria-hidden="true"
+            >
+              <UiIcon name="paper-airplane" class="text-inherit h-5 w-5" />
+            </span>
+            <p class="mt-3 font-medium text-ink-800">No responses yet</p>
+            <p class="mt-1 max-w-xs text-sm text-ink-500">
+              Share a published form and answers will land here.
+            </p>
+            <UiButton
+              variant="secondary"
+              size="sm"
+              class="mt-4"
+              @click="router.push({ name: 'forms' })"
+            >
+              Share a form
+            </UiButton>
+          </div>
+
+          <ul v-else class="mt-2 divide-y divide-line-100">
+            <li v-for="r in recentResponses" :key="r.id">
+              <router-link
+                :to="{ name: 'responses', params: { id: r.formId } }"
+                class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-ink-50"
+                @click="markResponsesSeen"
+              >
+                <span
+                  class="relative grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-secondary-50 text-secondary-600"
+                  aria-hidden="true"
+                >
+                  <UiIcon name="paper-airplane" class="text-inherit h-4 w-4" />
+                  <!-- Unread dot: arrived after you last looked -->
+                  <span
+                    v-if="isUnread(r)"
+                    class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-secondary-600"
+                  />
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p
+                    class="truncate text-sm text-ink-900 group-hover:text-brand-700"
+                    :class="isUnread(r) ? 'font-semibold' : 'font-medium'"
+                  >
+                    {{ r.formTitle }}
+                    <span v-if="isUnread(r)" class="sr-only">(unread)</span>
+                  </p>
+                  <p class="text-sm text-ink-500">
+                    {{ relativeTime(r.submittedAt) }}
+                  </p>
+                </div>
+                <!-- Quick open: straight to this form's responses table -->
+                <UiIcon
+                  name="chevron-right"
+                  class="h-4 w-4 shrink-0 text-ink-400 transition group-hover:translate-x-0.5 group-hover:text-brand-600"
+                />
+              </router-link>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <!-- Then the numbers: analytics (8) | activity (4) -->
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section
           class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-8"
@@ -1295,277 +1526,6 @@ async function useTemplate(templateId: string): Promise<void> {
               </ul>
             </div>
           </div>
-        </section>
-      </div>
-
-      <!-- Row 2: recent forms (7) | recent responses (5) -->
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        <section
-          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-7"
-          aria-label="Recent forms"
-        >
-          <div class="flex items-baseline justify-between">
-            <h2 class="font-semibold text-ink-900">Recent forms</h2>
-            <router-link
-              :to="{ name: 'forms' }"
-              class="text-sm font-medium text-brand-700 hover:underline"
-            >
-              View all
-            </router-link>
-          </div>
-
-          <div v-if="loading" class="mt-4 space-y-4">
-            <div v-for="n in 4" :key="n" class="flex items-center gap-3">
-              <div class="flex-1 space-y-1.5">
-                <UiSkeleton class="h-3.5 w-2/5" />
-                <UiSkeleton class="h-3 w-1/4" />
-              </div>
-              <UiSkeleton class="h-5 w-20 rounded-full" />
-            </div>
-          </div>
-
-          <!-- Empty state -->
-          <div
-            v-else-if="!recentForms.length"
-            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
-          >
-            <span
-              class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
-              aria-hidden="true"
-            >
-              <UiIcon name="rectangle-group" class="text-inherit h-5 w-5" />
-            </span>
-            <p class="mt-3 font-medium text-ink-800">No forms yet</p>
-            <p class="mt-1 max-w-xs text-sm text-ink-500">
-              Create your first form, add a few questions, and publish to share
-              a link.
-            </p>
-            <UiButton
-              size="sm"
-              class="mt-4"
-              :disabled="creating"
-              @click="createForm"
-            >
-              Create form
-            </UiButton>
-
-            <!-- Starting points beat a blank slate on an empty account -->
-            <div v-if="suggestedTemplates.length" class="mt-5 w-full">
-              <p
-                class="text-xs font-semibold uppercase tracking-wide text-ink-400"
-              >
-                Or start from a template
-              </p>
-              <div class="mt-2 flex flex-wrap justify-center gap-2">
-                <button
-                  v-for="t in suggestedTemplates"
-                  :key="t.id"
-                  type="button"
-                  class="inline-flex items-center gap-1.5 rounded-full border border-line-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:opacity-55"
-                  :disabled="creating"
-                  @click="useTemplate(t.id)"
-                >
-                  <span aria-hidden="true">{{ t.icon }}</span>
-                  {{ t.title }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <ul v-else class="mt-2 divide-y divide-line-100">
-            <li
-              v-for="f in recentForms"
-              :key="f.id"
-              class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-ink-50"
-            >
-              <router-link
-                :to="{ name: 'builder', params: { id: f.id } }"
-                class="min-w-0 flex-1"
-              >
-                <p class="flex items-center gap-1.5 truncate">
-                  <UiIcon
-                    v-if="board.isPinned(f.id)"
-                    name="star"
-                    type="solid"
-                    class="h-4 w-4 shrink-0 text-amber-500"
-                  />
-                  <span
-                    class="truncate text-sm font-medium text-ink-900 group-hover:text-brand-700"
-                    >{{ f.title }}</span
-                  >
-                </p>
-                <p class="mt-0.5 text-sm text-ink-500">
-                  {{ f.responseCount }} response{{
-                    f.responseCount === 1 ? "" : "s"
-                  }}
-                  · edited {{ relativeTime(f.updatedAt) }}
-                </p>
-              </router-link>
-
-              <!-- Row actions, revealed on hover (always shown on touch) -->
-              <div
-                class="flex shrink-0 items-center gap-0.5 transition-opacity focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-              >
-                <UiTooltip text="Edit">
-                  <button
-                    type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-                    aria-label="Edit form"
-                    @click="
-                      router.push({ name: 'builder', params: { id: f.id } })
-                    "
-                  >
-                    <UiIcon name="pencil-square" class="text-inherit h-5 w-5" />
-                  </button>
-                </UiTooltip>
-                <UiTooltip
-                  :text="
-                    f.published ? 'Copy link' : 'Publish the form to get a link'
-                  "
-                >
-                  <button
-                    type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
-                    aria-label="Copy share link"
-                    :disabled="!f.published"
-                    @click="copyLink(f)"
-                  >
-                    <UiIcon
-                      name="document-duplicate"
-                      class="text-inherit h-5 w-5"
-                    />
-                  </button>
-                </UiTooltip>
-                <UiTooltip text="Analytics">
-                  <button
-                    type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-                    aria-label="View responses"
-                    @click="
-                      router.push({ name: 'responses', params: { id: f.id } })
-                    "
-                  >
-                    <UiIcon name="chart-bar" class="text-inherit h-5 w-5" />
-                  </button>
-                </UiTooltip>
-                <UiTooltip text="Duplicate">
-                  <button
-                    type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-                    aria-label="Duplicate form"
-                    :disabled="creating"
-                    @click="duplicate(f)"
-                  >
-                    <UiIcon name="arrow-path" class="text-inherit h-5 w-5" />
-                  </button>
-                </UiTooltip>
-              </div>
-
-              <UiBadge
-                :variant="f.published ? 'green' : 'amber'"
-                dot
-                class="shrink-0"
-              >
-                {{ f.published ? "Published" : "Draft" }}
-              </UiBadge>
-            </li>
-          </ul>
-        </section>
-
-        <!-- Recent responses -->
-        <section
-          class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-5"
-          aria-label="Recent responses"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <h2 class="flex items-center gap-2 font-semibold text-ink-900">
-              Recent responses
-              <UiBadge v-if="unreadCount" variant="brand"
-                >{{ unreadCount }} new</UiBadge
-              >
-            </h2>
-            <button
-              v-if="unreadCount"
-              type="button"
-              class="rounded-md px-1.5 py-0.5 text-sm font-medium text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-              @click="markResponsesSeen"
-            >
-              Mark all read
-            </button>
-          </div>
-
-          <div v-if="loading" class="mt-4 space-y-4">
-            <div v-for="n in 4" :key="n" class="flex items-center gap-3">
-              <UiSkeleton class="h-8 w-8 shrink-0 rounded-lg" />
-              <div class="flex-1 space-y-1.5">
-                <UiSkeleton class="h-3.5 w-2/5" />
-                <UiSkeleton class="h-3 w-1/4" />
-              </div>
-            </div>
-          </div>
-
-          <div
-            v-else-if="!recentResponses.length"
-            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
-          >
-            <span
-              class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
-              aria-hidden="true"
-            >
-              <UiIcon name="paper-airplane" class="text-inherit h-5 w-5" />
-            </span>
-            <p class="mt-3 font-medium text-ink-800">No responses yet</p>
-            <p class="mt-1 max-w-xs text-sm text-ink-500">
-              Share a published form and answers will land here.
-            </p>
-            <UiButton
-              variant="secondary"
-              size="sm"
-              class="mt-4"
-              @click="router.push({ name: 'forms' })"
-            >
-              Share a form
-            </UiButton>
-          </div>
-
-          <ul v-else class="mt-2 divide-y divide-line-100">
-            <li v-for="r in recentResponses" :key="r.id">
-              <router-link
-                :to="{ name: 'responses', params: { id: r.formId } }"
-                class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-ink-50"
-                @click="markResponsesSeen"
-              >
-                <span
-                  class="relative grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-secondary-50 text-secondary-600"
-                  aria-hidden="true"
-                >
-                  <UiIcon name="paper-airplane" class="text-inherit h-4 w-4" />
-                  <!-- Unread dot: arrived after you last looked -->
-                  <span
-                    v-if="isUnread(r)"
-                    class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-secondary-600"
-                  />
-                </span>
-                <div class="min-w-0 flex-1">
-                  <p
-                    class="truncate text-sm text-ink-900 group-hover:text-brand-700"
-                    :class="isUnread(r) ? 'font-semibold' : 'font-medium'"
-                  >
-                    {{ r.formTitle }}
-                    <span v-if="isUnread(r)" class="sr-only">(unread)</span>
-                  </p>
-                  <p class="text-sm text-ink-500">
-                    {{ relativeTime(r.submittedAt) }}
-                  </p>
-                </div>
-                <!-- Quick open: straight to this form's responses table -->
-                <UiIcon
-                  name="chevron-right"
-                  class="h-4 w-4 shrink-0 text-ink-400 transition group-hover:translate-x-0.5 group-hover:text-brand-600"
-                />
-              </router-link>
-            </li>
-          </ul>
         </section>
       </div>
 
