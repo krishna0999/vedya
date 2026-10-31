@@ -29,7 +29,6 @@ import {
 } from "@/lib/stats";
 import { relativeTime } from "@/lib/time";
 import { toast } from "@/lib/toast";
-import { useAuthStore } from "@/stores/auth";
 import AiGenerateModal from "@/components/AiGenerateModal.vue";
 import AppShell from "@/components/AppShell.vue";
 import UiBadge from "@/components/ui/UiBadge.vue";
@@ -40,7 +39,6 @@ import UiTooltip from "@/components/ui/UiTooltip.vue";
 import type { TemplateSummary } from "@/api/client";
 
 const router = useRouter();
-const auth = useAuthStore();
 // Favourites are the same pins the /forms grid uses — starred forms lead here.
 const board = useBoard("forms");
 
@@ -99,17 +97,6 @@ onMounted(async () => {
 
 // --- hero -----------------------------------------------------------------
 
-const firstName = computed(() => {
-  const source =
-    auth.user?.name?.trim() || (auth.user?.email ?? "").split("@")[0] || "";
-  return source.split(/[\s._+-]+/)[0] || "there";
-});
-
-const greeting = computed(() => {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-});
-
 // One line that reacts to where the account actually is, instead of the same
 // static sentence for everyone.
 const heroMessage = computed(() => {
@@ -118,10 +105,10 @@ const heroMessage = computed(() => {
   if (u.forms === 0) return "Create your first form — it takes about a minute.";
   if (u.published === 0) return "Publish a form to start collecting responses.";
   if (weekResponses.value > 0)
-    return `You're on a roll — ${weekResponses.value} new response${
+    return `${weekResponses.value} new response${
       weekResponses.value === 1 ? "" : "s"
     } this week.`;
-  return "Quiet week so far — share a form to get responses flowing.";
+  return "No new responses this week. Share a form to start collecting.";
 });
 
 // --- period maths ---------------------------------------------------------
@@ -679,14 +666,6 @@ function dismiss(id: string): void {
 }
 const isDismissed = (id: string): boolean => dismissed.value.includes(id);
 
-// ponytail: a constant, not a feed. Edit it here when there's something to say;
-// wire it to an endpoint only once someone other than us needs to publish it.
-const ANNOUNCEMENT = {
-  id: "2026-07-drag-pin",
-  title: "New: drag to reorder and pin your favourites",
-  body: "Rearrange the forms and templates grids, and star the ones you use most.",
-} as const;
-
 // --- analytics export ------------------------------------------------------
 
 // The chart's own data, as CSV. ponytail: built client-side from the timeline
@@ -754,67 +733,13 @@ async function useTemplate(templateId: string): Promise<void> {
         {{ error }}
       </p>
 
-      <!-- Announcement — dismissible, remembered by id -->
-      <div
-        v-if="!isDismissed(ANNOUNCEMENT.id)"
-        class="flex items-center gap-3 rounded-xl border border-brand-200 bg-brand-50/70 px-4 py-3"
-      >
-        <span
-          class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white text-brand-600"
-          aria-hidden="true"
-        >
-          <UiIcon name="sparkles" class="text-inherit h-5 w-5" />
-        </span>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-ink-900">
-            {{ ANNOUNCEMENT.title }}
-          </p>
-          <p class="mt-0.5 text-sm text-ink-600">{{ ANNOUNCEMENT.body }}</p>
-        </div>
-        <button
-          type="button"
-          class="shrink-0 rounded-lg p-1.5 text-ink-500 transition hover:bg-white hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-          aria-label="Dismiss announcement"
-          @click="dismiss(ANNOUNCEMENT.id)"
-        >
-          <UiIcon name="x-mark" class="text-inherit h-4 w-4" />
-        </button>
-      </div>
-
-      <!-- Hero: greeting, live highlights, quick actions -->
+      <!-- Hero: title, one factual status line, quick actions -->
       <section>
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div class="min-w-0">
-            <h1 class="text-2xl font-semibold tracking-tight text-ink-900">
-              {{ greeting }}, {{ firstName }} 👋
-            </h1>
+            <h1 class="page-title">Dashboard</h1>
             <UiSkeleton v-if="loading" class="mt-2 h-4 w-72" />
-            <p v-else class="mt-1 text-sm text-ink-500">{{ heroMessage }}</p>
-            <div
-              v-if="!loading && usage"
-              class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-600"
-            >
-              <span
-                ><span class="font-semibold text-ink-900">{{
-                  usage.published
-                }}</span>
-                published</span
-              >
-              <span class="text-ink-300">·</span>
-              <span
-                ><span class="font-semibold text-ink-900">{{
-                  usage.submissions.toLocaleString()
-                }}</span>
-                responses</span
-              >
-              <span class="text-ink-300">·</span>
-              <span
-                ><span class="font-semibold text-ink-900">{{
-                  weekResponses
-                }}</span>
-                this week</span
-              >
-            </div>
+            <p v-else class="page-subtitle">{{ heroMessage }}</p>
           </div>
 
           <!-- Continue editing: the single most likely next action -->
@@ -1700,18 +1625,20 @@ async function useTemplate(templateId: string): Promise<void> {
             v-if="nearLimit"
             class="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5"
           >
+            <!-- No paid plan exists yet: offer a human, not a dead-end button. -->
             <p class="text-sm text-amber-800">
-              You're close to a monthly limit — upgrade to keep collecting.
+              You're close to this month's limit. Need more? Paid plans are
+              coming — until then, write to us and we'll raise it.
             </p>
-            <UiButton size="sm" @click="router.push({ name: 'settings' })">
-              Upgrade
-            </UiButton>
+            <a href="mailto:support@vedya.app?subject=Raise%20my%20Vedya%20limit">
+              <UiButton size="sm">Contact us</UiButton>
+            </a>
           </div>
           <router-link
-            :to="{ name: 'settings' }"
+            :to="{ name: 'account' }"
             class="mt-4 inline-block text-sm font-medium text-brand-700 hover:underline"
           >
-            Manage plan
+            Plan details
           </router-link>
         </section>
 

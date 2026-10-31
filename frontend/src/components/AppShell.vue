@@ -8,7 +8,6 @@ import { useRoute, type RouteLocationRaw } from "vue-router";
 import UiLogo from "@/components/ui/UiLogo.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiToaster from "@/components/ui/UiToaster.vue";
-import UiTooltip from "@/components/ui/UiTooltip.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import NotificationBell from "@/components/NotificationBell.vue";
 import UiUserMenu from "@/components/ui/UiUserMenu.vue";
@@ -143,18 +142,23 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onGlobalKey));
         v-if="topbar"
         class="sticky top-0 z-20 flex items-center gap-3 border-b border-line-200 bg-white px-4 py-3 sm:px-6"
       >
+        <!-- Search reads as a field (Linear/Vercel style): it fills the bar's
+             left side with something useful and advertises the shortcut. -->
+        <button
+          type="button"
+          class="flex h-9 w-full max-w-xs items-center gap-2 rounded-lg border border-line-200 bg-ink-50 px-3 text-left text-sm text-ink-500 transition hover:border-line-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+          aria-label="Search forms and templates"
+          aria-haspopup="dialog"
+          @click="searchOpen = true"
+        >
+          <UiIcon name="magnifying-glass" class="h-4 w-4 shrink-0 text-inherit" />
+          <span class="min-w-0 flex-1 truncate">Search forms and templates…</span>
+          <kbd
+            class="hidden shrink-0 rounded border border-line-200 bg-white px-1.5 py-0.5 font-sans text-xs text-ink-500 sm:inline"
+            >{{ searchHint }}</kbd
+          >
+        </button>
         <div class="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-          <UiTooltip :text="`Search — ${searchHint}`" placement="bottom">
-            <button
-              type="button"
-              class="grid h-9 w-9 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-              aria-label="Search forms and templates"
-              aria-haspopup="dialog"
-              @click="searchOpen = true"
-            >
-              <UiIcon name="magnifying-glass" class="text-inherit h-6 w-6" />
-            </button>
-          </UiTooltip>
           <NotificationBell />
           <UiUserMenu />
         </div>

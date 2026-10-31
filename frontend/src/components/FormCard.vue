@@ -32,7 +32,22 @@ function needsPublishTitle(): string | undefined {
 // else lives in the kebab "more options" menu. Move left/right is the keyboard
 // (and discoverable) path to the drag-reorder the card body supports.
 const moreActions = (): UiActionItem[] => [
+  { id: "edit", label: "Edit form", icon: "pencil" },
   { id: "responses", label: "Responses", icon: "responses" },
+  {
+    id: "open",
+    label: "Open form",
+    icon: "external",
+    disabled: !props.form.published,
+    title: needsPublishTitle(),
+  },
+  {
+    id: "email",
+    label: "Email form",
+    icon: "email",
+    disabled: !props.form.published,
+    title: needsPublishTitle(),
+  },
   { id: "move-back", label: "Move left", icon: "move-left" },
   { id: "move-forward", label: "Move right", icon: "move-right" },
   {
@@ -47,13 +62,12 @@ const moreActions = (): UiActionItem[] => [
 </script>
 
 <template>
-  <!-- Fixed-height tile. On hover it scales up from its own center (transforms
-       don't reflow, so it pops OVER its neighbors on every side instead of
-       pushing them) and lifts above the grid via z-index. -->
+  <!-- Fixed-height tile. Hover is deliberately quiet (border only); it lifts
+       above the grid via z-index so the question preview can peek out. -->
   <!-- overflow-visible (no clip) so the preview can float BELOW the card on
        hover to peek at more questions than the tile's height would fit. -->
   <li
-    class="group relative flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5 shadow-card transition duration-200 ease-soft hover:z-30 hover:scale-[1.06] hover:border-line-300 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08),0_16px_38px_-12px_color-mix(in_srgb,var(--card-accent)_45%,transparent)]"
+    class="group relative flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5 transition-colors duration-150 ease-soft hover:z-30 hover:border-line-300"
     :style="{ '--card-accent': form.primaryColor }"
   >
     <!-- Header: title left, actions right (fade in on hover / focus) -->
@@ -64,51 +78,12 @@ const moreActions = (): UiActionItem[] => [
       <router-link
         :to="{ name: 'builder', params: { id: form.id } }"
         draggable="false"
-        class="line-clamp-2 min-h-[3.25rem] min-w-0 text-lg font-bold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-[color:var(--card-accent)]"
+        class="line-clamp-2 min-h-[2.75rem] min-w-0 break-words text-base font-semibold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-[color:var(--card-accent)]"
       >
         {{ form.title }}
       </router-link>
 
       <div class="-mr-1.5 -mt-1.5 flex shrink-0 items-center gap-0.5">
-        <div
-          class="flex items-center gap-0.5 opacity-100 transition-opacity duration-150 focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-        >
-          <UiTooltip text="Edit form" align="end">
-            <button
-              type="button"
-              class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-              aria-label="Edit form"
-              @click="emit('action', 'edit')"
-            >
-              <UiIcon name="pencil-square" class="text-inherit h-5 w-5" />
-            </button>
-          </UiTooltip>
-          <UiTooltip :text="needsPublishTitle() ?? 'Open form'" align="end">
-            <button
-              type="button"
-              class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Open form"
-              :disabled="!form.published"
-              @click="emit('action', 'open')"
-            >
-              <UiIcon
-                name="arrow-top-right-on-square"
-                class="text-inherit h-5 w-5"
-              />
-            </button>
-          </UiTooltip>
-          <UiTooltip :text="needsPublishTitle() ?? 'Email form'" align="end">
-            <button
-              type="button"
-              class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Email form"
-              :disabled="!form.published"
-              @click="emit('action', 'email')"
-            >
-              <UiIcon name="envelope" class="text-inherit h-5 w-5" />
-            </button>
-          </UiTooltip>
-        </div>
         <!-- Sits next to the kebab on purpose: a pinned star is the only thing
              still visible at rest, so it must not float in the gap the hidden
              quick actions leave behind. -->

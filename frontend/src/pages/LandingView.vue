@@ -1,28 +1,54 @@
 <script setup lang="ts">
 // Public landing page — the first thing a signed-out visitor sees. Product
 // chrome (brand/ink tokens). Logged-in users never reach here; the router guard
-// sends them to the dashboard. The product preview is an inline SVG mockup so it
-// stays crisp and themeable without shipping a screenshot asset.
+// sends them to the dashboard. The hero preview is the real <FormRenderer>
+// showing a small demo form, so the page shows the actual product and can never
+// drift from it (no screenshot to keep up to date).
 import { ref } from "vue";
+import type { FormVersion } from "@schema";
+import FormRenderer from "@/components/FormRenderer.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import UiLogo from "@/components/ui/UiLogo.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import type { IconName } from "@/lib/icons";
 
+const heroForm: FormVersion = {
+  versionId: "landing-demo",
+  formId: "landing-demo",
+  version: 1,
+  publishedAt: "2026-10-01T00:00:00.000Z",
+  theme: { primaryColor: "#047857", fontFamily: "Inter, system-ui, sans-serif", borderRadius: 10 },
+  fields: [
+    { id: "name", type: "short_text", label: "Your name", required: true, placeholder: "Ananya Rao" },
+    { id: "email", type: "email", label: "Work email", required: true, placeholder: "ananya@company.com" },
+    {
+      id: "session",
+      type: "single_select",
+      label: "Which session will you join?",
+      required: true,
+      options: [
+        { id: "am", label: "Morning workshop", description: "10:00 – 12:30 · hands-on" },
+        { id: "pm", label: "Afternoon talks", description: "14:00 – 17:00 · three speakers" },
+      ],
+    },
+    { id: "excited", type: "rating", label: "How excited are you?", required: false, validation: { max: 5 } },
+  ],
+};
+
 const features: { title: string; body: string; icon: IconName }[] = [
   {
-    title: "Design with ease",
-    body: "A visual builder with 8 field types, validation, and a live preview — no code.",
+    title: "Build without code",
+    body: "Text, email, phone, choices, dropdowns, dates, ratings — with required fields and validation, and a live preview as you go.",
     icon: "pencil-square",
   },
   {
-    title: "Publish in a click",
-    body: "Snapshot an immutable version, share a link, and collect on any device.",
+    title: "Share one link",
+    body: "Publish and send the link anywhere. Forms work beautifully on phones, and spam bots are filtered out.",
     icon: "paper-airplane",
   },
   {
-    title: "Own your data",
-    body: "See every response in a table and export clean CSV whenever you need it.",
+    title: "Keep every answer",
+    body: "Get an email for each response, browse them in a table, and export to CSV whenever you like.",
     icon: "arrow-down-tray",
   },
 ];
@@ -31,36 +57,45 @@ const steps = [
   {
     n: "01",
     title: "Build",
-    body: "Drag in fields, set required rules and validation, and watch a live preview update as you go.",
+    body: "Start from a template or a blank form. Add questions, mark what's required, and preview it exactly as people will see it.",
   },
   {
     n: "02",
     title: "Publish",
-    body: "Publishing snapshots a frozen version and hands you a public link ready to share anywhere.",
+    body: "Get a link to share by email, WhatsApp or anywhere else. Edit later — people see the changes when you publish them.",
   },
   {
     n: "03",
     title: "Collect",
-    body: "Responses land in a table you can scan at a glance and export to CSV in one click.",
+    body: "Responses arrive in your inbox and your dashboard. Export them to a spreadsheet in one click.",
   },
+];
+
+// The free-plan numbers mirror backend/src/limits.ts (also quoted in TermsView).
+const freePlan = [
+  "Unlimited forms",
+  "100 responses per month",
+  "Email notification for every response",
+  "CSV export of all your data",
+  "Spam protection on every form",
 ];
 
 const faqs = [
   {
     q: "Is it really free?",
-    a: "Yes — unlimited forms and 100 responses per month on the free plan, no credit card required. Upgrade only when you need more.",
+    a: "Yes. Vedya is free while in beta: unlimited forms and 100 responses a month, no credit card. Paid plans with higher limits will come later, and we'll tell you well before anything changes.",
   },
   {
     q: "Does it work on mobile?",
-    a: "Every form is fully responsive and built to be filled out comfortably on phones, tablets, and desktops.",
+    a: "Every form is built to be filled in comfortably on phones, tablets and desktops.",
   },
   {
     q: "Do I own my responses?",
-    a: "Always. Your data is yours — export every response to a clean CSV whenever you like.",
+    a: "Always. Export every response to CSV, or download all your data, whenever you like. Delete your account and it's gone.",
   },
   {
-    q: "What happens if I edit a published form?",
-    a: "Publishing creates an immutable version. Past responses always map to the exact form that produced them, so nothing is ever orphaned.",
+    q: "What happens if I edit a form that's already live?",
+    a: "Your edits stay a draft until you publish them. Responses you've already collected keep the questions they were answered against, so nothing gets mixed up.",
   },
 ];
 
@@ -72,12 +107,13 @@ function toggleFaq(i: number): void {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-b bg-ink-50 text-ink-900">
+  <div class="min-h-screen bg-ink-50 text-ink-900">
     <header
       class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5"
     >
       <UiLogo />
       <nav class="flex items-center gap-2">
+        <a href="#pricing" class="hidden px-3 py-1.5 text-sm font-medium text-ink-600 hover:text-ink-900 sm:inline">Pricing</a>
         <router-link :to="{ name: 'login' }">
           <UiButton variant="ghost" size="sm">Log in</UiButton>
         </router-link>
@@ -93,7 +129,7 @@ function toggleFaq(i: number): void {
         <span
           class="inline-block rounded-full border border-brand-100 bg-white/70 px-3 py-1 text-sm font-medium text-brand-700"
         >
-          Build · Publish · Collect
+          Free while in beta
         </span>
         <h1
           class="mx-auto mt-5 max-w-2xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"
@@ -117,125 +153,28 @@ function toggleFaq(i: number): void {
         </div>
       </section>
 
-      <!-- PRODUCT PREVIEW -->
+      <!-- PRODUCT PREVIEW: the real renderer, inert (look, don't touch) -->
       <section class="pb-20">
-        <div class="relative mx-auto max-w-2xl">
+        <div class="relative mx-auto max-w-xl">
           <div
-            class="absolute -inset-4 -z-10 rounded-[2rem] bg-brand-200/30 blur-2xl"
+            class="absolute -inset-6 -z-10 rounded-[2rem] bg-brand-100/50 blur-3xl"
+            aria-hidden="true"
           ></div>
-          <svg
-            viewBox="0 0 520 380"
-            class="w-full rounded-2xl border border-line-200 bg-white shadow-pop"
+          <div
+            class="overflow-hidden rounded-2xl border border-line-200 bg-white"
+            aria-label="Example of a form built with Vedya"
             role="img"
-            aria-label="A form being built in Vedya"
           >
-            <!-- window chrome -->
-            <circle cx="34" cy="32" r="5" class="fill-ink-200" />
-            <circle cx="52" cy="32" r="5" class="fill-ink-200" />
-            <circle cx="70" cy="32" r="5" class="fill-ink-200" />
-            <line
-              x1="0"
-              y1="58"
-              x2="520"
-              y2="58"
-              class="stroke-ink-100"
-              stroke-width="1.5"
-            />
-            <!-- form title -->
-            <rect
-              x="40"
-              y="84"
-              width="210"
-              height="18"
-              rx="9"
-              class="fill-ink-300"
-            />
-            <rect
-              x="40"
-              y="112"
-              width="290"
-              height="10"
-              rx="5"
-              class="fill-ink-200"
-            />
-            <!-- field 1 -->
-            <rect
-              x="40"
-              y="150"
-              width="90"
-              height="10"
-              rx="5"
-              class="fill-ink-200"
-            />
-            <rect
-              x="40"
-              y="166"
-              width="440"
-              height="38"
-              rx="10"
-              class="fill-white stroke-ink-200"
-              stroke-width="1.5"
-            />
-            <rect
-              x="54"
-              y="180"
-              width="120"
-              height="10"
-              rx="5"
-              class="fill-ink-100"
-            />
-            <!-- field 2: single choice -->
-            <rect
-              x="40"
-              y="224"
-              width="130"
-              height="10"
-              rx="5"
-              class="fill-ink-200"
-            />
-            <circle cx="52" cy="258" r="9" class="fill-brand-600" />
-            <circle cx="52" cy="258" r="3.5" class="fill-white" />
-            <rect
-              x="72"
-              y="253"
-              width="150"
-              height="10"
-              rx="5"
-              class="fill-ink-300"
-            />
-            <circle
-              cx="52"
-              cy="290"
-              r="9"
-              class="fill-white stroke-ink-300"
-              stroke-width="1.5"
-            />
-            <rect
-              x="72"
-              y="285"
-              width="110"
-              height="10"
-              rx="5"
-              class="fill-ink-200"
-            />
-            <!-- submit -->
-            <rect
-              x="40"
-              y="320"
-              width="132"
-              height="42"
-              rx="11"
-              class="fill-brand-600"
-            />
-            <rect
-              x="66"
-              y="337"
-              width="80"
-              height="8"
-              rx="4"
-              class="fill-white"
-            />
-          </svg>
+            <div class="flex items-center gap-1.5 border-b border-line-100 px-4 py-3" aria-hidden="true">
+              <span class="h-2.5 w-2.5 rounded-full bg-ink-200"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-ink-200"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-ink-200"></span>
+              <span class="ml-3 truncate text-xs text-ink-500">vedya.app/f/workshop-registration</span>
+            </div>
+            <div inert class="px-6 py-7 text-left sm:px-8">
+              <FormRenderer :version="heroForm" title="Design workshop — registration" />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -244,7 +183,7 @@ function toggleFaq(i: number): void {
         <div
           v-for="f in features"
           :key="f.title"
-          class="rounded-2xl border border-line-200 bg-white p-6 shadow-card"
+          class="rounded-2xl border border-line-200 bg-white p-6"
         >
           <span
             class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600"
@@ -277,6 +216,36 @@ function toggleFaq(i: number): void {
               {{ step.body }}
             </p>
           </div>
+        </div>
+      </section>
+
+      <!-- PRICING -->
+      <section id="pricing" class="scroll-mt-8 pb-20">
+        <h2 class="text-center text-2xl font-semibold tracking-tight">
+          Simple pricing
+        </h2>
+        <p class="mx-auto mt-2 max-w-md text-center text-sm text-ink-500">
+          Vedya is free while in beta. Paid plans with higher limits come later —
+          you'll get plenty of notice before anything changes.
+        </p>
+        <div class="mx-auto mt-8 max-w-sm rounded-2xl border border-line-200 bg-white p-7">
+          <div class="flex items-baseline justify-between">
+            <h3 class="font-semibold text-ink-900">Free</h3>
+            <span class="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700">Beta</span>
+          </div>
+          <p class="mt-3">
+            <span class="text-3xl font-semibold tracking-tight text-ink-900">₹0</span>
+            <span class="text-sm text-ink-500"> / month</span>
+          </p>
+          <ul class="mt-5 space-y-2.5 text-sm text-ink-700">
+            <li v-for="item in freePlan" :key="item" class="flex items-start gap-2.5">
+              <UiIcon name="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+              {{ item }}
+            </li>
+          </ul>
+          <router-link :to="{ name: 'signup' }" class="mt-6 block">
+            <UiButton class="w-full">Start for free</UiButton>
+          </router-link>
         </div>
       </section>
 
@@ -315,14 +284,14 @@ function toggleFaq(i: number): void {
 
     <!-- CLOSING CTA -->
     <section class="mx-auto max-w-5xl px-6 pb-20">
-      <div class="rounded-3xl bg-brand-600 px-8 py-14 text-center shadow-pop">
+      <div class="rounded-3xl bg-brand-600 px-8 py-14 text-center">
         <h2
           class="text-2xl font-semibold tracking-tight text-white sm:text-3xl"
         >
           Ready to build your first form?
         </h2>
         <p class="mx-auto mt-2 max-w-md text-sm text-brand-100">
-          It takes about a minute, and the free plan is genuinely free.
+          It takes about a minute. No credit card needed.
         </p>
         <div class="mt-6 flex justify-center">
           <router-link :to="{ name: 'signup' }">
@@ -335,7 +304,7 @@ function toggleFaq(i: number): void {
     <footer
       class="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-ink-500"
     >
-      © Vedya. Built with the thinnest credible engine.
+      © 2026 Vedya
       <nav class="mt-2 flex justify-center gap-4" aria-label="Legal">
         <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700">Privacy</router-link>
         <router-link :to="{ name: 'terms' }" class="hover:text-ink-700">Terms</router-link>

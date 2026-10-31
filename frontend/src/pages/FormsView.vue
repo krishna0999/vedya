@@ -248,11 +248,14 @@ onMounted(load);
         class="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between"
       >
         <div class="min-w-0">
-          <h1 class="truncate text-lg font-semibold text-ink-900">
-            {{ activeView === "templates" ? "Templates" : "My forms" }}
+          <h1 class="page-title truncate">
+            {{ activeView === "templates" ? "Templates" : "Forms" }}
           </h1>
-          <p v-if="activeView === 'templates'" class="text-sm text-ink-500">
+          <p v-if="activeView === 'templates'" class="page-subtitle">
             Pick a starting point — edit everything after. Nothing is locked in.
+          </p>
+          <p v-else class="page-subtitle">
+            Everything you've built. Star the ones you use most.
           </p>
         </div>
         <div class="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -356,7 +359,7 @@ onMounted(load);
         <div
           v-if="loading"
           role="status"
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
         >
           <span class="sr-only">Loading your forms…</span>
           <div
@@ -402,7 +405,7 @@ onMounted(load);
 
         <ul
           v-else
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
         >
           <FormCard
             v-for="form in sortedForms"

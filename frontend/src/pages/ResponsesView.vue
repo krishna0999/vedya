@@ -100,8 +100,8 @@ onMounted(load);
     <main class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <div class="mb-5 flex items-center justify-between gap-3">
         <div class="min-w-0">
-          <h1 class="truncate text-lg font-semibold">{{ title }}</h1>
-          <p class="text-sm text-ink-500">
+          <h1 class="page-title truncate">{{ title }}</h1>
+          <p class="page-subtitle">
             {{ submissions.length }} response{{
               submissions.length === 1 ? "" : "s"
             }}

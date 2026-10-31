@@ -61,7 +61,10 @@ async function deleteAccount(): Promise<void> {
 <template>
   <AppShell>
     <main class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
-      <h1 class="mb-5 text-lg font-semibold text-ink-900">Account</h1>
+      <div class="mb-6">
+        <h1 class="page-title">Account</h1>
+        <p class="page-subtitle">Your plan, and closing your account.</p>
+      </div>
       <!-- Profile -->
       <section
         class="rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
@@ -114,13 +117,18 @@ async function deleteAccount(): Promise<void> {
             >dashboard</router-link
           >.
         </p>
-        <!-- ponytail: upgrade CTA is copy-only until billing (MoR) lands. -->
+        <!-- ponytail: no billing until the MoR lands; a human handles "I need more". -->
         <p
           v-if="(auth.user?.plan ?? 'free') === 'free'"
           class="mt-2 text-sm text-ink-500"
         >
-          Upgrading removes the "Made with" badge and lifts response limits —
-          coming soon.
+          Vedya is free while in beta: unlimited forms and 100 responses a month.
+          Paid plans (no badge, higher limits) are coming. Need more now?
+          <a
+            href="mailto:support@vedya.app?subject=Raise%20my%20Vedya%20limit"
+            class="font-medium text-brand-700 hover:underline"
+            >Write to us</a
+          >.
         </p>
       </section>
 

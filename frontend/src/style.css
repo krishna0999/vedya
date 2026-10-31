@@ -168,3 +168,15 @@
     @apply font-medium text-brand-700 underline-offset-2 hover:underline;
   }
 }
+
+/* The one page-title pattern for app pages (Dashboard, Forms, Responses,
+   Settings, Account): same size and weight everywhere, plus a one-line
+   description underneath. */
+@layer components {
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight text-ink-900;
+  }
+  .page-subtitle {
+    @apply mt-1 text-sm text-ink-500;
+  }
+}

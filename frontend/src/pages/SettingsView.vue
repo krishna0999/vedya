@@ -90,7 +90,10 @@ async function logout(): Promise<void> {
 <template>
   <AppShell>
     <main class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
-      <h1 class="mb-5 text-lg font-semibold text-ink-900">Settings</h1>
+      <div class="mb-6">
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Your profile, password and data.</p>
+      </div>
       <!-- Profile -->
       <section
         class="rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"

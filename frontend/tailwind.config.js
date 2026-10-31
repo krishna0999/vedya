@@ -68,7 +68,8 @@ export default {
         '2xl': '22px',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.06)',
+        // Hairline only: surfaces are defined by borders, not floating shadows.
+        card: '0 1px 2px rgba(15,23,42,0.04)',
         pop: '0 10px 34px rgba(15,23,42,0.14)',
         focus: '0 0 0 3px rgba(16,185,129,0.35)',
       },

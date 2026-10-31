@@ -18,8 +18,10 @@ export const useAuthStore = defineStore('auth', {
       try {
         this.user = await api.me();
       } catch (err) {
-        // 401 just means "not signed in" — anything else we also treat as signed out.
-        if (!(err instanceof ApiError)) throw err;
+        // 401 means "not signed in". A network failure (API down or waking up)
+        // is treated the same: rethrowing here aborted the navigation and left
+        // a blank page — signed-out pages must still render.
+        if (!(err instanceof ApiError)) console.warn('[auth] session check failed', err);
         this.user = null;
       } finally {
         this.ready = true;
