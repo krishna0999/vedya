@@ -2,6 +2,14 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
+// Self-hosted Inter (the font the tokens name), so the UI and forms using the
+// "Inter" theme look the same on every OS instead of falling back to the system
+// font. Each weight ships per-subset files with unicode-range: browsers fetch
+// only the scripts a page uses. Self-hosting keeps the CSP's font-src 'self'.
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
 import './styles/tokens.css';
 import './style.css';
 
