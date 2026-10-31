@@ -1,0 +1,12 @@
+# App screens are private and useless in search. Shared forms (/f/*) stay
+# crawlable so link previews work; they opt out with an X-Robots-Tag header.
+User-agent: *
+Disallow: /dashboard
+Disallow: /forms
+Disallow: /settings
+Disallow: /account
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+
+Sitemap: https://vedya.app/sitemap.xml

@@ -48,7 +48,12 @@ export default async function middleware(request: Request): Promise<Response | u
       .replace(/(property="og:description"\s+content=")[^"]*/, (_, a: string) => a + desc)
       .replace('</head>', () => `<meta property="og:url" content="${esc(url.origin + url.pathname)}" />\n</head>`);
     return new Response(html, {
-      headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=300' },
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'public, max-age=300',
+        // Previews yes, search results no: people's forms don't belong in Google.
+        'x-robots-tag': 'noindex',
+      },
     });
   } catch {
     return;

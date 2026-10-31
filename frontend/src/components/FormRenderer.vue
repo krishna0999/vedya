@@ -233,7 +233,7 @@ function asDateRange(id: string): string | DateRangeValue | undefined {
 
       <button
         type="submit"
-        class="fb-btn w-full sm:w-auto disabled:pointer-events-none opacity-50"
+        class="fb-btn w-full sm:w-auto disabled:pointer-events-none disabled:opacity-50"
         :disabled="submitting"
       >
         <UiIcon
