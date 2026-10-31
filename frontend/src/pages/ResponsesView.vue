@@ -189,26 +189,26 @@ onMounted(load);
       </div>
       <p
         v-if="error"
-        class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+        class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
       >
         {{ error }}
       </p>
 
       <!-- Headline numbers -->
       <dl v-if="!loading && stats" class="mb-6 grid grid-cols-3 gap-3">
-        <div class="rounded-xl border border-line-200 bg-white px-4 py-3">
+        <div class="rounded-md border border-line-200 bg-white px-4 py-3">
           <dt class="text-sm font-medium text-ink-500">Views</dt>
           <dd class="mt-0.5 text-xl font-semibold tabular-nums text-ink-900">
             {{ stats.views }}
           </dd>
         </div>
-        <div class="rounded-xl border border-line-200 bg-white px-4 py-3">
+        <div class="rounded-md border border-line-200 bg-white px-4 py-3">
           <dt class="text-sm font-medium text-ink-500">Responses</dt>
           <dd class="mt-0.5 text-xl font-semibold tabular-nums text-ink-900">
             {{ stats.submissions }}
           </dd>
         </div>
-        <div class="rounded-xl border border-line-200 bg-white px-4 py-3">
+        <div class="rounded-md border border-line-200 bg-white px-4 py-3">
           <dt class="text-sm font-medium text-ink-500">Completion</dt>
           <dd class="mt-0.5 text-xl font-semibold tabular-nums text-ink-900">
             {{ completionRate === null ? "-" : `${completionRate}%` }}
@@ -223,13 +223,13 @@ onMounted(load);
           <div
             v-for="n in 3"
             :key="n"
-            class="rounded-xl border border-line-200 bg-white px-4 py-3"
+            class="rounded-md border border-line-200 bg-white px-4 py-3"
           >
             <UiSkeleton class="h-3.5 w-20" />
             <UiSkeleton class="mt-2 h-6 w-12" />
           </div>
         </div>
-        <div class="rounded-xl border border-line-200 bg-white p-4">
+        <div class="rounded-md border border-line-200 bg-white p-4">
           <UiSkeleton class="h-4 w-full" />
           <UiSkeleton v-for="n in 6" :key="n" class="mt-3 h-3.5 w-full" />
         </div>
@@ -237,7 +237,7 @@ onMounted(load);
 
       <div
         v-else-if="submissions.length === 0"
-        class="rounded-2xl border border-dashed border-line-300 bg-white p-12 text-center"
+        class="rounded-md border border-dashed border-line-300 bg-white p-12 text-center"
       >
         <h2 class="text-lg font-semibold text-ink-900">No responses yet</h2>
         <p class="mx-auto mt-1 max-w-sm text-sm text-ink-500">
@@ -271,7 +271,7 @@ onMounted(load);
           <section
             v-for="s in summaries"
             :key="s.field.id"
-            class="rounded-xl border border-line-200 bg-white p-5"
+            class="rounded-md border border-line-200 bg-white p-5"
           >
             <h2 class="font-semibold text-ink-900">{{ s.field.label }}</h2>
             <p class="mt-0.5 text-sm text-ink-500">
@@ -299,7 +299,7 @@ onMounted(load);
                   <span class="truncate text-ink-700">{{ b.label }}</span>
                   <span class="h-2 min-w-0" aria-hidden="true">
                     <span
-                      class="block h-2 rounded-r bg-brand-600"
+                      class="block h-2 rounded-r-md bg-brand-600"
                       :style="{ width: b.count ? `max(${b.pct}%, 2px)` : '0' }"
                     ></span>
                   </span>
@@ -354,12 +354,12 @@ onMounted(load);
               aria-label="Search responses"
             />
           </div>
-          <p v-if="!visible.length" class="rounded-xl border border-line-200 bg-white p-8 text-center text-sm text-ink-500">
+          <p v-if="!visible.length" class="rounded-md border border-line-200 bg-white p-8 text-center text-sm text-ink-500">
             No responses match “{{ query }}”.
           </p>
           <div
             v-else
-            class="scrollbar-thin overflow-x-auto rounded-xl border border-line-200 bg-white"
+            class="scrollbar-thin overflow-x-auto rounded-md border border-line-200 bg-white"
           >
             <table class="w-full border-collapse text-sm">
               <thead>
@@ -424,7 +424,7 @@ onMounted(load);
             <button
               ref="closeBtn"
               type="button"
-              class="rounded-lg p-1.5 text-ink-500 hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              class="rounded-md p-1.5 text-ink-500 hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
               aria-label="Close"
               @click="openId = null"
             >

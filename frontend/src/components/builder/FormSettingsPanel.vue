@@ -53,7 +53,7 @@ const FONTS = [
 
 <template>
   <div class="space-y-4">
-    <span class="rounded bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-600">Form settings</span>
+    <span class="rounded-md bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-600">Form settings</span>
 
     <div>
       <label for="form-title" class="ui-label">Title</label>

@@ -65,7 +65,7 @@ async function submit(): Promise<void> {
         <UiLogo size="lg" />
       </div>
 
-      <div class="rounded-2xl border border-line-200 bg-white p-7 shadow-card">
+      <div class="rounded-md border border-line-200 bg-white p-7 shadow-card">
         <h1 class="text-lg font-semibold text-ink-900">{{ heading }}</h1>
         <p class="mt-0.5 text-sm text-ink-500">
           {{
@@ -78,7 +78,7 @@ async function submit(): Promise<void> {
         <form class="mt-5 space-y-4" novalidate @submit.prevent="submit">
           <p
             v-if="error"
-            class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger"
+            class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger"
           >
             {{ error }}
           </p>

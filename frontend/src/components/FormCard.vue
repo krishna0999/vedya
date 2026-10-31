@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FormSummary } from "@/api/client";
 import { relativeTime } from "@/lib/time";
-import FormCardPreview from "@/components/FormCardPreview.vue";
 import UiActionMenu, {
   type UiActionItem,
 } from "@/components/ui/UiActionMenu.vue";
@@ -54,24 +53,31 @@ const moreActions = (): UiActionItem[] => [
 
 <template>
   <li
-    class="group relative flex h-80 flex-col rounded-sm border border-line-200 bg-white p-5 transition-colors duration-150 ease-soft hover:z-30 hover:border-line-300"
-    :style="{ '--card-accent': form.primaryColor }"
-  >
+    class="group relative flex flex-col rounded-md border border-line-200 bg-white p-5 transition-colors duration-150 ease-soft hover:z-30 hover:border-line-300"
+      >
     <!-- Header: title left, actions right (fade in on hover / focus) -->
     <div class="flex shrink-0 items-start justify-between gap-2">
-      <router-link
-        :to="{ name: 'builder', params: { id: form.id } }"
-        draggable="false"
-        class="line-clamp-2 min-h-[2.75rem] min-w-0 break-words text-base font-semibold leading-snug text-ink-900 transition-colors duration-200 group-hover:text-[color:var(--card-accent)]"
-      >
-        {{ form.title }}
-      </router-link>
+      <!-- The form's colour, as one small mark: identity without decoration. -->
+      <div class="flex min-w-0 items-start gap-2.5">
+        <span
+          class="mt-[0.45rem] h-2.5 w-2.5 shrink-0 rounded-full"
+          :style="{ background: form.primaryColor }"
+          aria-hidden="true"
+        ></span>
+        <router-link
+          :to="{ name: 'builder', params: { id: form.id } }"
+          draggable="false"
+          class="line-clamp-2 min-w-0 break-words text-base font-semibold leading-snug text-ink-900 transition-colors duration-150 hover:text-brand-700"
+        >
+          {{ form.title }}
+        </router-link>
+      </div>
 
       <div class="-mr-1.5 -mt-1.5 flex shrink-0 items-center gap-0.5">
         <UiTooltip :text="pinned ? 'Unpin form' : 'Pin to the top'" align="end">
           <button
             type="button"
-            class="grid h-8 w-8 place-items-center rounded-lg transition hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            class="grid h-8 w-8 place-items-center rounded-md transition hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
             :class="[
               pinned
                 ? 'text-amber-500 hover:text-amber-600'
@@ -97,23 +103,9 @@ const moreActions = (): UiActionItem[] => [
       </div>
     </div>
 
-    <div class="relative mt-6 min-h-0 flex-1">
-      <FormCardPreview
-        :fields="form.previewFields"
-        :accent="form.primaryColor"
-        :peek="form.fieldCount > 0"
-        class="absolute inset-x-0 top-0 z-10 max-h-full min-h-full"
-        :class="
-          form.fieldCount > 0
-            ? 'group-hover:z-20 group-hover:max-h-[28rem] group-hover:shadow-xl'
-            : ''
-        "
-      />
-    </div>
-
-    <!-- Quiet metrics — pinned to the bottom so every tile lines up -->
+    <!-- Quiet metrics -->
     <div
-      class="flex shrink-0 flex-wrap items-center gap-2 border-t border-line-100 pt-6 text-sm text-ink-600"
+      class="mt-4 flex shrink-0 flex-wrap items-center gap-2 border-t border-line-100 pt-4 text-sm text-ink-600"
     >
       <span>
         <span class="font-semibold tabular-nums text-ink-800">{{
@@ -139,7 +131,7 @@ const moreActions = (): UiActionItem[] => [
 
     <!-- Meta: type + status badges, then last edit. -->
     <div
-      class="mt-6 flex shrink-0 flex-wrap items-center gap-2 text-sm text-ink-500"
+      class="mt-3 flex shrink-0 flex-wrap items-center gap-2 text-sm text-ink-500"
     >
       <UiBadge v-if="form.category" variant="brand">
         {{ form.category }}

@@ -50,7 +50,7 @@ async function generate(): Promise<void> {
       ref="textarea"
       v-model="prompt"
       rows="5"
-      class="w-full resize-none rounded-xl border border-line-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:opacity-60"
+      class="w-full resize-none rounded-md border border-line-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:opacity-60"
       :placeholder="EXAMPLE"
       :disabled="generating"
       aria-label="Describe the form you want"
@@ -60,7 +60,7 @@ async function generate(): Promise<void> {
     <p
       v-if="error"
       role="alert"
-      class="mt-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
+      class="mt-2 rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
     >
       {{ error }}
     </p>

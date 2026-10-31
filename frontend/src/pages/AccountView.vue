@@ -67,7 +67,7 @@ async function deleteAccount(): Promise<void> {
       </div>
       <!-- Profile -->
       <section
-        class="rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
+        class="rounded-md border border-line-200 bg-white p-5 shadow-card sm:p-6"
         aria-label="Profile"
       >
         <div class="flex items-center gap-4">
@@ -103,7 +103,7 @@ async function deleteAccount(): Promise<void> {
 
       <!-- Plan -->
       <section
-        class="mt-6 rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
+        class="mt-6 rounded-md border border-line-200 bg-white p-5 shadow-card sm:p-6"
         aria-label="Plan"
       >
         <h2 class="font-semibold text-ink-900">Plan</h2>
@@ -134,7 +134,7 @@ async function deleteAccount(): Promise<void> {
 
       <!-- Danger zone -->
       <section
-        class="mt-6 rounded-2xl border border-red-200 bg-white p-5 shadow-card sm:p-6"
+        class="mt-6 rounded-md border border-red-200 bg-white p-5 shadow-card sm:p-6"
         aria-label="Danger zone"
       >
         <h2 class="font-semibold text-danger">Danger zone</h2>
@@ -145,7 +145,7 @@ async function deleteAccount(): Promise<void> {
         <p
           v-if="error"
           role="alert"
-          class="mt-3 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
+          class="mt-3 rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
         >
           {{ error }}
         </p>
@@ -179,7 +179,7 @@ async function deleteAccount(): Promise<void> {
           v-model="typedEmail"
           type="email"
           autocomplete="off"
-          class="mt-1.5 w-full rounded-lg border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+          class="mt-1.5 w-full rounded-md border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           :placeholder="auth.user?.email"
         />
       </UiConfirmDialog>

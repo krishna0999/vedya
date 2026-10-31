@@ -45,13 +45,13 @@ watch(
         role="alertdialog"
         aria-modal="true"
         :aria-label="title"
-        class="w-full max-w-xl rounded-2xl border border-line-200 bg-white p-6 shadow-pop"
+        class="w-full max-w-xl rounded-md border border-line-200 bg-white p-6 shadow-pop"
       >
         <div class="flex items-start justify-between gap-3">
           <h2 class="font-semibold text-ink-900">{{ title }}</h2>
           <button
             type="button"
-            class="-m-2 shrink-0 rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            class="-m-2 shrink-0 rounded-md p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
             aria-label="Close"
             @click="emit('cancel')"
           >

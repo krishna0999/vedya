@@ -28,7 +28,7 @@ const TONES = {
       <div
         v-for="t in toasts"
         :key="t.id"
-        class="pointer-events-auto flex w-full max-w-sm items-center gap-2.5 rounded-xl border bg-white px-3.5 py-2.5 shadow-pop"
+        class="pointer-events-auto flex w-full max-w-sm items-center gap-2.5 rounded-md border bg-white px-3.5 py-2.5 shadow-pop"
         :class="TONES[t.tone].ring"
       >
         <UiIcon

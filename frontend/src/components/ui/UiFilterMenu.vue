@@ -54,7 +54,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
   <div ref="root" class="relative" @keydown.escape="close">
     <button
       type="button"
-      class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+      class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
       :class="
         modelValue.length
           ? 'bg-brand-50 text-brand-700 hover:bg-brand-100'
@@ -83,7 +83,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <div
         v-if="open"
         role="menu"
-        class="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
+        class="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-md border border-line-200 bg-white p-1 shadow-pop"
       >
         <button
           v-for="o in options"
@@ -91,11 +91,11 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
           type="button"
           role="menuitemcheckbox"
           :aria-checked="isChecked(o.id)"
-          class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="toggleOption(o.id)"
         >
           <span
-            class="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] border transition-colors duration-150"
+            class="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-md border transition-colors duration-150"
             :class="
               isChecked(o.id)
                 ? 'border-brand-600 bg-brand-600 text-white'

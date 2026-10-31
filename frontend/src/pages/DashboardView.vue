@@ -717,7 +717,7 @@ async function useTemplate(templateId: string): Promise<void> {
     <main class="w-full space-y-6 px-6 pb-28 pt-6 md:pb-8">
       <p
         v-if="error"
-        class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+        class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
       >
         {{ error }}
       </p>
@@ -777,7 +777,7 @@ async function useTemplate(templateId: string): Promise<void> {
               <div
                 v-if="a.id === 'duplicate' && dupOpen"
                 role="menu"
-                class="absolute left-0 z-30 mt-1 w-64 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
+                class="absolute left-0 z-30 mt-1 w-64 overflow-hidden rounded-md border border-line-200 bg-white p-1 shadow-pop"
               >
                 <p v-if="!forms.length" class="px-3 py-2 text-sm text-ink-500">
                   No forms to duplicate yet.
@@ -787,7 +787,7 @@ async function useTemplate(templateId: string): Promise<void> {
                   :key="f.id"
                   type="button"
                   role="menuitem"
-                  class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+                  class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
                   @click="
                     closeDup();
                     duplicate(f);
@@ -818,10 +818,10 @@ async function useTemplate(templateId: string): Promise<void> {
           <div
             v-for="n in 4"
             :key="n"
-            class="rounded-xl border border-line-200 bg-white p-4"
+            class="rounded-md border border-line-200 bg-white p-4"
           >
             <div class="flex items-center gap-2.5">
-              <UiSkeleton class="h-9 w-9 rounded-lg" />
+              <UiSkeleton class="h-9 w-9 rounded-md" />
               <UiSkeleton class="h-3.5 w-24" />
             </div>
             <UiSkeleton class="mt-4 h-8 w-20" />
@@ -837,7 +837,7 @@ async function useTemplate(templateId: string): Promise<void> {
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2.5">
               <span
-                class="grid h-9 w-9 shrink-0 place-items-center rounded-lg"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-md"
                 :class="TINTS[s.tint]"
                 aria-hidden="true"
               >
@@ -957,10 +957,10 @@ async function useTemplate(templateId: string): Promise<void> {
           <!-- Empty state -->
           <div
             v-else-if="!recentForms.length"
-            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
+            class="mt-4 flex flex-col items-center rounded-md border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
           >
             <span
-              class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
+              class="grid h-11 w-11 place-items-center rounded-md bg-white text-ink-400 shadow-card"
               aria-hidden="true"
             >
               <UiIcon name="rectangle-group" class="text-inherit h-5 w-5" />
@@ -1006,7 +1006,7 @@ async function useTemplate(templateId: string): Promise<void> {
             <li
               v-for="f in recentForms"
               :key="f.id"
-              class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-ink-50"
+              class="group -mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-ink-50"
             >
               <router-link
                 :to="{ name: 'builder', params: { id: f.id } }"
@@ -1039,7 +1039,7 @@ async function useTemplate(templateId: string): Promise<void> {
                 <UiTooltip text="Edit">
                   <button
                     type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    class="grid h-8 w-8 place-items-center rounded-md text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
                     aria-label="Edit form"
                     @click="
                       router.push({ name: 'builder', params: { id: f.id } })
@@ -1055,7 +1055,7 @@ async function useTemplate(templateId: string): Promise<void> {
                 >
                   <button
                     type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
+                    class="grid h-8 w-8 place-items-center rounded-md text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label="Copy share link"
                     :disabled="!f.published"
                     @click="copyLink(f)"
@@ -1069,7 +1069,7 @@ async function useTemplate(templateId: string): Promise<void> {
                 <UiTooltip text="Analytics">
                   <button
                     type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    class="grid h-8 w-8 place-items-center rounded-md text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
                     aria-label="View responses"
                     @click="
                       router.push({ name: 'responses', params: { id: f.id } })
@@ -1081,7 +1081,7 @@ async function useTemplate(templateId: string): Promise<void> {
                 <UiTooltip text="Duplicate">
                   <button
                     type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+                    class="grid h-8 w-8 place-items-center rounded-md text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
                     aria-label="Duplicate form"
                     :disabled="creating"
                     @click="duplicate(f)"
@@ -1126,7 +1126,7 @@ async function useTemplate(templateId: string): Promise<void> {
 
           <div v-if="loading" class="mt-4 space-y-4">
             <div v-for="n in 4" :key="n" class="flex items-center gap-3">
-              <UiSkeleton class="h-8 w-8 shrink-0 rounded-lg" />
+              <UiSkeleton class="h-8 w-8 shrink-0 rounded-md" />
               <div class="flex-1 space-y-1.5">
                 <UiSkeleton class="h-3.5 w-2/5" />
                 <UiSkeleton class="h-3 w-1/4" />
@@ -1136,10 +1136,10 @@ async function useTemplate(templateId: string): Promise<void> {
 
           <div
             v-else-if="!recentResponses.length"
-            class="mt-4 flex flex-col items-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
+            class="mt-4 flex flex-col items-center rounded-md border border-dashed border-line-200 bg-ink-50/60 px-6 py-10 text-center"
           >
             <span
-              class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
+              class="grid h-11 w-11 place-items-center rounded-md bg-white text-ink-400 shadow-card"
               aria-hidden="true"
             >
               <UiIcon name="paper-airplane" class="text-inherit h-5 w-5" />
@@ -1162,11 +1162,11 @@ async function useTemplate(templateId: string): Promise<void> {
             <li v-for="r in recentResponses" :key="r.id">
               <router-link
                 :to="{ name: 'responses', params: { id: r.formId } }"
-                class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-ink-50"
+                class="group -mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-ink-50"
                 @click="markResponsesSeen"
               >
                 <span
-                  class="relative grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-secondary-50 text-secondary-600"
+                  class="relative grid h-8 w-8 shrink-0 place-items-center rounded-md bg-secondary-50 text-secondary-600"
                   aria-hidden="true"
                 >
                   <UiIcon name="paper-airplane" class="text-inherit h-4 w-4" />
@@ -1216,7 +1216,7 @@ async function useTemplate(templateId: string): Promise<void> {
             <div class="flex flex-wrap items-center gap-2">
               <!-- metric -->
               <div
-                class="flex rounded-lg bg-ink-100 p-0.5"
+                class="flex rounded-md bg-ink-100 p-0.5"
                 role="group"
                 aria-label="Metric"
               >
@@ -1238,7 +1238,7 @@ async function useTemplate(templateId: string): Promise<void> {
               </div>
               <!-- range -->
               <div
-                class="flex rounded-lg bg-ink-100 p-0.5"
+                class="flex rounded-md bg-ink-100 p-0.5"
                 role="group"
                 aria-label="Date range"
               >
@@ -1270,7 +1270,7 @@ async function useTemplate(templateId: string): Promise<void> {
               </UiTooltip>
               <!-- chart type -->
               <div
-                class="flex rounded-lg bg-ink-100 p-0.5"
+                class="flex rounded-md bg-ink-100 p-0.5"
                 role="group"
                 aria-label="Chart type"
               >
@@ -1297,15 +1297,15 @@ async function useTemplate(templateId: string): Promise<void> {
             </div>
           </div>
 
-          <UiSkeleton v-if="loading" class="mt-4 h-56 w-full rounded-lg" />
+          <UiSkeleton v-if="loading" class="mt-4 h-56 w-full rounded-md" />
 
           <!-- Empty state: nothing published means nothing to measure -->
           <div
             v-else-if="!usage?.published"
-            class="mt-4 flex h-56 flex-col items-center justify-center rounded-lg border border-dashed border-line-200 bg-ink-50/60 px-6 text-center"
+            class="mt-4 flex h-56 flex-col items-center justify-center rounded-md border border-dashed border-line-200 bg-ink-50/60 px-6 text-center"
           >
             <span
-              class="grid h-11 w-11 place-items-center rounded-xl bg-white text-ink-400 shadow-card"
+              class="grid h-11 w-11 place-items-center rounded-md bg-white text-ink-400 shadow-card"
               aria-hidden="true"
             >
               <UiIcon name="chart-bar" class="text-inherit h-5 w-5" />
@@ -1427,7 +1427,7 @@ async function useTemplate(templateId: string): Promise<void> {
             </svg>
             <div
               v-if="hover !== null && days[hover]"
-              class="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border border-line-200 bg-white px-3 py-2 shadow-pop"
+              class="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-md border border-line-200 bg-white px-3 py-2 shadow-pop"
               :style="{ left: `${(x(hover) / W) * 100}%` }"
             >
               <p class="whitespace-nowrap text-sm font-medium text-ink-900">
@@ -1457,7 +1457,7 @@ async function useTemplate(templateId: string): Promise<void> {
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="font-semibold text-ink-900">Activity</h2>
             <div
-              class="flex rounded-lg bg-ink-100 p-0.5"
+              class="flex rounded-md bg-ink-100 p-0.5"
               role="group"
               aria-label="Filter activity"
             >
@@ -1480,7 +1480,7 @@ async function useTemplate(templateId: string): Promise<void> {
           </div>
           <div v-if="loading" class="mt-4 space-y-4">
             <div v-for="n in 4" :key="n" class="flex items-center gap-3">
-              <UiSkeleton class="h-8 w-8 shrink-0 rounded-lg" />
+              <UiSkeleton class="h-8 w-8 shrink-0 rounded-md" />
               <div class="flex-1 space-y-1.5">
                 <UiSkeleton class="h-3.5 w-2/3" />
                 <UiSkeleton class="h-3 w-1/4" />
@@ -1507,7 +1507,7 @@ async function useTemplate(templateId: string): Promise<void> {
                     class="group flex items-center gap-3 py-2.5"
                   >
                     <span
-                      class="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+                      class="grid h-8 w-8 shrink-0 place-items-center rounded-md"
                       :class="TINTS[ev.tint]"
                       aria-hidden="true"
                     >
@@ -1583,7 +1583,7 @@ async function useTemplate(templateId: string): Promise<void> {
           <!-- Upgrade prompt only when a quota is actually tight -->
           <div
             v-if="nearLimit"
-            class="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5"
+            class="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5"
           >
             <!-- No paid plan exists yet: offer a human, not a dead-end button. -->
             <p class="text-sm text-amber-800">
@@ -1653,7 +1653,7 @@ async function useTemplate(templateId: string): Promise<void> {
               class="group mt-3 flex items-center gap-3"
             >
               <span
-                class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-ink-100 text-ink-500"
+                class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-ink-100 text-ink-500"
                 aria-hidden="true"
               >
                 <UiIcon :name="tip.icon" class="text-inherit h-4 w-4" />

@@ -39,7 +39,7 @@ function add(): void {
       <div
         v-for="o in options()"
         :key="o.id"
-        class="rounded-lg border border-line-200 p-2"
+        class="rounded-md border border-line-200 p-2"
       >
         <div class="flex items-center gap-2">
           <input
@@ -70,7 +70,7 @@ function add(): void {
     </div>
     <button
       type="button"
-      class="mt-2 flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+      class="mt-2 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
       @click="add"
     >
       <span class="text-base leading-none">+</span> Add option

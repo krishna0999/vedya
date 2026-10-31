@@ -7,7 +7,7 @@ import UiLogo from "@/components/ui/UiLogo.vue";
 <template>
   <div class="min-h-screen bg-ink-50 px-4 py-10">
     <article
-      class="mx-auto max-w-2xl rounded-2xl border border-line-200 bg-white p-6 shadow-card sm:p-10"
+      class="mx-auto max-w-2xl rounded-md border border-line-200 bg-white p-6 shadow-card sm:p-10"
     >
       <router-link to="/" aria-label="Vedya home"><UiLogo /></router-link>
       <h1 class="mt-6 text-2xl font-semibold text-ink-900">Terms of Service</h1>

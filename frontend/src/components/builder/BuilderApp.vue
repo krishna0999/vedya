@@ -164,7 +164,7 @@ function confirmLeave(): void {
         <!-- Edit/Preview toggle rides the header on md+; below, it gets its own
              full-width row so the title and actions aren't crushed. -->
         <div
-          class="hidden shrink-0 rounded-lg border border-line-200 bg-ink-50 p-0.5 text-sm md:inline-flex"
+          class="hidden shrink-0 rounded-md border border-line-200 bg-ink-50 p-0.5 text-sm md:inline-flex"
         >
           <button
             type="button"
@@ -207,7 +207,7 @@ function confirmLeave(): void {
 
       <div class="px-3 pb-2 md:hidden">
         <div
-          class="flex rounded-lg border border-line-200 bg-ink-50 p-0.5 text-sm"
+          class="flex rounded-md border border-line-200 bg-ink-50 p-0.5 text-sm"
         >
           <button
             type="button"
@@ -240,7 +240,7 @@ function confirmLeave(): void {
         }}.</span
       >
       <code
-        class="truncate rounded bg-white px-2 py-0.5 text-sm text-ink-600 ring-1 ring-line-200"
+        class="truncate rounded-md bg-white px-2 py-0.5 text-sm text-ink-600 ring-1 ring-line-200"
         >{{ publicUrl }}</code
       >
       <button
@@ -259,7 +259,7 @@ function confirmLeave(): void {
       >
       <button
         type="button"
-        class="ml-auto shrink-0 rounded-lg p-1 text-brand-700 transition hover:bg-brand-100 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+        class="ml-auto shrink-0 rounded-md p-1 text-brand-700 transition hover:bg-brand-100 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
         aria-label="Dismiss published banner"
         @click="builder.publishStatus = 'idle'"
       >
@@ -328,13 +328,13 @@ function confirmLeave(): void {
         <div class="mx-auto max-w-xl">
           <div
             v-if="builder.draft.fields.length === 0"
-            class="rounded-2xl border border-line-200 bg-white p-10 text-center text-ink-500"
+            class="rounded-md border border-line-200 bg-white p-10 text-center text-ink-500"
           >
             Add some fields to preview the form.
           </div>
           <div
             v-else
-            class="rounded-2xl border border-line-200 bg-white p-8 shadow-card"
+            class="rounded-md border border-line-200 bg-white p-8 shadow-card"
           >
             <FormRenderer
               :version="builder.previewVersion"
@@ -350,7 +350,7 @@ function confirmLeave(): void {
               Validated submission (preview)
             </h2>
             <pre
-              class="overflow-x-auto rounded-xl bg-ink-900 p-4 text-sm leading-relaxed text-brand-200"
+              class="overflow-x-auto rounded-md bg-ink-900 p-4 text-sm leading-relaxed text-brand-200"
               >{{ JSON.stringify(previewSubmission, null, 2) }}</pre
             >
           </section>
@@ -388,7 +388,7 @@ function confirmLeave(): void {
         role="dialog"
         aria-modal="true"
         aria-label="Add a field"
-        class="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-2xl bg-white shadow-pop lg:hidden"
+        class="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-md bg-white shadow-pop lg:hidden"
         @keydown.escape="paletteOpen = false"
       >
         <div
@@ -399,7 +399,7 @@ function confirmLeave(): void {
           <span class="text-sm font-semibold text-ink-900">Add a field</span>
           <button
             type="button"
-            class="rounded-lg p-1.5 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            class="rounded-md p-1.5 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
             aria-label="Close"
             @click="paletteOpen = false"
           >
@@ -430,7 +430,7 @@ function confirmLeave(): void {
         role="dialog"
         aria-modal="true"
         aria-label="Field settings"
-        class="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-2xl bg-white shadow-pop lg:hidden"
+        class="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-md bg-white shadow-pop lg:hidden"
         @keydown.escape="builder.select(null)"
       >
         <div
@@ -470,7 +470,7 @@ function confirmLeave(): void {
         role="dialog"
         aria-modal="true"
         aria-label="Form settings"
-        class="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-2xl bg-white shadow-pop lg:hidden"
+        class="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-md bg-white shadow-pop lg:hidden"
         @keydown.escape="settingsOpen = false"
       >
         <div

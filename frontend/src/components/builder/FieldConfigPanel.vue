@@ -83,7 +83,7 @@ function setValidation(patch: Partial<FieldValidation>): void {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <span
-        class="rounded bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-600"
+        class="rounded-md bg-ink-100 px-2 py-0.5 text-sm font-medium text-ink-600"
         >{{ typeLabel }}</span
       >
       <button
@@ -150,7 +150,7 @@ function setValidation(patch: Partial<FieldValidation>): void {
       <div>
         <p class="ui-label">Selection</p>
         <div
-          class="inline-flex w-full rounded-lg border border-line-200 bg-ink-50 p-0.5 text-sm"
+          class="inline-flex w-full rounded-md border border-line-200 bg-ink-50 p-0.5 text-sm"
         >
           <button
             type="button"
@@ -203,7 +203,7 @@ function setValidation(patch: Partial<FieldValidation>): void {
               {{ p.label }}
               <button
                 type="button"
-                class="grid h-4 w-4 place-items-center rounded hover:bg-brand-100"
+                class="grid h-4 w-4 place-items-center rounded-md hover:bg-brand-100"
                 aria-label="Remove preset"
                 @click="removePreset(p.label)"
               >

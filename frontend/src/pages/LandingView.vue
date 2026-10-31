@@ -195,7 +195,7 @@ function toggleFaq(i: number): void {
             aria-hidden="true"
           ></div>
           <div
-            class="overflow-hidden rounded-2xl border border-line-200 bg-white"
+            class="overflow-hidden rounded-md border border-line-200 bg-white"
             aria-label="Example of a form built with Vedya"
             role="img"
           >
@@ -225,10 +225,10 @@ function toggleFaq(i: number): void {
         <div
           v-for="f in features"
           :key="f.title"
-          class="rounded-2xl border border-line-200 bg-white p-6"
+          class="rounded-md border border-line-200 bg-white p-6"
         >
           <span
-            class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600"
+            class="grid h-10 w-10 place-items-center rounded-md bg-brand-50 text-brand-600"
           >
             <UiIcon :name="f.icon" class="text-inherit h-5 w-5" />
           </span>
@@ -271,7 +271,7 @@ function toggleFaq(i: number): void {
           and you'll get plenty of notice before anything changes.
         </p>
         <div
-          class="mx-auto mt-8 max-w-sm rounded-2xl border border-line-200 bg-white p-7"
+          class="mx-auto mt-8 max-w-sm rounded-md border border-line-200 bg-white p-7"
         >
           <div class="flex items-baseline justify-between">
             <h3 class="font-semibold text-ink-900">Free</h3>
@@ -311,7 +311,7 @@ function toggleFaq(i: number): void {
           Questions, answered
         </h2>
         <div
-          class="mx-auto mt-8 max-w-2xl divide-y divide-line-200 overflow-hidden rounded-2xl border border-line-200 bg-white"
+          class="mx-auto mt-8 max-w-2xl divide-y divide-line-200 overflow-hidden rounded-md border border-line-200 bg-white"
         >
           <div v-for="(faq, i) in faqs" :key="faq.q">
             <button
@@ -340,7 +340,7 @@ function toggleFaq(i: number): void {
 
     <!-- CLOSING CTA -->
     <section class="mx-auto max-w-5xl px-6 pb-20">
-      <div class="rounded-3xl bg-brand-600 px-8 py-14 text-center">
+      <div class="rounded-md bg-brand-600 px-8 py-14 text-center">
         <h2
           class="text-2xl font-semibold tracking-tight text-white sm:text-3xl"
         >

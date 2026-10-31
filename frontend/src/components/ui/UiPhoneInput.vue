@@ -182,7 +182,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     >
       <div
         v-if="open"
-        class="absolute z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-line-200 bg-white shadow-pop"
+        class="absolute z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border border-line-200 bg-white shadow-pop"
       >
         <div class="flex items-center gap-2 border-b border-line-100 px-3">
           <UiIcon
@@ -204,7 +204,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             :key="c.iso2 + c.dial"
             role="option"
             :aria-selected="c.iso2 === country.iso2"
-            class="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-ink-800"
+            class="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-ink-800"
             :class="i === active ? 'bg-ink-50' : 'hover:bg-ink-50'"
             @mouseenter="active = i"
             @click="pick(c)"

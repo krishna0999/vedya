@@ -142,7 +142,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             role="button"
             tabindex="-1"
             aria-label="Remove"
-            class="grid h-4 w-4 place-items-center rounded hover:bg-brand-100"
+            class="grid h-4 w-4 place-items-center rounded-md hover:bg-brand-100"
             @click.stop="remove(o)"
           >
             <UiIcon name="x-mark" class="text-inherit h-3 w-3" />
@@ -164,7 +164,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     >
       <div
         v-if="open"
-        class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-line-200 bg-white shadow-pop"
+        class="absolute z-20 mt-2 w-full overflow-hidden rounded-md border border-line-200 bg-white shadow-pop"
       >
         <div class="flex items-center gap-2 border-b border-line-100 px-3">
           <UiIcon
@@ -190,13 +190,13 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             :key="o.id"
             role="option"
             :aria-selected="isChecked(o)"
-            class="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-ink-800"
+            class="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-ink-800"
             :class="i === active ? 'bg-ink-50' : 'hover:bg-ink-50'"
             @mouseenter="active = i"
             @click="toggleOption(o)"
           >
             <span
-              class="grid h-5 w-5 shrink-0 place-items-center rounded-[6px] border transition-colors duration-150"
+              class="grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors duration-150"
               :class="
                 isChecked(o)
                   ? 'border-brand-600 bg-brand-600 text-white'

@@ -59,7 +59,7 @@ function add(type: FieldType): void {
           v-for="t in g.types"
           :key="t.type"
           type="button"
-          class="flex flex-col items-center justify-center gap-2.5 rounded-xl bg-ink-50 px-2 py-5 text-center text-sm font-medium text-ink-700 transition-colors duration-150 hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+          class="flex flex-col items-center justify-center gap-2.5 rounded-md bg-ink-50 px-2 py-5 text-center text-sm font-medium text-ink-700 transition-colors duration-150 hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
           @click="add(t.type)"
         >
           <UiIcon :name="t.icon" class="text-inherit h-5 w-5" />

@@ -24,7 +24,6 @@ export interface FormSummary {
   viewCount: number;
   fieldCount: number; // total questions (excludes section breaks)
   primaryColor: string; // form theme accent, used to tint the card
-  previewFields: Field[]; // questions for the card's mini paper preview
 }
 
 // Basic analytics (ROADMAP Phase 1): the three headline numbers. Conversion is
@@ -105,8 +104,7 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
     [ownerId],
   );
   return rows.map((r) => {
-    // Questions only, not layout breaks. The card picks its 2 defining questions
-    // from these, so send the whole set — a distinctive field can be anywhere.
+    // Questions only, not layout breaks, for the card's question count.
     const questions = (r.fields ?? []).filter((f) => f.type !== 'section_break');
     return {
       id: r.id,
@@ -118,7 +116,6 @@ export async function listForms(ownerId: string): Promise<FormSummary[]> {
       viewCount: Number(r.view_count),
       fieldCount: questions.length,
       primaryColor: r.primary_color ?? DEFAULT_THEME.primaryColor,
-      previewFields: questions,
     };
   });
 }

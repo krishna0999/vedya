@@ -85,7 +85,7 @@ const arrowClass = computed(() =>
       v-if="!disabled"
       role="tooltip"
       aria-hidden="true"
-      class="pointer-events-none absolute z-50 whitespace-nowrap rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-pop transition-opacity delay-100 duration-150 ease-soft group-hover/tip:opacity-100 group-has-[:focus-visible]/tip:opacity-100"
+      class="pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-ink-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-pop transition-opacity delay-100 duration-150 ease-soft group-hover/tip:opacity-100 group-has-[:focus-visible]/tip:opacity-100"
       :class="bubbleClass"
     >
       {{ text }}

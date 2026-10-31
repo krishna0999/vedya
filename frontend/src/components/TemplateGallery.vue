@@ -233,7 +233,7 @@ onMounted(load);
     <!-- Skeleton mirror of the pills row + card grid -->
     <div v-if="loading" role="status">
       <span class="sr-only">Loading templates…</span>
-      <UiSkeleton class="mb-3 h-[2.375rem] w-full rounded-lg" />
+      <UiSkeleton class="mb-3 h-[2.375rem] w-full rounded-md" />
       <div class="mb-4 flex gap-1.5 overflow-hidden sm:mb-5 sm:flex-wrap">
         <UiSkeleton
           v-for="n in 5"
@@ -245,24 +245,24 @@ onMounted(load);
         <div
           v-for="n in 6"
           :key="n"
-          class="flex h-[22rem] flex-col rounded-xl border border-t-4 border-line-200 bg-white px-5 py-4"
+          class="flex h-[22rem] flex-col rounded-md border border-t-4 border-line-200 bg-white px-5 py-4"
         >
-          <UiSkeleton class="h-9 w-9 rounded-xl" />
+          <UiSkeleton class="h-9 w-9 rounded-md" />
           <UiSkeleton class="mt-2.5 h-4 w-2/3" />
           <UiSkeleton class="mt-2 h-3.5 w-full" />
           <UiSkeleton class="mt-1.5 h-3.5 w-4/5" />
-          <UiSkeleton class="mt-2.5 h-[6.125rem] w-full rounded-lg" />
+          <UiSkeleton class="mt-2.5 h-[6.125rem] w-full rounded-md" />
           <UiSkeleton class="mt-2.5 h-3.5 w-40" />
           <div class="mt-2.5 flex gap-2">
-            <UiSkeleton class="h-8 w-20 rounded-lg" />
-            <UiSkeleton class="h-8 w-28 rounded-lg" />
+            <UiSkeleton class="h-8 w-20 rounded-md" />
+            <UiSkeleton class="h-8 w-28 rounded-md" />
           </div>
         </div>
       </div>
     </div>
     <p
       v-else-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+      class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
     >
       {{ error }}
     </p>
@@ -336,7 +336,7 @@ onMounted(load);
         >
           <div class="flex min-w-0 gap-3">
             <span
-              class="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl leading-none"
+              class="grid h-12 w-12 shrink-0 place-items-center rounded-md text-2xl leading-none"
               style="
                 background: color-mix(in srgb, var(--drawer-accent) 12%, white);
               "
@@ -379,7 +379,7 @@ onMounted(load);
           </div>
           <button
             type="button"
-            class="shrink-0 rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            class="shrink-0 rounded-md p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
             aria-label="Close preview"
             @click="closePreview"
           >
@@ -391,7 +391,7 @@ onMounted(load);
         <div class="min-h-0 flex-1 overflow-y-auto bg-ink-50 px-4 py-5 sm:px-5">
           <div
             v-if="previewVersion"
-            class="rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
+            class="rounded-md border border-line-200 bg-white p-5 shadow-card sm:p-6"
           >
             <FormRenderer
               :key="previewVersion.formId"

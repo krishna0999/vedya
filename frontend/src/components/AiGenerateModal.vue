@@ -22,12 +22,12 @@ const close = (): void => emit("update:open", false);
         role="dialog"
         aria-modal="true"
         aria-label="Generate a form with AI"
-        class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl sm:p-8"
+        class="w-full max-w-2xl rounded-md bg-white p-6 shadow-xl sm:p-8"
       >
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-2">
             <span
-              class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700"
+              class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-brand-100 text-brand-700"
               aria-hidden="true"
             >
               <UiIcon name="sparkles" class="text-inherit h-5 w-5" />
@@ -36,7 +36,7 @@ const close = (): void => emit("update:open", false);
           </div>
           <button
             type="button"
-            class="shrink-0 rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            class="shrink-0 rounded-md p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
             aria-label="Close"
             @click="close"
           >

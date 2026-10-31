@@ -35,7 +35,7 @@ onMounted(async () => {
         <UiLogo size="lg" />
       </div>
       <div
-        class="rounded-2xl border border-line-200 bg-white p-7 text-center shadow-card"
+        class="rounded-md border border-line-200 bg-white p-7 text-center shadow-card"
         role="status"
       >
         <template v-if="state === 'working'">

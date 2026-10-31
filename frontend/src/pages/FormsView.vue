@@ -310,12 +310,12 @@ onMounted(load);
               <div
                 v-if="createOpen"
                 role="menu"
-                class="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
+                class="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-md border border-line-200 bg-white p-1 shadow-pop"
               >
                 <button
                   type="button"
                   role="menuitem"
-                  class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+                  class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
                   @click="pickCreate('blank')"
                 >
                   <UiIcon name="plus" class="h-5 w-5 shrink-0 text-ink-500" />
@@ -324,7 +324,7 @@ onMounted(load);
                 <button
                   type="button"
                   role="menuitem"
-                  class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+                  class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
                   @click="pickCreate('ai')"
                 >
                   <UiIcon
@@ -341,7 +341,7 @@ onMounted(load);
 
       <p
         v-if="error"
-        class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+        class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
       >
         {{ error }}
       </p>
@@ -366,7 +366,7 @@ onMounted(load);
           <div
             v-for="n in 6"
             :key="n"
-            class="flex h-80 flex-col rounded-sm border border-line-200 bg-white p-5"
+            class="flex h-80 flex-col rounded-md border border-line-200 bg-white p-5"
           >
             <UiSkeleton class="h-4 w-32 max-w-[70%]" />
             <UiSkeleton class="mt-5 h-3 w-20" />
@@ -379,7 +379,7 @@ onMounted(load);
 
         <div
           v-else-if="forms.length === 0"
-          class="rounded-2xl border border-dashed border-line-300 bg-white p-12 text-center"
+          class="rounded-md border border-dashed border-line-300 bg-white p-12 text-center"
         >
           <h2 class="text-lg font-semibold text-ink-900">No forms yet</h2>
           <p class="mx-auto mt-1 max-w-sm text-sm text-ink-500">

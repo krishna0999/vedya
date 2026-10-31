@@ -86,7 +86,7 @@ const dragging = computed(() => dragIndex.value !== null);
     <!-- empty state -->
     <div
       v-if="builder.draft.fields.length === 0"
-      class="rounded-2xl border-2 border-dashed border-line-200 bg-white/60 p-12 text-center"
+      class="rounded-md border-2 border-dashed border-line-200 bg-white/60 p-12 text-center"
     >
       <p class="text-ink-600">No fields yet.</p>
       <p class="mt-1 text-sm text-ink-500">
@@ -108,7 +108,7 @@ const dragging = computed(() => dragIndex.value !== null);
         v-for="(field, i) in builder.draft.fields"
         :key="field.id"
         :draggable="editingId !== field.id"
-        class="group relative rounded-xl border bg-white transition-[border-color,box-shadow,opacity] duration-150 ease-soft"
+        class="group relative rounded-md border bg-white transition-[border-color,box-shadow,opacity] duration-150 ease-soft"
         :class="[
           builder.selectedId === field.id
             ? 'border-brand-400 shadow-card ring-2 ring-brand-100'
@@ -127,7 +127,7 @@ const dragging = computed(() => dragIndex.value !== null);
         <!-- Selected: left accent strip -->
         <span
           v-if="builder.selectedId === field.id"
-          class="absolute bottom-2 left-0 top-2 w-1 rounded-r-full bg-brand-500"
+          class="absolute bottom-2 left-0 top-2 w-1 rounded-r-md bg-brand-500"
           aria-hidden="true"
         ></span>
 
@@ -158,7 +158,7 @@ const dragging = computed(() => dragIndex.value !== null);
         <!-- Insert-type menu for this gap -->
         <div
           v-if="addAt === i"
-          class="absolute inset-x-0 top-0 z-20 -translate-y-2 rounded-xl border border-line-200 bg-white p-3 shadow-pop"
+          class="absolute inset-x-0 top-0 z-20 -translate-y-2 rounded-md border border-line-200 bg-white p-3 shadow-pop"
           @click.stop
           @keydown.escape="addAt = null"
         >
@@ -168,7 +168,7 @@ const dragging = computed(() => dragIndex.value !== null);
             >
             <button
               type="button"
-              class="rounded p-0.5 text-ink-400 hover:text-ink-600"
+              class="rounded-md p-0.5 text-ink-400 hover:text-ink-600"
               aria-label="Close"
               @click="addAt = null"
             >
@@ -184,7 +184,7 @@ const dragging = computed(() => dragIndex.value !== null);
               v-for="t in g.types"
               :key="t.type"
               type="button"
-              class="inline-flex items-center gap-1.5 rounded-lg bg-ink-50 px-2 py-1 text-sm text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              class="inline-flex items-center gap-1.5 rounded-md bg-ink-50 px-2 py-1 text-sm text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
               @click="insertField(t.type)"
             >
               <UiIcon :name="t.icon" class="text-inherit h-4 w-4" />
@@ -259,13 +259,13 @@ const dragging = computed(() => dragIndex.value !== null);
             <div
               class="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-ink-500"
             >
-              <span class="rounded bg-ink-100 px-1.5 py-0.5">{{
+              <span class="rounded-md bg-ink-100 px-1.5 py-0.5">{{
                 typeLabel(field)
               }}</span>
               <span
                 v-for="chip in ruleChips(field)"
                 :key="chip"
-                class="rounded bg-ink-100 px-1.5 py-0.5"
+                class="rounded-md bg-ink-100 px-1.5 py-0.5"
                 >{{ chip }}</span
               >
             </div>

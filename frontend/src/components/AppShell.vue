@@ -64,7 +64,7 @@ const active = computed<string | null>(() => {
 });
 
 const sideClass = (key: string) => [
-  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition",
+  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition",
   key === active.value
     ? "bg-ink-200 text-ink-900 hover:bg-ink-50"
     : "text-ink-600 hover:bg-ink-200 hover:text-ink-900",
@@ -159,7 +159,7 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onGlobalKey));
             >Search forms and templates…</span
           >
           <kbd
-            class="hidden shrink-0 rounded border border-line-200 bg-white px-1.5 py-0.5 font-sans text-xs text-ink-500 sm:inline"
+            class="hidden shrink-0 rounded-md border border-line-200 bg-white px-1.5 py-0.5 font-sans text-xs text-ink-500 sm:inline"
             >{{ searchHint }}</kbd
           >
         </button>

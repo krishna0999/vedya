@@ -64,7 +64,7 @@ const TONE = {
     <UiTooltip text="Notifications" placement="bottom" :disabled="open">
       <button
         type="button"
-        class="relative grid h-9 w-9 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+        class="relative grid h-9 w-9 place-items-center rounded-md text-ink-500 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
         :aria-label="
           unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications'
         "
@@ -98,7 +98,7 @@ const TONE = {
         v-if="open"
         role="dialog"
         aria-label="Notifications"
-        class="absolute right-0 top-full z-30 mt-2 flex max-h-[26rem] w-[21rem] flex-col overflow-hidden rounded-xl border border-line-200 bg-white shadow-pop"
+        class="absolute right-0 top-full z-30 mt-2 flex max-h-[26rem] w-[21rem] flex-col overflow-hidden rounded-md border border-line-200 bg-white shadow-pop"
       >
         <div class="shrink-0 border-b border-line-100 px-3 pt-3">
           <div class="flex items-center justify-between gap-2">
@@ -143,7 +143,7 @@ const TONE = {
             @click="close"
           >
             <span
-              class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg"
+              class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md"
               :class="TONE[n.tone ?? 'warn']"
               aria-hidden="true"
             >
@@ -173,7 +173,7 @@ const TONE = {
               @click="close"
             >
               <span
-                class="relative mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-secondary-50 text-secondary-600"
+                class="relative mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md bg-secondary-50 text-secondary-600"
                 aria-hidden="true"
               >
                 <UiIcon name="paper-airplane" class="text-inherit h-4 w-4" />

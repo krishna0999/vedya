@@ -5,7 +5,7 @@
 </script>
 
 <template>
-  <div class="skeleton rounded bg-ink-200/70" aria-hidden="true"></div>
+  <div class="skeleton rounded-md bg-ink-200/70" aria-hidden="true"></div>
 </template>
 
 <style scoped>

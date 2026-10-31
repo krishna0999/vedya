@@ -71,7 +71,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <div
         v-if="open"
         role="menu"
-        class="absolute right-0 z-30 mt-2 w-60 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
+        class="absolute right-0 z-30 mt-2 w-60 overflow-hidden rounded-md border border-line-200 bg-white p-1 shadow-pop"
       >
         <div class="px-3 py-2">
           <p
@@ -96,7 +96,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         <router-link
           :to="{ name: 'account' }"
           role="menuitem"
-          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="close"
         >
           <UiIcon name="user-circle" class="h-5 w-5 text-ink-500" />
@@ -105,7 +105,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         <router-link
           :to="{ name: 'settings' }"
           role="menuitem"
-          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="close"
         >
           <UiIcon name="cog-6-tooth" class="h-5 w-5 text-ink-500" />
@@ -114,7 +114,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         <a
           href="mailto:support@vedya.app"
           role="menuitem"
-          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="close"
         >
           <UiIcon name="envelope" class="h-5 w-5 text-ink-500" />
@@ -124,7 +124,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         <button
           type="button"
           role="menuitem"
-          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
+          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-700 transition-colors hover:bg-ink-50"
           @click="logout"
         >
           <UiIcon

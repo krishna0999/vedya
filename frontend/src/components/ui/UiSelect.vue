@@ -128,7 +128,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     >
       <div
         v-if="open"
-        class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-line-200 bg-white shadow-pop"
+        class="absolute z-20 mt-2 w-full overflow-hidden rounded-md border border-line-200 bg-white shadow-pop"
       >
         <div class="flex items-center gap-2 border-b border-line-100 px-3">
           <UiIcon
@@ -150,7 +150,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
             :key="o.id"
             role="option"
             :aria-selected="optValue(o) === modelValue"
-            class="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-ink-800"
+            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-ink-800"
             :class="
               i === active ? 'bg-brand-50 text-brand-700' : 'hover:bg-ink-50'
             "

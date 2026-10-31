@@ -78,7 +78,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     <UiTooltip text="More actions" align="end" :disabled="open">
       <button
         type="button"
-        class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+        class="grid h-8 w-8 place-items-center rounded-md text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
         aria-haspopup="menu"
         :aria-expanded="open"
         :aria-label="label"
@@ -101,14 +101,14 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <div
         v-if="open"
         role="menu"
-        class="absolute right-0 z-30 mt-1 w-48 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
+        class="absolute right-0 z-30 mt-1 w-48 overflow-hidden rounded-md border border-line-200 bg-white p-1 shadow-pop"
       >
         <button
           v-for="item in items"
           :key="item.id"
           type="button"
           role="menuitem"
-          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-45"
           :class="
             item.danger
               ? 'text-danger hover:bg-red-50'

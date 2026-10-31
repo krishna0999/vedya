@@ -254,7 +254,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
     >
       <div
         v-if="open"
-        class="absolute z-20 mt-2 w-[19rem] overflow-hidden rounded-2xl border border-line-200 bg-white p-3 shadow-pop"
+        class="absolute z-20 mt-2 w-[19rem] overflow-hidden rounded-md border border-line-200 bg-white p-3 shadow-pop"
       >
         <!-- presets (single mode) -->
         <div
@@ -280,7 +280,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
         <div class="mb-2 flex items-center justify-between px-1">
           <button
             type="button"
-            class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 hover:bg-ink-100"
+            class="grid h-8 w-8 place-items-center rounded-md text-ink-500 hover:bg-ink-100"
             aria-label="Previous month"
             @click="prevMonth"
           >
@@ -291,7 +291,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
           >
           <button
             type="button"
-            class="grid h-8 w-8 place-items-center rounded-lg text-ink-500 hover:bg-ink-100"
+            class="grid h-8 w-8 place-items-center rounded-md text-ink-500 hover:bg-ink-100"
             aria-label="Next month"
             @click="nextMonth"
           >
@@ -318,7 +318,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
           >
             <button
               type="button"
-              class="relative z-10 grid h-9 w-full place-items-center rounded-lg text-sm transition-colors duration-150"
+              class="relative z-10 grid h-9 w-full place-items-center rounded-md text-sm transition-colors duration-150"
               :class="[
                 cellState(c.iso) === 'endpoint'
                   ? 'bg-brand-600 font-semibold text-white'

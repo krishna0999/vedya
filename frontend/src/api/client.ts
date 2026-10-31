@@ -15,7 +15,6 @@ export interface FormSummary {
   viewCount: number;
   fieldCount: number; // total questions (excludes section breaks)
   primaryColor: string; // form theme accent, used to tint the card
-  previewFields: Field[]; // questions for the card's mini paper preview
 }
 
 // Basic analytics: headline numbers for one form (conversion derived client-side).

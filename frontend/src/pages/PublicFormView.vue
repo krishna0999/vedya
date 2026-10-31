@@ -146,20 +146,20 @@ onMounted(load);
       <div
         v-if="loading"
         role="status"
-        class="rounded-2xl border border-line-200 bg-white p-6 sm:p-10"
+        class="rounded-md border border-line-200 bg-white p-6 sm:p-10"
       >
         <span class="sr-only">Loading…</span>
         <UiSkeleton class="h-6 w-2/3" />
         <div v-for="n in 3" :key="n" class="mt-7 space-y-2">
           <UiSkeleton class="h-3.5 w-40" />
-          <UiSkeleton class="h-10 w-full rounded-lg" />
+          <UiSkeleton class="h-10 w-full rounded-md" />
         </div>
-        <UiSkeleton class="mt-8 h-10 w-28 rounded-lg" />
+        <UiSkeleton class="mt-8 h-10 w-28 rounded-md" />
       </div>
 
       <div
         v-else-if="loadError"
-        class="rounded-2xl border border-line-200 bg-white p-10 text-center"
+        class="rounded-md border border-line-200 bg-white p-10 text-center"
       >
         <h1 class="text-lg font-semibold text-ink-900">Form unavailable</h1>
         <p class="mt-1 text-sm text-ink-500">{{ loadError }}</p>
@@ -167,7 +167,7 @@ onMounted(load);
 
       <div
         v-else-if="done"
-        class="rounded-2xl border border-line-200 bg-white p-10 text-center"
+        class="rounded-md border border-line-200 bg-white p-10 text-center"
       >
         <div
           class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full text-white"
@@ -185,7 +185,7 @@ onMounted(load);
         <template v-if="branding">
           <router-link
             :to="{ name: 'signup' }"
-            class="mt-6 inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+            class="mt-6 inline-flex items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
           >
             Create your own form
           </router-link>
@@ -198,12 +198,12 @@ onMounted(load);
       <div v-else-if="version">
         <!-- Top edge in the form's own colour: the creator's brand, not ours. -->
         <div
-          class="rounded-2xl border border-t-4 border-line-200 bg-white p-6 sm:p-10"
+          class="rounded-md border border-t-4 border-line-200 bg-white p-6 sm:p-10"
           :style="{ borderTopColor: version.theme.primaryColor }"
         >
           <p
             v-if="submitError"
-            class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
+            class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger"
           >
             {{ submitError }}
           </p>

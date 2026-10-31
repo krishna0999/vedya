@@ -51,7 +51,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
   <div ref="root" class="relative" @keydown.escape="close">
     <button
       type="button"
-      class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+      class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
       aria-haspopup="menu"
       :aria-expanded="open"
       @click="toggleMenu"
@@ -70,7 +70,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <div
         v-if="open"
         role="menu"
-        class="absolute right-0 z-30 mt-1 w-48 overflow-hidden rounded-xl border border-line-200 bg-white p-1 shadow-pop"
+        class="absolute right-0 z-30 mt-1 w-48 overflow-hidden rounded-md border border-line-200 bg-white p-1 shadow-pop"
       >
         <button
           v-for="o in options"
@@ -78,7 +78,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
           type="button"
           role="menuitemradio"
           :aria-checked="o.id === modelValue"
-          class="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-ink-50"
+          class="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-ink-50"
           :class="
             o.id === modelValue ? 'font-medium text-brand-700' : 'text-ink-700'
           "

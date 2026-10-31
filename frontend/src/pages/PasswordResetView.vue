@@ -73,7 +73,7 @@ async function setPassword(): Promise<void> {
         <UiLogo size="lg" />
       </div>
 
-      <div class="rounded-2xl border border-line-200 bg-white p-7 shadow-card">
+      <div class="rounded-md border border-line-200 bg-white p-7 shadow-card">
         <!-- Step 2: from the emailed link -->
         <template v-if="token">
           <h1 class="text-lg font-semibold text-ink-900">Choose a new password</h1>
@@ -84,7 +84,7 @@ async function setPassword(): Promise<void> {
             <p
               v-if="error"
               role="alert"
-              class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger"
+              class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger"
             >
               {{ error }}
               <router-link
@@ -128,7 +128,7 @@ async function setPassword(): Promise<void> {
             <p
               v-if="error"
               role="alert"
-              class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger"
+              class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-danger"
             >
               {{ error }}
             </p>

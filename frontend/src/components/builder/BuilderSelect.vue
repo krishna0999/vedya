@@ -68,7 +68,7 @@ onBeforeUnmount(() => document.removeEventListener("mousedown", onDocPointer));
       <ul
         v-if="open"
         role="listbox"
-        class="absolute z-20 mt-1.5 max-h-56 w-full overflow-auto rounded-lg border border-line-200 bg-white p-1 shadow-pop"
+        class="absolute z-20 mt-1.5 max-h-56 w-full overflow-auto rounded-md border border-line-200 bg-white p-1 shadow-pop"
       >
         <li
           v-for="o in options"

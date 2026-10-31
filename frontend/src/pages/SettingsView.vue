@@ -96,7 +96,7 @@ async function logout(): Promise<void> {
       </div>
       <!-- Profile -->
       <section
-        class="rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
+        class="rounded-md border border-line-200 bg-white p-5 shadow-card sm:p-6"
         aria-label="Profile"
       >
         <div class="flex items-center gap-2">
@@ -116,7 +116,7 @@ async function logout(): Promise<void> {
               maxlength="80"
               autocomplete="name"
               placeholder="Your name"
-              class="w-full rounded-lg border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              class="w-full rounded-md border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             />
           </div>
           <div>
@@ -128,7 +128,7 @@ async function logout(): Promise<void> {
               :value="auth.user?.email"
               type="email"
               readonly
-              class="w-full cursor-not-allowed rounded-lg border border-line-200 bg-ink-50 px-3 py-2 text-sm text-ink-500"
+              class="w-full cursor-not-allowed rounded-md border border-line-200 bg-ink-50 px-3 py-2 text-sm text-ink-500"
             />
             <p
               v-if="auth.user?.emailVerified"
@@ -166,7 +166,7 @@ async function logout(): Promise<void> {
           <p
             v-if="nameError"
             role="alert"
-            class="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
+            class="rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
           >
             {{ nameError }}
           </p>
@@ -186,7 +186,7 @@ async function logout(): Promise<void> {
 
       <!-- Security -->
       <section
-        class="mt-6 rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
+        class="mt-6 rounded-md border border-line-200 bg-white p-5 shadow-card sm:p-6"
         aria-label="Security"
       >
         <div class="flex items-center gap-2">
@@ -209,7 +209,7 @@ async function logout(): Promise<void> {
               v-model="currentPassword"
               autocomplete="current-password"
               required
-              class="w-full rounded-lg border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              class="w-full rounded-md border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             />
           </div>
           <div>
@@ -222,7 +222,7 @@ async function logout(): Promise<void> {
               autocomplete="new-password"
               required
               minlength="8"
-              class="w-full rounded-lg border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              class="w-full rounded-md border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             />
           </div>
           <div>
@@ -237,14 +237,14 @@ async function logout(): Promise<void> {
               autocomplete="new-password"
               required
               minlength="8"
-              class="w-full rounded-lg border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              class="w-full rounded-md border border-line-200 bg-white px-3 py-2 text-sm text-ink-900 transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             />
           </div>
 
           <p
             v-if="error"
             role="alert"
-            class="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
+            class="rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-danger"
           >
             {{ error }}
           </p>
@@ -264,7 +264,7 @@ async function logout(): Promise<void> {
 
       <!-- Data export -->
       <section
-        class="mt-6 rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
+        class="mt-6 rounded-md border border-line-200 bg-white p-5 shadow-card sm:p-6"
         aria-label="Data export"
       >
         <div class="flex items-center gap-2">
@@ -282,7 +282,7 @@ async function logout(): Promise<void> {
 
       <!-- Session -->
       <section
-        class="mt-6 rounded-2xl border border-line-200 bg-white p-5 shadow-card sm:p-6"
+        class="mt-6 rounded-md border border-line-200 bg-white p-5 shadow-card sm:p-6"
         aria-label="Session"
       >
         <div class="flex items-center gap-2">
