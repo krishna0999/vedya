@@ -179,7 +179,9 @@ onMounted(load);
           template{{ filtered.length === 1 ? "" : "s" }}
           <span class="hidden sm:inline">
             ·
-            <span class="font-medium text-ink-800">{{ categories.length }}</span>
+            <span class="font-medium text-ink-800">{{
+              categories.length
+            }}</span>
             categories
           </span>
         </p>
@@ -241,11 +243,13 @@ onMounted(load);
           class="h-8 w-20 shrink-0 rounded-full"
         />
       </div>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
         <div
           v-for="n in 6"
           :key="n"
-          class="flex h-[22rem] flex-col rounded-md border border-t-4 border-line-200 bg-white px-5 py-4"
+          class="flex h-[22rem] flex-col rounded-md border border-line-200 bg-white px-5 py-4"
         >
           <UiSkeleton class="h-9 w-9 rounded-md" />
           <UiSkeleton class="mt-2.5 h-4 w-2/3" />
@@ -322,7 +326,9 @@ onMounted(load);
         aria-modal="true"
         :aria-label="`Preview: ${previewTemplate.title}`"
         class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-t-4 bg-white shadow-xl"
-        :style="{ borderTopColor: categoryStyle(previewTemplate.category).accent }"
+        :style="{
+          borderTopColor: categoryStyle(previewTemplate.category).accent,
+        }"
       >
         <!-- Header: the same identity the card shows — icon chip in the
              category accent, then the facts we actually have. No rating or
@@ -376,7 +382,10 @@ onMounted(load);
                 <span>By Vedya</span>
                 <span class="text-ink-300">·</span>
                 <router-link
-                  :to="{ name: 'template', params: { slug: previewTemplate.id } }"
+                  :to="{
+                    name: 'template',
+                    params: { slug: previewTemplate.id },
+                  }"
                   class="font-medium text-brand-700 hover:text-brand-800"
                   >Full page</router-link
                 >

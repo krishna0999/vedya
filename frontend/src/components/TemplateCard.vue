@@ -35,95 +35,101 @@ function estMinutes(): number {
 <template>
   <!-- No overflow clip: tooltips on the header actions render above the tile. -->
   <div
-    class="group relative flex flex-col rounded-md border border-line-200 bg-white px-5 py-4 shadow-sm transition-colors duration-150 ease-soft hover:border-line-300"
+    class="group relative flex flex-col justify-between rounded-md border border-line-200 bg-white px-5 py-4 shadow-sm transition-colors duration-150 ease-soft hover:border-line-300"
   >
-    <!-- Identity row: the template's own icon (tinted by category) left,
+    <div class="flex flex-col gap-1">
+      <!-- Identity row: the template's own icon (tinted by category) left,
          reorder/pin/badge right. Giving the icon its own line is what makes a
          template memorable at a glance. -->
-    <div class="flex shrink-0 items-start justify-between gap-2">
-      <span
-        class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-ink-50 text-lg leading-none"
-        aria-hidden="true"
-      >
-        {{ template.icon }}
-      </span>
+      <div class="flex shrink-0 items-start justify-between gap-2">
+        <span
+          class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-ink-50 text-lg leading-none"
+          aria-hidden="true"
+        >
+          {{ template.icon }}
+        </span>
 
-      <div class="-mr-1.5 -mt-0.5 flex shrink-0 items-center gap-0.5">
-        <!-- Reorder fallback for keyboard/touch; the card body also drags. -->
-        <UiTooltip
-          v-for="d in [-1, 1]"
-          :key="d"
-          :text="d < 0 ? 'Move left' : 'Move right'"
-          align="end"
-        >
-          <button
-            type="button"
-            class="grid h-7 w-7 place-items-center rounded-md text-ink-400 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-            :aria-label="d < 0 ? 'Move template left' : 'Move template right'"
-            @click="$emit('move', d)"
+        <div class="-mr-1.5 -mt-0.5 flex shrink-0 items-center gap-0.5">
+          <!-- Reorder fallback for keyboard/touch; the card body also drags. -->
+          <UiTooltip
+            v-for="d in [-1, 1]"
+            :key="d"
+            :text="d < 0 ? 'Move left' : 'Move right'"
+            align="end"
           >
-            <UiIcon
-              :name="d < 0 ? 'chevron-left' : 'chevron-right'"
-              class="text-inherit h-4 w-4"
-            />
-          </button>
-        </UiTooltip>
-        <!-- A pinned card keeps its star visible; otherwise it fades in. -->
-        <UiTooltip
-          :text="pinned ? 'Unpin template' : 'Pin to the top'"
-          align="end"
-        >
-          <button
-            type="button"
-            class="grid h-7 w-7 place-items-center rounded-md transition hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
-            :class="
-              pinned
-                ? 'text-amber-500 hover:text-amber-600'
-                : 'text-ink-400 hover:text-ink-700 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100'
-            "
-            :aria-pressed="!!pinned"
-            :aria-label="pinned ? 'Unpin template' : 'Pin template'"
-            @click="$emit('pin')"
+            <button
+              type="button"
+              class="grid h-7 w-7 place-items-center rounded-md text-ink-400 transition hover:bg-ink-100 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+              :aria-label="d < 0 ? 'Move template left' : 'Move template right'"
+              @click="$emit('move', d)"
+            >
+              <UiIcon
+                :name="d < 0 ? 'chevron-left' : 'chevron-right'"
+                class="text-inherit h-4 w-4"
+              />
+            </button>
+          </UiTooltip>
+          <!-- A pinned card keeps its star visible; otherwise it fades in. -->
+          <UiTooltip
+            :text="pinned ? 'Unpin template' : 'Pin to the top'"
+            align="end"
           >
-            <UiIcon
-              :name="pinned ? 'star' : 'star-outline'"
-              :type="pinned ? 'solid' : 'outline'"
-              class="text-inherit h-4 w-4"
-            />
-          </button>
-        </UiTooltip>
-        <!-- Last in the row so it anchors the right edge: the actions before it
+            <button
+              type="button"
+              class="grid h-7 w-7 place-items-center rounded-md transition hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
+              :class="
+                pinned
+                  ? 'text-amber-500 hover:text-amber-600'
+                  : 'text-ink-400 hover:text-ink-700 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100'
+              "
+              :aria-pressed="!!pinned"
+              :aria-label="pinned ? 'Unpin template' : 'Pin template'"
+              @click="$emit('pin')"
+            >
+              <UiIcon
+                :name="pinned ? 'star' : 'star-outline'"
+                :type="pinned ? 'solid' : 'outline'"
+                class="text-inherit h-4 w-4"
+              />
+            </button>
+          </UiTooltip>
+          <!-- Last in the row so it anchors the right edge: the actions before it
              still take up space while invisible, and a badge placed ahead of
              them would sit stranded in that gap. Amber, so merchandising reads
              as distinct from both the category accent and any status color. -->
-        <UiBadge v-if="template.badge" variant="amber" class="ml-1">
-          <UiIcon
-            :name="template.badge === 'Popular' ? 'star' : 'arrow-trending-up'"
-            :type="template.badge === 'Popular' ? 'solid' : 'outline'"
-            class="text-inherit h-3 w-3"
-          />
-          {{ template.badge }}
-        </UiBadge>
+          <UiBadge v-if="template.badge" variant="amber" class="ml-1">
+            <UiIcon
+              :name="
+                template.badge === 'Popular' ? 'star' : 'arrow-trending-up'
+              "
+              :type="template.badge === 'Popular' ? 'solid' : 'outline'"
+              class="text-inherit h-3 w-3"
+            />
+            {{ template.badge }}
+          </UiBadge>
+        </div>
       </div>
-    </div>
 
-    <!-- min-h on title + description reserves two lines each, so cards in a
+      <!-- min-h on title + description reserves two lines each, so cards in a
          row line up regardless of how much text wraps. -->
-    <h3
-      class="mt-2.5 line-clamp-2 min-h-[2.5rem] shrink-0 text-[15px] font-semibold leading-snug text-ink-900"
-    >
-      {{ template.title }}
-    </h3>
-    <p class="mt-1 line-clamp-2 min-h-[2.5rem] shrink-0 text-sm text-ink-500">
-      {{ template.description }}
-    </p>
+      <h3
+        class="mt-2.5 line-clamp-2 shrink-0 text-base font-semibold text-ink-900"
+      >
+        {{ template.title }}
+      </h3>
+      <p class="line-clamp-2 shrink-0 text-sm text-ink-500">
+        {{ template.description }}
+      </p>
+    </div>
 
     <!-- Meta: the category's colour as one small dot, then the quiet numbers.
          Wraps rather than clipping. -->
     <div
       class="mt-3 flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500"
     >
-      <span class="inline-flex shrink-0 items-center gap-1.5 font-medium text-ink-700">
+      <span
+        class="inline-flex shrink-0 items-center gap-1.5 font-medium text-ink-700"
+      >
         <span
           class="h-2 w-2 rounded-full"
           :style="{ background: accent }"
@@ -141,7 +147,7 @@ function estMinutes(): number {
         <UiIcon name="clock" class="h-4 w-4 text-ink-400" />
         ~{{ estMinutes() }} min
       </span>
-      <span v-if="template.stat" class="truncate">· {{ template.stat }}</span>
+      <!-- <span v-if="template.stat" class="truncate">· {{ template.stat }}</span> -->
     </div>
 
     <div class="mt-4 flex shrink-0 items-center gap-2">
@@ -150,7 +156,10 @@ function estMinutes(): number {
           Preview
         </UiButton>
       </UiTooltip>
-      <UiTooltip text="Create an editable form from this template" align="start">
+      <UiTooltip
+        text="Create an editable form from this template"
+        align="start"
+      >
         <UiButton size="sm" :disabled="busy" @click="$emit('use')">
           {{ pending ? "Creating…" : "Use template" }}
         </UiButton>
