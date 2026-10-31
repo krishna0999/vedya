@@ -19,7 +19,8 @@ import UiLogo from "@/components/ui/UiLogo.vue";
           Vedya (“we”, “us”) is a form builder operated by Krishna Muraree, an
           individual based in Dhanbad, Jharkhand, India. This policy explains
           what we collect, why, who helps us process it, and the choices you
-          have. Questions: <a href="mailto:support@vedya.app">support@vedya.app</a>.
+          have. Questions:
+          <a href="mailto:support@vedya.app">support@vedya.app</a>.
         </p>
 
         <h2>Two kinds of people use Vedya</h2>
@@ -30,9 +31,9 @@ import UiLogo from "@/components/ui/UiLogo.vue";
           </li>
           <li>
             <strong>Respondents</strong> fill in forms that creators share. The
-            creator decides what a form asks and what happens to the answers;
-            we store and process them on the creator’s behalf. If you filled in
-            a form, contact its creator first about your answers — you can also
+            creator decides what a form asks and what happens to the answers; we
+            store and process them on the creator’s behalf. If you filled in a
+            form, contact its creator first about your answers. You can also
             write to us and we’ll help.
           </li>
         </ul>
@@ -41,8 +42,9 @@ import UiLogo from "@/components/ui/UiLogo.vue";
         <ul>
           <li>
             <strong>Account:</strong> your email address, an optional display
-            name, your password (stored only as a salted scrypt hash — never in
-            readable form), your plan, and whether you’ve confirmed your email.
+            name, your password (stored only as a salted scrypt hash and never
+            in readable form), your plan, and whether you’ve confirmed your
+            email.
           </li>
           <li>
             <strong>Forms:</strong> titles, questions, settings, themes and
@@ -78,45 +80,52 @@ import UiLogo from "@/components/ui/UiLogo.vue";
 
         <h2>How we use it</h2>
         <ul>
-          <li>To run the service: host your forms, store responses, show your dashboard.</li>
+          <li>
+            To run the service: host your forms, store responses, show your
+            dashboard.
+          </li>
           <li>
             To send emails you need: email confirmation, password reset, and a
             notification when one of your forms gets a response (only once
             you’ve confirmed your email).
           </li>
-          <li>To keep it safe: rate limiting, bot checks and investigating abuse.</li>
+          <li>
+            To keep it safe: rate limiting, bot checks and investigating abuse.
+          </li>
           <li>To meet legal obligations.</li>
         </ul>
 
         <h2>Who helps us (sub-processors)</h2>
         <ul>
-          <li><strong>Neon</strong> — database, hosted on AWS in Singapore.</li>
-          <li><strong>Render</strong> — application servers in Singapore.</li>
-          <li><strong>Vercel</strong> — serves the website from a global network.</li>
+          <li><strong>Neon</strong> database, hosted on AWS in Singapore.</li>
+          <li><strong>Render</strong> application servers in Singapore.</li>
           <li>
-            <strong>Cloudflare</strong> — DNS, and Turnstile bot protection on
+            <strong>Vercel</strong> serves the website from a global network.
+          </li>
+          <li>
+            <strong>Cloudflare</strong> DNS, and Turnstile bot protection on
             public forms, which checks browser signals and IP address to tell
             people from bots.
           </li>
-          <li><strong>Resend</strong> — sends our emails.</li>
+          <li><strong>Resend</strong>, sends our emails.</li>
           <li>
-            <strong>Sentry</strong> — error monitoring: when something breaks,
+            <strong>Sentry</strong>, error monitoring: when something breaks,
             technical details of the error (what failed and where, browser and
-            device type) are sent so we can fix it. We configure it not to
-            send form answers, cookies or account details.
+            device type) are sent so we can fix it. We configure it not to send
+            form answers, cookies or account details.
           </li>
           <li>
-            <strong>OpenAI</strong> — only when you use “Generate with AI”: your
+            <strong>OpenAI</strong>, only when you use “Generate with AI”: your
             prompt is sent to OpenAI to draft the form. Under OpenAI’s API
             policies, API data isn’t used to train their models by default.
           </li>
         </ul>
         <p>
-          These providers process data only to provide their service to us.
-          Your data is therefore stored and processed outside India
-          (principally in Singapore). When paid plans launch, payments will be
-          handled by a merchant-of-record payment provider; we will never see
-          or store your card details.
+          These providers process data only to provide their service to us. Your
+          data is therefore stored and processed outside India (principally in
+          Singapore). When paid plans launch, payments will be handled by a
+          merchant-of-record payment provider; we will never see or store your
+          card details.
         </p>
 
         <h2>How long we keep it</h2>
@@ -124,17 +133,29 @@ import UiLogo from "@/components/ui/UiLogo.vue";
           <li>
             Your account, forms and their responses: until you delete them.
             Deleting your account removes your forms, their versions and
-            responses, and your sessions straight away; copies in our
-            provider’s backups expire within a short period after that.
+            responses, and your sessions straight away; copies in our provider’s
+            backups expire within a short period after that.
           </li>
-          <li>Password reset links expire after 30 minutes, email confirmation links after 24 hours; each works once.</li>
+          <li>
+            Password reset links expire after 30 minutes, email confirmation
+            links after 24 hours; each works once.
+          </li>
         </ul>
 
         <h2>Your rights</h2>
         <ul>
-          <li><strong>Access and portability:</strong> Settings → “Export all my data” downloads everything as a file.</li>
-          <li><strong>Correction:</strong> change your name in Settings; to change your email, write to us.</li>
-          <li><strong>Deletion:</strong> Account → “Delete account” erases your account and everything in it.</li>
+          <li>
+            <strong>Access and portability:</strong> Settings → “Export all my
+            data” downloads everything as a file.
+          </li>
+          <li>
+            <strong>Correction:</strong> change your name in Settings; to change
+            your email, write to us.
+          </li>
+          <li>
+            <strong>Deletion:</strong> Account → “Delete account” erases your
+            account and everything in it.
+          </li>
           <li>
             You can also contact us to exercise any right you have under
             applicable law, including India’s Digital Personal Data Protection
@@ -145,10 +166,10 @@ import UiLogo from "@/components/ui/UiLogo.vue";
 
         <h2>Children</h2>
         <p>
-          You must be at least 13 to create an account, and if you are under
-          18 you need your parent or guardian’s permission. Creators must not
-          use Vedya to collect personal data from children without the consent
-          the law requires.
+          You must be at least 13 to create an account, and if you are under 18
+          you need your parent or guardian’s permission. Creators must not use
+          Vedya to collect personal data from children without the consent the
+          law requires.
         </p>
 
         <h2>Security</h2>
@@ -156,8 +177,8 @@ import UiLogo from "@/components/ui/UiLogo.vue";
           All traffic is encrypted over HTTPS, passwords are hashed, the
           database connection is encrypted, and we use rate limits and bot
           protection. No system is perfectly secure; if we learn of a breach
-          affecting your data, we will notify you and the authorities as the
-          law requires.
+          affecting your data, we will notify you and the authorities as the law
+          requires.
         </p>
 
         <h2>Changes</h2>
@@ -169,13 +190,18 @@ import UiLogo from "@/components/ui/UiLogo.vue";
 
         <h2>Contact</h2>
         <p>
-          Krishna Muraree, Dhanbad, Jharkhand, India —
+          Krishna Muraree, Dhanbad, Jharkhand, India
           <a href="mailto:support@vedya.app">support@vedya.app</a>
         </p>
       </div>
 
       <p class="mt-10 text-sm text-ink-500">
-        See also our <router-link :to="{ name: 'terms' }" class="font-medium text-brand-700 hover:underline">Terms of Service</router-link>.
+        See also our
+        <router-link
+          :to="{ name: 'terms' }"
+          class="font-medium text-brand-700 hover:underline"
+          >Terms of Service</router-link
+        >.
       </p>
     </article>
   </div>

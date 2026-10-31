@@ -17,28 +17,58 @@ const heroForm: FormVersion = {
   formId: "landing-demo",
   version: 1,
   publishedAt: "2026-10-01T00:00:00.000Z",
-  theme: { primaryColor: "#047857", fontFamily: "Inter, system-ui, sans-serif", borderRadius: 10 },
+  theme: {
+    primaryColor: "#047857",
+    fontFamily: "Inter, system-ui, sans-serif",
+    borderRadius: 10,
+  },
   fields: [
-    { id: "name", type: "short_text", label: "Your name", required: true, placeholder: "Ananya Rao" },
-    { id: "email", type: "email", label: "Work email", required: true, placeholder: "ananya@company.com" },
+    {
+      id: "name",
+      type: "short_text",
+      label: "Your name",
+      required: true,
+      placeholder: "Ananya Rao",
+    },
+    {
+      id: "email",
+      type: "email",
+      label: "Work email",
+      required: true,
+      placeholder: "ananya@company.com",
+    },
     {
       id: "session",
       type: "single_select",
       label: "Which session will you join?",
       required: true,
       options: [
-        { id: "am", label: "Morning workshop", description: "10:00 – 12:30 · hands-on" },
-        { id: "pm", label: "Afternoon talks", description: "14:00 – 17:00 · three speakers" },
+        {
+          id: "am",
+          label: "Morning workshop",
+          description: "10:00 – 12:30 · hands-on",
+        },
+        {
+          id: "pm",
+          label: "Afternoon talks",
+          description: "14:00 – 17:00 · three speakers",
+        },
       ],
     },
-    { id: "excited", type: "rating", label: "How excited are you?", required: false, validation: { max: 5 } },
+    {
+      id: "excited",
+      type: "rating",
+      label: "How excited are you?",
+      required: false,
+      validation: { max: 5 },
+    },
   ],
 };
 
 const features: { title: string; body: string; icon: IconName }[] = [
   {
     title: "Build without code",
-    body: "Text, email, phone, choices, dropdowns, dates, ratings — with required fields and validation, and a live preview as you go.",
+    body: "Text, email, phone, choices, dropdowns, dates and ratings with required fields and validation, and a live preview as you go.",
     icon: "pencil-square",
   },
   {
@@ -62,7 +92,7 @@ const steps = [
   {
     n: "02",
     title: "Publish",
-    body: "Get a link to share by email, WhatsApp or anywhere else. Edit later — people see the changes when you publish them.",
+    body: "Get a link to share by email, WhatsApp or anywhere else. Edit later, people see the changes when you publish them.",
   },
   {
     n: "03",
@@ -113,7 +143,11 @@ function toggleFaq(i: number): void {
     >
       <UiLogo />
       <nav class="flex items-center gap-2">
-        <a href="#pricing" class="hidden px-3 py-1.5 text-sm font-medium text-ink-600 hover:text-ink-900 sm:inline">Pricing</a>
+        <a
+          href="#pricing"
+          class="hidden px-3 py-1.5 text-sm font-medium text-ink-600 hover:text-ink-900 sm:inline"
+          >Pricing</a
+        >
         <router-link :to="{ name: 'login' }">
           <UiButton variant="ghost" size="sm">Log in</UiButton>
         </router-link>
@@ -139,13 +173,13 @@ function toggleFaq(i: number): void {
         </h1>
         <p class="mx-auto mt-4 max-w-xl text-base text-ink-500 sm:text-lg">
           Design a beautiful form, publish it to a shareable link, and watch
-          responses roll in. Free to start — no credit card required.
+          responses roll in. Free to start, we don't ask for a credit card.
         </p>
         <div
           class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
           <router-link :to="{ name: 'signup' }">
-            <UiButton>Get started — it’s free</UiButton>
+            <UiButton>Get started, it’s free</UiButton>
           </router-link>
           <router-link :to="{ name: 'login' }">
             <UiButton variant="secondary">I already have an account</UiButton>
@@ -165,14 +199,22 @@ function toggleFaq(i: number): void {
             aria-label="Example of a form built with Vedya"
             role="img"
           >
-            <div class="flex items-center gap-1.5 border-b border-line-100 px-4 py-3" aria-hidden="true">
+            <div
+              class="flex items-center gap-1.5 border-b border-line-100 px-4 py-3"
+              aria-hidden="true"
+            >
               <span class="h-2.5 w-2.5 rounded-full bg-ink-200"></span>
               <span class="h-2.5 w-2.5 rounded-full bg-ink-200"></span>
               <span class="h-2.5 w-2.5 rounded-full bg-ink-200"></span>
-              <span class="ml-3 truncate text-xs text-ink-500">vedya.app/f/workshop-registration</span>
+              <span class="ml-3 truncate text-xs text-ink-500"
+                >vedya.app/f/workshop-registration</span
+              >
             </div>
             <div inert class="px-6 py-7 text-left sm:px-8">
-              <FormRenderer :version="heroForm" title="Design workshop — registration" />
+              <FormRenderer
+                :version="heroForm"
+                title="Design workshop registration"
+              />
             </div>
           </div>
         </div>
@@ -225,21 +267,35 @@ function toggleFaq(i: number): void {
           Simple pricing
         </h2>
         <p class="mx-auto mt-2 max-w-md text-center text-sm text-ink-500">
-          Vedya is free while in beta. Paid plans with higher limits come later —
-          you'll get plenty of notice before anything changes.
+          Vedya is free while in beta. Paid plans with higher limits come later
+          and you'll get plenty of notice before anything changes.
         </p>
-        <div class="mx-auto mt-8 max-w-sm rounded-2xl border border-line-200 bg-white p-7">
+        <div
+          class="mx-auto mt-8 max-w-sm rounded-2xl border border-line-200 bg-white p-7"
+        >
           <div class="flex items-baseline justify-between">
             <h3 class="font-semibold text-ink-900">Free</h3>
-            <span class="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700">Beta</span>
+            <span
+              class="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700"
+              >Beta</span
+            >
           </div>
           <p class="mt-3">
-            <span class="text-3xl font-semibold tracking-tight text-ink-900">₹0</span>
+            <span class="text-3xl font-semibold tracking-tight text-ink-900"
+              >₹0</span
+            >
             <span class="text-sm text-ink-500"> / month</span>
           </p>
           <ul class="mt-5 space-y-2.5 text-sm text-ink-700">
-            <li v-for="item in freePlan" :key="item" class="flex items-start gap-2.5">
-              <UiIcon name="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+            <li
+              v-for="item in freePlan"
+              :key="item"
+              class="flex items-start gap-2.5"
+            >
+              <UiIcon
+                name="check"
+                class="mt-0.5 h-4 w-4 shrink-0 text-brand-600"
+              />
               {{ item }}
             </li>
           </ul>
@@ -295,7 +351,7 @@ function toggleFaq(i: number): void {
         </p>
         <div class="mt-6 flex justify-center">
           <router-link :to="{ name: 'signup' }">
-            <UiButton variant="secondary">Get started — it’s free</UiButton>
+            <UiButton variant="secondary">Get started, it’s free</UiButton>
           </router-link>
         </div>
       </div>
@@ -306,9 +362,15 @@ function toggleFaq(i: number): void {
     >
       © 2026 Vedya
       <nav class="mt-2 flex justify-center gap-4" aria-label="Legal">
-        <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700">Privacy</router-link>
-        <router-link :to="{ name: 'terms' }" class="hover:text-ink-700">Terms</router-link>
-        <a href="mailto:support@vedya.app" class="hover:text-ink-700">Contact</a>
+        <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700"
+          >Privacy</router-link
+        >
+        <router-link :to="{ name: 'terms' }" class="hover:text-ink-700"
+          >Terms</router-link
+        >
+        <a href="mailto:support@vedya.app" class="hover:text-ink-700"
+          >Contact</a
+        >
       </nav>
     </footer>
   </div>

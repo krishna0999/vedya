@@ -7,10 +7,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { FORM_TITLE_MAX } from "@schema";
-import {
-  primeNotifications,
-  useNotifications,
-} from "@/lib/notifications";
+import { primeNotifications, useNotifications } from "@/lib/notifications";
 import {
   api,
   type AccountUsage,
@@ -102,7 +99,7 @@ onMounted(async () => {
 const heroMessage = computed(() => {
   const u = usage.value;
   if (!u) return "Here's what's happening with your forms.";
-  if (u.forms === 0) return "Create your first form — it takes about a minute.";
+  if (u.forms === 0) return "Create your first form, it takes about a minute.";
   if (u.published === 0) return "Publish a form to start collecting responses.";
   if (weekResponses.value > 0)
     return `${weekResponses.value} new response${
@@ -376,18 +373,18 @@ const health = computed(() => {
   const suggestions: string[] = [];
   if (stalled.length)
     suggestions.push(
-      `${stalled.length} published form${stalled.length === 1 ? " is" : "s are"} getting views but no responses — try shortening ${stalled.length === 1 ? "it" : "them"}.`,
+      `${stalled.length} published form${stalled.length === 1 ? " is" : "s are"} getting views but no responses. You should try shortening ${stalled.length === 1 ? "it" : "them"}.`,
     );
   if ((completionRate.value ?? 100) < 30 && u.views >= 20)
     suggestions.push(
-      "Completion is under 30% — fewer required fields usually lifts it fastest.",
+      "Completion is under 30%, fewer required fields usually lifts it fastest.",
     );
   if (unpublished)
     suggestions.push(
       `${unpublished} draft${unpublished === 1 ? "" : "s"} waiting to be published.`,
     );
   if (!suggestions.length)
-    suggestions.push("Nothing needs attention — your forms are healthy.");
+    suggestions.push("Nothing needs attention, your forms are healthy.");
   return { top, growth, suggestions: suggestions.slice(0, 2) };
 });
 
@@ -614,7 +611,7 @@ const nearLimit = computed(() =>
 
 const TIPS: Array<{ text: string; icon: IconName; to: string }> = [
   {
-    text: "Start from a template — then change everything.",
+    text: "Start from a template, then change everything.",
     icon: "squares-2x2",
     to: "templates",
   },
@@ -1263,7 +1260,7 @@ async function useTemplate(templateId: string): Promise<void> {
             v-else-if="!activityGroups.length"
             class="mt-3 text-sm text-ink-500"
           >
-            Nothing yet — activity shows up as you build and collect.
+            Nothing yet, activity shows up as you build and collect.
           </p>
           <div v-else class="mt-2 space-y-4">
             <div v-for="g in activityGroups" :key="g.key">
@@ -1573,7 +1570,10 @@ async function useTemplate(templateId: string): Promise<void> {
       </div>
 
       <!-- Row 3: plan usage | tips -->
-      <div v-if="!loading && usage" class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <div
+        v-if="!loading && usage"
+        class="grid grid-cols-1 gap-4 lg:grid-cols-12"
+      >
         <section
           class="rounded-xl border border-line-200 bg-white p-5 shadow-card lg:col-span-7"
           aria-label="Plan usage"
@@ -1628,9 +1628,11 @@ async function useTemplate(templateId: string): Promise<void> {
             <!-- No paid plan exists yet: offer a human, not a dead-end button. -->
             <p class="text-sm text-amber-800">
               You're close to this month's limit. Need more? Paid plans are
-              coming — until then, write to us and we'll raise it.
+              coming soon until then, write to us and we'll raise it.
             </p>
-            <a href="mailto:support@vedya.app?subject=Raise%20my%20Vedya%20limit">
+            <a
+              href="mailto:support@vedya.app?subject=Raise%20my%20Vedya%20limit"
+            >
               <UiButton size="sm">Contact us</UiButton>
             </a>
           </div>
@@ -1688,7 +1690,7 @@ async function useTemplate(templateId: string): Promise<void> {
                   ? { name: 'forms', query: { view: 'templates' } }
                   : { name: 'forms' }
               "
-              class="group mt-3 flex items-start gap-3"
+              class="group mt-3 flex items-center gap-3"
             >
               <span
                 class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-ink-100 text-ink-500"
@@ -1769,7 +1771,7 @@ async function useTemplate(templateId: string): Promise<void> {
                 "
                 class="text-inherit h-4 w-4"
               />
-              {{ health.growth?.label ?? "—" }}
+              {{ health.growth?.label ?? "-" }}
             </p>
             <p class="text-sm text-ink-500">responses vs. last week</p>
           </div>

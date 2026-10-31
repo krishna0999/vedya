@@ -252,7 +252,8 @@ onMounted(load);
             {{ activeView === "templates" ? "Templates" : "Forms" }}
           </h1>
           <p v-if="activeView === 'templates'" class="page-subtitle">
-            Pick a starting point — edit everything after. Nothing is locked in.
+            Pick a starting point and edit everything after. Nothing is locked
+            in.
           </p>
           <p v-else class="page-subtitle">
             Everything you've built. Star the ones you use most.
@@ -365,7 +366,7 @@ onMounted(load);
           <div
             v-for="n in 6"
             :key="n"
-            class="flex h-80 flex-col rounded-xl border border-line-200 bg-white p-5"
+            class="flex h-80 flex-col rounded-sm border border-line-200 bg-white p-5"
           >
             <UiSkeleton class="h-4 w-32 max-w-[70%]" />
             <UiSkeleton class="mt-5 h-3 w-20" />
@@ -430,7 +431,7 @@ onMounted(load);
     <UiConfirmDialog
       :open="pendingDelete !== null"
       title="Delete form"
-      :message="`Deleting “${pendingDelete?.title}” also deletes all its responses. This action is permanent and can't be reversed — are you sure you want to continue?`"
+      :message="`Deleting “${pendingDelete?.title}” also deletes all its responses. This action is permanent and can't be reversed. Are you sure you want to continue?`"
       @confirm="confirmDelete"
       @cancel="pendingDelete = null"
     />

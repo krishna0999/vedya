@@ -12,10 +12,10 @@
 // ponytail: module-scoped state, fetched once per session and primed by the
 // dashboard (which loads the same data anyway). Swap for a real
 // GET /notifications when there are events we can't derive.
-import { computed, ref } from 'vue';
-import type { RouteLocationRaw } from 'vue-router';
-import { api, type AccountUsage, type FormSummary } from '@/api/client';
-import type { Submission } from '@schema';
+import { computed, ref } from "vue";
+import type { RouteLocationRaw } from "vue-router";
+import { api, type AccountUsage, type FormSummary } from "@/api/client";
+import type { Submission } from "@schema";
 
 export interface AppNotification {
   id: string;
@@ -26,15 +26,17 @@ export interface AppNotification {
   unread: boolean;
   /** Standing conditions (plan limits) pin to the top and never count as unread. */
   pinned?: boolean;
-  tone?: 'warn' | 'danger';
+  tone?: "warn" | "danger";
 }
 
 // Per-device high-water mark, shared with the dashboard's "N new" badge so the
 // two can never disagree about what's been seen. Not a server read receipt.
-const SEEN_KEY = 'vedya.responsesSeenAt';
+const SEEN_KEY = "vedya.responsesSeenAt";
 
 const seenAt = ref<string>(
-  typeof localStorage === 'undefined' ? '' : (localStorage.getItem(SEEN_KEY) ?? ''),
+  typeof localStorage === "undefined"
+    ? ""
+    : (localStorage.getItem(SEEN_KEY) ?? ""),
 );
 
 interface RecentResponse {
@@ -103,7 +105,10 @@ export function primeNotifications(
 export function ensureNotifications(): void {
   if (loaded.value || inFlight) return;
   inFlight = (async () => {
-    const [nextUsage, forms] = await Promise.all([api.getUsage(), api.listForms()]);
+    const [nextUsage, forms] = await Promise.all([
+      api.getUsage(),
+      api.listForms(),
+    ]);
     usage.value = nextUsage;
     recent.value = await fetchRecent(forms);
   })()
@@ -127,25 +132,25 @@ export function useNotifications() {
       const used = u.monthSubmissions;
       if (used >= cap) {
         list.push({
-          id: 'limit-reached',
-          title: 'Monthly response limit reached',
-          body: `${used} of ${cap} responses used — new submissions are being turned away.`,
+          id: "limit-reached",
+          title: "Monthly response limit reached",
+          body: `${used} of ${cap} responses used, new submissions are being turned away.`,
           at: new Date().toISOString(),
-          to: { name: 'account' },
+          to: { name: "account" },
           unread: false,
           pinned: true,
-          tone: 'danger',
+          tone: "danger",
         });
       } else if (used / cap >= 0.8) {
         list.push({
-          id: 'limit-near',
-          title: 'Approaching your response limit',
+          id: "limit-near",
+          title: "Approaching your response limit",
           body: `${used} of ${cap} responses used this month.`,
           at: new Date().toISOString(),
-          to: { name: 'account' },
+          to: { name: "account" },
           unread: false,
           pinned: true,
-          tone: 'warn',
+          tone: "warn",
         });
       }
     }
@@ -153,40 +158,49 @@ export function useNotifications() {
     for (const r of recent.value) {
       list.push({
         id: r.id,
-        title: 'New response received',
+        title: "New response received",
         body: r.formTitle,
         at: r.submittedAt,
-        to: { name: 'responses', params: { id: r.formId } },
+        to: { name: "responses", params: { id: r.formId } },
         unread: r.submittedAt > seenAt.value,
       });
     }
     return list;
   });
 
-  const unreadCount = computed(() => items.value.filter((n) => n.unread).length);
+  const unreadCount = computed(
+    () => items.value.filter((n) => n.unread).length,
+  );
 
   function markAllRead(): void {
     seenAt.value = new Date().toISOString();
-    if (typeof localStorage !== 'undefined') localStorage.setItem(SEEN_KEY, seenAt.value);
+    if (typeof localStorage !== "undefined")
+      localStorage.setItem(SEEN_KEY, seenAt.value);
   }
 
   return { items, unreadCount, markAllRead, loaded, seenAt };
 }
 
 /** Today / Yesterday / Earlier buckets, in order, skipping empty ones. */
-export function groupByDay(items: AppNotification[]): { label: string; items: AppNotification[] }[] {
+export function groupByDay(
+  items: AppNotification[],
+): { label: string; items: AppNotification[] }[] {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
 
-  const buckets: Record<string, AppNotification[]> = { Today: [], Yesterday: [], Earlier: [] };
+  const buckets: Record<string, AppNotification[]> = {
+    Today: [],
+    Yesterday: [],
+    Earlier: [],
+  };
   for (const n of items) {
     const t = new Date(n.at).getTime();
     if (t >= startOfToday.getTime()) buckets.Today!.push(n);
     else if (t >= startOfYesterday.getTime()) buckets.Yesterday!.push(n);
     else buckets.Earlier!.push(n);
   }
-  return ['Today', 'Yesterday', 'Earlier']
+  return ["Today", "Yesterday", "Earlier"]
     .map((label) => ({ label, items: buckets[label]! }))
     .filter((g) => g.items.length > 0);
 }

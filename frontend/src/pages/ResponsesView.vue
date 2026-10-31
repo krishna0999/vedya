@@ -72,8 +72,8 @@ const columns = computed(() => {
 });
 
 function formatCell(value: unknown): string {
-  if (value === undefined || value === null || value === "") return "—";
-  if (Array.isArray(value)) return value.length ? value.join(", ") : "—";
+  if (value === undefined || value === null || value === "") return "-";
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "-";
   if (typeof value === "object") {
     const o = value as Record<string, unknown>;
     if (typeof o.start === "string" && typeof o.end === "string")
@@ -150,7 +150,7 @@ onMounted(load);
         >
           <dt class="text-sm font-medium text-ink-500">Completion</dt>
           <dd class="mt-0.5 text-xl font-semibold text-ink-900">
-            {{ completionRate === null ? "—" : `${completionRate}%` }}
+            {{ completionRate === null ? "-" : `${completionRate}%` }}
           </dd>
         </div>
       </dl>

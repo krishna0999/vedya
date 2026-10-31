@@ -130,13 +130,16 @@ async function logout(): Promise<void> {
               readonly
               class="w-full cursor-not-allowed rounded-lg border border-line-200 bg-ink-50 px-3 py-2 text-sm text-ink-500"
             />
-            <p v-if="auth.user?.emailVerified" class="mt-1 text-sm text-ink-500">
-              Confirmed — you get an email for each new response.
+            <p
+              v-if="auth.user?.emailVerified"
+              class="mt-1 text-sm text-ink-500"
+            >
+              Email is verified, you will get an email for each new response.
             </p>
             <p v-else class="mt-1 text-sm text-ink-500" role="status">
               Not confirmed yet, so you won't get response emails.
               <span v-if="verifySent" class="font-medium text-success"
-                >Link sent — check your inbox.</span
+                >Link sent, check your inbox.</span
               >
               <button
                 v-else
@@ -146,7 +149,9 @@ async function logout(): Promise<void> {
               >
                 Send confirmation link
               </button>
-              <span v-if="verifyError" class="block text-danger">{{ verifyError }}</span>
+              <span v-if="verifyError" class="block text-danger">{{
+                verifyError
+              }}</span>
             </p>
             <p class="mt-1 text-sm text-ink-500">
               To change your email, write to
@@ -267,8 +272,8 @@ async function logout(): Promise<void> {
           <h2 class="font-semibold text-ink-900">Your data</h2>
         </div>
         <p class="mt-1 text-sm text-ink-500">
-          Download everything — every form, its published versions, and all
-          responses — as a single JSON file.
+          Download every form, its published versions, and all responses as a
+          single JSON file.
         </p>
         <a :href="api.exportUrl()" download class="mt-4 inline-block">
           <UiButton variant="secondary">Export all my data</UiButton>

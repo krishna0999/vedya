@@ -112,7 +112,7 @@ function trackView(): void {
 
 async function onSubmit(answers: Record<string, unknown>): Promise<void> {
   if (siteKey && !turnstileToken) {
-    submitError.value = "Still checking you’re human — try again in a moment.";
+    submitError.value = "Still checking you’re human, try again in a moment.";
     return;
   }
   submitting.value = true;
@@ -174,7 +174,7 @@ onMounted(load);
           ✓
         </div>
         <h1 class="text-lg font-semibold text-ink-900">
-          Thanks — your response was recorded.
+          Your response is submitted. Thank you!
         </h1>
         <p class="mt-1 text-sm text-ink-500">You can close this tab now.</p>
         <!-- Growth loop, free-tier forms only: paid removes our branding (§8),
@@ -187,7 +187,7 @@ onMounted(load);
             Create your own form
           </router-link>
           <p class="mt-2 text-sm text-ink-500">
-            Free with Vedya — no card needed.
+            Free with Vedya, no card needed.
           </p>
         </template>
       </div>
@@ -209,7 +209,11 @@ onMounted(load);
             @submit="onSubmit"
           >
             <template #before-submit>
-              <div v-if="siteKey" ref="turnstileEl" :class="{ 'mb-5': challengeVisible }" />
+              <div
+                v-if="siteKey"
+                ref="turnstileEl"
+                :class="{ 'mb-5': challengeVisible }"
+              />
             </template>
           </FormRenderer>
         </div>
@@ -219,7 +223,9 @@ onMounted(load);
         <!-- On every form, branded or not: respondents need a way to flag a
              phishing form and to see how their answers are handled. -->
         <p class="mt-2 flex justify-center gap-4 text-sm text-ink-500">
-          <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700">Privacy</router-link>
+          <router-link :to="{ name: 'privacy' }" class="hover:text-ink-700"
+            >Privacy</router-link
+          >
           <a :href="reportHref" class="hover:text-ink-700">Report this form</a>
         </p>
       </div>

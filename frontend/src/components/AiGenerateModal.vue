@@ -45,7 +45,7 @@ const close = (): void => emit("update:open", false);
         </div>
 
         <p class="mt-1 text-sm text-ink-500">
-          Describe what you need — fields, choices, validation — and get an
+          Describe what you need - fields, choices, validation and get an
           editable draft in seconds.
         </p>
 
